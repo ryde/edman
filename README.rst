@@ -1,12 +1,27 @@
-Sample Module Repository
+EDMAN
 ========================
 
-This simple project is an example repo for Python projects.
+## Description
+KEK IMSS SBRC/PF Experimental Data Management System.
 
-`Learn more <http://www.kennethreitz.org/essays/repository-structure-and-python>`_.
+## Requirement
+pymongo
+python-dateutil
+jmespath
+tqdm
 
----------------
+## Usage
+usage
 
-If you want to learn more about ``setup.py`` files, check out `this repository <https://github.com/kennethreitz/setup.py>`_.
+## Install
+Please install MongoDB in advance.
+
+## Licence
+todo
+
+## Author
+
+[yuskyamada](https://github.com/yuskyamada)
+[ryde](https://github.com/ryde)
 
 ✨🍰✨
