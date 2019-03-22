@@ -88,6 +88,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
-.idea/
+.idea/workspace.xml
 tests/test_files/
 tests/test_json_files/
