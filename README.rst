@@ -1,27 +1,42 @@
 EDMAN
-========================
+=====
 
-## Description
+
+Description
+-----------
+
 KEK IMSS SBRC/PF Experimental Data Management System.
 
-## Requirement
-pymongo
-python-dateutil
-jmespath
-tqdm
 
-## Usage
-usage
+Requirement
+-----------
+-   pymongo
+-   python-dateutil
+-   jmespath
+-   tqdm
 
-## Install
-Please install MongoDB in advance.
+and MongoDB.
 
-## Licence
+Usage
+-----
 todo
 
-## Author
+
+Install
+-------
+Please install MongoDB in advance.
+
+
+Licence
+-------
+todo
+
+
+Author
+------
 
 [yuskyamada](https://github.com/yuskyamada)
+
 [ryde](https://github.com/ryde)
 
 ✨🍰✨
