@@ -85,9 +85,11 @@ ENV/
 
 # Spyder project settings
 .spyderproject
+.idea
 
 # Rope project settings
 .ropeproject
-.idea/workspace.xml
+.idea/
 tests/test_files/
 tests/test_json_files/
+/scripts/ini/db.ini

@@ -1,0 +1,17 @@
+[DB]
+# DB user settings
+port = 27017  # MongoDB default port
+host = 127.0.0.1  # MongoDB server host
+database = database_name
+user = user_name
+password = user_password
+
+[ADMIN]
+# DB Admin settings
+user = admin
+password = admin
+database = admin
+
+[COLLECTION]
+# Collection name in MongoDB of 'file' section in XML
+file = _file
