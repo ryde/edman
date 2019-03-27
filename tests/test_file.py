@@ -159,8 +159,7 @@ class TestFile(TestCase):
         files = tuple(p.glob('gen_test*.txt'))
         for idx, f in enumerate(self.file.file_gen(files)):
             filename, filedata = f
-            actual.extend((filename, filedata.decode()))
-            # self.assertTupleEqual(expected[idx], actual)
+            actual.append((filename, filedata.decode()))
         self.assertListEqual(sorted(actual), sorted(expected))
 
         # 作成したファイルを削除
