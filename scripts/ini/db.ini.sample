@@ -1,7 +1,12 @@
 [DB]
 # DB user settings
-port = 27017  # MongoDB default port
-host = 127.0.0.1  # MongoDB server host
+
+# MongoDB default port 27017
+port = 27017
+
+# MongoDB server host
+host = 127.0.0.1
+
 database = database_name
 user = user_name
 password = user_password
