@@ -22,7 +22,7 @@ Usage
 
 |  scriptsディレクトリにモジュール動作用スクリプトがあります。
 |  scripts/ini/db.ini.sampleをdb.iniに変更後、中身を設定してください。
-
+|
 |  entry_script.py: jsonファイルからMongoDBに投入
 |  find_script.py: データを検索し、jsonに保存
 |  delete.py: データ内の項目を消す
@@ -32,7 +32,7 @@ Usage
 |  file_delete_script.py: 添付ファイルを削除
 |  db_create.py: データベース作成操作支援用
 |  db_destroy.py: データベース削除操作支援用
-
+|
 
 詳しくは::
 
