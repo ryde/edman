@@ -55,6 +55,9 @@ class TestFile(TestCase):
         }
         cls.testdb = cls.db.connect(**cls.con)
 
+        # テスト用一時ディレクトリ作成
+        Path('test_files').mkdir()
+
     @classmethod
     def tearDownClass(cls):
         # cls.clientはpymongo経由でDB削除
@@ -62,6 +65,9 @@ class TestFile(TestCase):
         cls.client.drop_database(cls.test_ini['db'])
         # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
         cls.testdb.command("dropUser", cls.test_ini['user'])
+
+        # テスト用ディレクトリの削除
+        Path('test_files').rmdir()
 
     def setUp(self):
         # embデータ入力
