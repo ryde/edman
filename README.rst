@@ -23,6 +23,10 @@ Usage
 |  scriptsディレクトリにモジュール動作用スクリプトがあります。
 |  scripts/ini/db.ini.sampleをdb.iniに変更後、中身を設定してください。
 |
+|  emb(Embedded)とref(reference)について
+|  embはjsonファイルの構造をそのままDBに投入します。
+|  refはxmlの親子構造を解析し、親をコレクションとして登録、データはドキュメントとして投入します。
+|
 |  entry_script.py: jsonファイルからMongoDBに投入
 |  find_script.py: データを検索し、jsonに保存 クエリ1を使用します
 |  delete.py: データ内の項目を消す embの時クエリ2を使用します
