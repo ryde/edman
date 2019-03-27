@@ -6,7 +6,7 @@ import signal
 import getpass
 import argparse
 from collections import OrderedDict
-from edman2.db import DB
+from edman.db import DB
 
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))

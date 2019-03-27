@@ -3,7 +3,7 @@ import signal
 import configparser
 import argparse
 from pathlib import Path
-from edman2.db import DB
+from edman.db import DB
 from action import Action
 
 # Ctrl-Cを押下された時の対策
