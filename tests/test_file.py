@@ -318,7 +318,7 @@ class TestFile(TestCase):
             out_data.append(f_data.decode())
 
         # DBデータとファイルのデータに差異はないか
-        self.assertListEqual(expected, out_data)
+        self.assertListEqual(sorted(expected), sorted(out_data))
 
         # メソッド成功時のフラグ
         self.assertTrue(insert_file_emb_result)
