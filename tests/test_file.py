@@ -155,11 +155,13 @@ class TestFile(TestCase):
                 f.write(test_var)
 
         # ファイル読み込み、テスト
+        actual = []
         files = tuple(p.glob('gen_test*.txt'))
         for idx, f in enumerate(self.file.file_gen(files)):
             filename, filedata = f
-            actual = (filename, filedata.decode())
-            self.assertTupleEqual(expected[idx], actual)
+            actual.extend((filename, filedata.decode()))
+            # self.assertTupleEqual(expected[idx], actual)
+        self.assertListEqual(sorted(actual), sorted(expected))
 
         # 作成したファイルを削除
         for i in p.glob('gen_test*.txt'):
@@ -276,7 +278,7 @@ class TestFile(TestCase):
 
         # テスト
         self.assertTrue(insert_file_result)
-        self.assertListEqual(actual, expected)
+        self.assertListEqual(sorted(actual), sorted(expected))
 
         # 作成したファイルを削除
         for i in p.glob('insert_file_ref_test*.txt'):
