@@ -24,17 +24,50 @@ Usage
 |  scripts/ini/db.ini.sampleをdb.iniに変更後、中身を設定してください。
 |
 |  entry_script.py: jsonファイルからMongoDBに投入
-|  find_script.py: データを検索し、jsonに保存
-|  delete.py: データ内の項目を消す
+|  find_script.py: データを検索し、jsonに保存 クエリ1を使用します
+|  delete.py: データ内の項目を消す embの時クエリ2を使用します
 |  update.py: データの更新(更新用jsonファイルを用意)
-|  file_add_script.py:  該当データにファイルを添付する
-|  file_dl_script.py: 添付ファイルをダウンロード
-|  file_delete_script.py: 添付ファイルを削除
+|  file_add_script.py:  該当データにファイルを添付する embの時クエリ2を使用します
+|  file_dl_script.py: 添付ファイルをダウンロード embの時クエリ2を使用します
+|  file_delete_script.py: 添付ファイルを削除 embの時クエリ2を使用します
 |  db_create.py: データベース作成操作支援用
 |  db_destroy.py: データベース削除操作支援用
 |
 
-詳しくは::
+|  クエリについて
+|
+|  クエリ1
+|    検索の際はpymongoのフィルタ形式で指定します
+|    クエリ形式は "{中にpymongoでのフィルタ条件を書く}"
+|      参照:  http://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.find
+|
+|  クエリ2
+|    emb(Embedded)形式でデータが入っている場合は下記のようなクエリで指定します
+|    embの時はクエリを使用しなければデータに到達できません
+|    例:
+|       {
+|           "collectionA":[
+|               {
+|                   "collectionB":{"data1":"value1"}
+|               },
+|               {
+|                   "collectionC:{
+|                       "data2":"value2",
+|                       "CollectionD":{
+|                           "data3":"value3",
+|                           "data4":"value4"
+|                       }
+|                   }
+|               }
+|           ]
+|       }
+|
+|   ・data4を消したい場合
+|   "['collectionA', '1', 'collectionC', 'collectionD']"
+|   リストで消したい項目の直近の親までを指定する
+|   (データが複数あり、リストで囲まれていた場合は添字を数字で指定)
+
+オプションなど詳しくは::
 
   scriptname.py -h
 
