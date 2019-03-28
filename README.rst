@@ -62,8 +62,8 @@ Usage
 |   "['collectionA', '1', 'collectionC', 'collectionD']"
 |   リストで消したい項目の直近の親までを指定する
 |   (データが複数あり、リストで囲まれていた場合は添字を数字で指定)
-
-◯各スクリプトファイル
+|
+|  ◯各スクリプトファイル
 |  entry_script.py: jsonファイルからMongoDBに投入
 |  find_script.py: データを検索し、jsonに保存 クエリ1を使用します
 |  delete.py: データ内の項目を消す embの時クエリ2を使用します
@@ -73,7 +73,7 @@ Usage
 |  file_delete_script.py: 添付ファイルを削除 embの時クエリ2を使用します
 |  db_create.py: データベース作成操作支援用
 |  db_destroy.py: データベース削除操作支援用
-
+|
 オプションなど詳しくは::
 
   scriptname.py -h
@@ -84,7 +84,7 @@ Install
 
 pip install::
 
- pip install edman
+ pip install EDMAN
 
 Licence
 -------
