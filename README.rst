@@ -23,7 +23,7 @@ Usage
 |  scriptsディレクトリにモジュール動作用スクリプトがあります。
 |  scripts/ini/db.ini.sampleをdb.iniに変更後、中身を設定してください。
 |
-|  emb(Embedded)とref(reference)について
+|  ◯emb(Embedded)とref(reference)について
 |  embはjsonファイルの構造をそのままDBに投入します。
 |  refはxmlの親子構造を解析し、親をコレクションとして登録、データはドキュメントとして投入します。
 |
@@ -38,7 +38,7 @@ Usage
 |  db_destroy.py: データベース削除操作支援用
 |
 
-|  クエリについて
+|  ◯クエリについて
 |
 |  クエリ1
 |    検索の際はpymongoのフィルタ形式で指定します
@@ -47,7 +47,7 @@ Usage
 |
 |  クエリ2
 |    emb(Embedded)形式でデータが入っている場合は下記のようなクエリで指定します
-|    embの時はクエリを使用しなければデータに到達できません
+|    構造上、embの時はクエリを使用しなければデータに到達できません
 |    例:
 |       {
 |           "collectionA":[
