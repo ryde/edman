@@ -5,8 +5,8 @@ EDMAN
 Description
 -----------
 
-KEK IMSS SBRC/PF Experimental Data Management System.
-階層構造になったjsonファイル(実験データ等)をMongoDBに投入します。
+|  KEK IMSS SBRC/PF Experimental Data Management System.
+|  jsonファイル(階層構造になった実験データ等)をMongoDBに投入します。
 
 Requirement
 -----------
