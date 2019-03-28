@@ -6,7 +6,7 @@ Description
 -----------
 
 KEK IMSS SBRC/PF Experimental Data Management System.
-
+階層構造になったjsonファイル(実験データ等)をMongoDBに投入します。
 
 Requirement
 -----------
@@ -24,20 +24,9 @@ Usage
 |  scripts/ini/db.ini.sampleをdb.iniに変更後、中身を設定してください。
 |
 |  ◯emb(Embedded)とref(reference)について
-|  embはjsonファイルの構造をそのままDBに投入します。
+|  embはjsonファイルの構造をそのままMongoDBに投入します。
 |  refはxmlの親子構造を解析し、親をコレクションとして登録、データはドキュメントとして投入します。
 |
-|  entry_script.py: jsonファイルからMongoDBに投入
-|  find_script.py: データを検索し、jsonに保存 クエリ1を使用します
-|  delete.py: データ内の項目を消す embの時クエリ2を使用します
-|  update.py: データの更新(更新用jsonファイルを用意)
-|  file_add_script.py:  該当データにファイルを添付する embの時クエリ2を使用します
-|  file_dl_script.py: 添付ファイルをダウンロード embの時クエリ2を使用します
-|  file_delete_script.py: 添付ファイルを削除 embの時クエリ2を使用します
-|  db_create.py: データベース作成操作支援用
-|  db_destroy.py: データベース削除操作支援用
-|
-
 |  ◯クエリについて
 |
 |  クエリ1
@@ -49,27 +38,41 @@ Usage
 |    emb(Embedded)形式でデータが入っている場合は下記のようなクエリで指定します
 |    構造上、embの時はクエリを使用しなければデータに到達できません
 |    例:
-|       {
-|           "collectionA":[
-|               {
-|                   "collectionB":{"data1":"value1"}
-|               },
-|               {
-|                   "collectionC:{
-|                       "data2":"value2",
-|                       "CollectionD":{
-|                           "data3":"value3",
-|                           "data4":"value4"
-|                       }
-|                   }
-|               }
-|           ]
-|       }
-|
+
+::
+
+       {
+           "collectionA":[
+               {
+                   "collectionB":{"data1":"value1"}
+               },
+               {
+                   "collectionC:{
+                       "data2":"value2",
+                       "CollectionD":{
+                           "data3":"value3",
+                           "data4":"value4"
+                       }
+                   }
+               }
+           ]
+       }
+
 |   ・data4を消したい場合
 |   "['collectionA', '1', 'collectionC', 'collectionD']"
 |   リストで消したい項目の直近の親までを指定する
 |   (データが複数あり、リストで囲まれていた場合は添字を数字で指定)
+
+◯各スクリプトファイル
+|  entry_script.py: jsonファイルからMongoDBに投入
+|  find_script.py: データを検索し、jsonに保存 クエリ1を使用します
+|  delete.py: データ内の項目を消す embの時クエリ2を使用します
+|  update.py: データの更新(更新用jsonファイルを用意)
+|  file_add_script.py:  該当データにファイルを添付する embの時クエリ2を使用します
+|  file_dl_script.py: 添付ファイルをダウンロード embの時クエリ2を使用します
+|  file_delete_script.py: 添付ファイルを削除 embの時クエリ2を使用します
+|  db_create.py: データベース作成操作支援用
+|  db_destroy.py: データベース削除操作支援用
 
 オプションなど詳しくは::
 
@@ -81,7 +84,7 @@ Install
 
 pip install::
 
- pip install EDMAN
+ pip install edman
 
 Licence
 -------
