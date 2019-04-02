@@ -70,83 +70,12 @@ class TestFile(TestCase):
         Path('test_files').rmdir()
 
     def setUp(self):
-        # embデータ入力
-        data = {
-            "position": "top",
-            "structure_2": [
-                {
-                    "maker": "Ferrari",
-                    "carname": "F355",
-                    "power": 380,
-                    "float_val": 4453.456
-                },
-                {
-                    "maker": "HONDA",
-                    "carname": "NSX",
-                    "power": 280,
-                    "float_val": 321.56,
-                    "structure_3_1": [
-                        {
-                            "filename": "test1.txt",
-                            "name": "添付ファイル1"
-                        },
-                        {
-                            "filename": "test2.txt",
-                            "name": "添付ファイル2"
-                        }
-                    ],
-                    "structure_3_2": [
-                        {
-                            "filename": "test3.txt",
-                            "name": "添付ファイル3",
-                            "structure_4": {
-                                "filename": "test4.txt",
-                                "name": "添付ファイル4",
-                                "structure_5": [
-                                    {
-                                        "url": "example2.com",
-                                        "name": "テストURL2"
-                                    },
-                                    {
-                                        "url": "example3.com",
-                                        "name": "テストURL3"
-                                    }
-                                ]
-                            },
-                            "structure_6": [
-                                {
-                                    "url": "example_x.com",
-                                    "name": "テストURL_x"
-                                },
-                                {
-                                    "url": "example_y.com",
-                                    "name": "テストURL_y"
-                                }
-                            ],
-                            "structure_5": {
-                                "url": "example.com",
-                                "name": "テストURL1",
-                                "structure_5": {
-                                    "url": "example4.com",
-                                    "name": "テストURL4"
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-        insert_result = self.testdb['structure_emb'].insert_one(data)
-        self.inserted_oids = [('structure_emb', insert_result.inserted_id)]
 
         self.file = File(self.testdb)
         self.config = Config()
 
-    def tearDown(self):
-        # テスト用データ削除
-        for i in self.inserted_oids:
-            collection, oid = i
-            self.testdb[collection].delete_one({'_id': oid})
+    # def tearDown(self):
+    #     pass
 
     def test_file_gen(self):
 
@@ -290,6 +219,73 @@ class TestFile(TestCase):
             i.unlink()
 
         # embの場合
+        data = {
+            "position": "top",
+            "structure_2": [
+                {
+                    "maker": "Ferrari",
+                    "carname": "F355",
+                    "power": 380,
+                    "float_val": 4453.456
+                },
+                {
+                    "maker": "HONDA",
+                    "carname": "NSX",
+                    "power": 280,
+                    "float_val": 321.56,
+                    "structure_3_1": [
+                        {
+                            "filename": "test1.txt",
+                            "name": "添付ファイル1"
+                        },
+                        {
+                            "filename": "test2.txt",
+                            "name": "添付ファイル2"
+                        }
+                    ],
+                    "structure_3_2": [
+                        {
+                            "filename": "test3.txt",
+                            "name": "添付ファイル3",
+                            "structure_4": {
+                                "filename": "test4.txt",
+                                "name": "添付ファイル4",
+                                "structure_5": [
+                                    {
+                                        "url": "example2.com",
+                                        "name": "テストURL2"
+                                    },
+                                    {
+                                        "url": "example3.com",
+                                        "name": "テストURL3"
+                                    }
+                                ]
+                            },
+                            "structure_6": [
+                                {
+                                    "url": "example_x.com",
+                                    "name": "テストURL_x"
+                                },
+                                {
+                                    "url": "example_y.com",
+                                    "name": "テストURL_y"
+                                }
+                            ],
+                            "structure_5": {
+                                "url": "example.com",
+                                "name": "テストURL1",
+                                "structure_5": {
+                                    "url": "example4.com",
+                                    "name": "テストURL4"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+        insert_result = self.testdb['structure_emb'].insert_one(data)
+
         # ファイル作成
         expected = []
         p = Path('./test_files')
@@ -299,7 +295,8 @@ class TestFile(TestCase):
                 f.write(test_var)
                 expected.append(test_var)
         files = tuple(p.glob('emb_test*.txt'))
-        collection, oid = self.inserted_oids[0]
+        collection = 'structure_emb'
+        oid = insert_result.inserted_id
         query = ['structure_2', '1']
 
         # メソッド実行
