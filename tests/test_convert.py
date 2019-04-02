@@ -14,21 +14,6 @@ class TestConvert(TestCase):
         self.child = self.config.child
         self.date = self.config.date
 
-    # def test__to_datetime(self):
-    #     # datetime正常
-    #     input_list = ['2018/11/20', '2018/11/20 13:48', '2018/01/01 00:00:00']
-    #     for s in input_list:
-    #         with self.subTest(s=s):
-    #             actual = self.convert._to_datetime(s)
-    #             self.assertIsInstance(actual, datetime)
-    #
-    #     # 入力値が文字列だがdatetime変換できない場合、または入力値が文字列以外
-    #     input_list = [20181120, 201811201348, 20200101000000, '8月12日', None]
-    #     for s in input_list:
-    #         with self.subTest(s=s):
-    #             actual = self.convert._to_datetime(s)
-    #             self.assertIsInstance(actual, str)
-
     def test__get_child_reference(self):
 
         # すでにparentが作られていた場合
