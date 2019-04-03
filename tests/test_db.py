@@ -719,8 +719,43 @@ class TestDB(TestCase):
         self.assertDictEqual(doc, expected)
 
     def test__convert_datetime(self):
-        pass
-        # self.db._convert_datetime()
+
+        # 正常系
+        test_date = '1997-04-01'
+        data = {'name': 'KEK', 'value': 20, 'since': {self.date: test_date}}
+        actual = self.db._convert_datetime(data)
+        self.assertIsInstance(actual['since'], datetime)
+        self.assertIsInstance(actual, dict)
+
+        test_date = '1997/04/01'
+        data = {'since': {self.date: test_date}}
+        actual = self.db._convert_datetime(data)
+        self.assertIsInstance(actual['since'], datetime)
+
+        # 正常系 日付をテキストで入力された場合
+        data = {'since': test_date}
+        actual = self.db._convert_datetime(data)
+        self.assertIsInstance(actual['since'], str)
+
+        # 正常系 #dateを利用しているが、変換対象でない場合
+        data = {'since': {self.date: '1997年4月1日'}}
+        actual = self.db._convert_datetime(data)
+        self.assertIsInstance(actual['since'], str)
+
+        # 正常系 リストデータを含む
+        test_date = ['1997-04-01', '2004/4/1']
+        data = {
+            'date_list':
+                [
+                    {self.date: test_date[0]},
+                    {self.date: test_date[1]}
+                ]
+        }
+        actual = self.db._convert_datetime(data)
+        self.assertIsInstance(actual['date_list'], list)
+        for i in actual['date_list']:
+            with self.subTest(i=i):
+                self.assertIsInstance(i, datetime)
 
     # def test_connect(self):
     #     # setUpClassで使用。割愛
