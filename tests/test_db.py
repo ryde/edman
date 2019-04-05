@@ -1,5 +1,6 @@
 import configparser
 import copy
+import tempfile
 from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
@@ -53,9 +54,6 @@ class TestDB(TestCase):
         }
         cls.testdb = cls.db.connect(**cls.con)
 
-        # テスト用一時ディレクトリ作成
-        Path('test_files').mkdir()
-
     @classmethod
     def tearDownClass(cls):
         # cls.clientはpymongo経由でDB削除
@@ -63,9 +61,6 @@ class TestDB(TestCase):
         cls.client.drop_database(cls.test_ini['db'])
         # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
         cls.testdb.command("dropUser", cls.test_ini['user'])
-
-        # テスト用ディレクトリの削除
-        Path('test_files').rmdir()
 
     def setUp(self):
         self.config = Config()
@@ -118,32 +113,31 @@ class TestDB(TestCase):
             'userpwd': 'userpwd',
             'dbname': 'userdb'
         }
-        p = Path('./test_files/')
-        self.db._create_ini(data, p)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
 
-        # 実際にファイルがあるかテスト
-        dbfile_path = p / 'db.ini'
-        self.assertTrue(dbfile_path.exists())
-
-        # ファイルの中身があっているかテスト
-        a = configparser.ConfigParser()
-        a.read(dbfile_path)
-        actual_db = dict([i for i in a['DB'].items()])
-        c = 'mongodb://' + data['username'] + ':' + data['userpwd'] + '@' + \
-            data['host'] + ':' + str(data['port']) + '/'
-
-        self.assertEqual(c, actual_db['mongo_statement'])
-        self.assertEqual(data['dbname'], actual_db['db_name'])
-
-        # 連続したファイルの場合のテスト
-        files_count = 2
-        for i in range(files_count):
             self.db._create_ini(data, p)
-        ps = sorted(p.glob('*.ini'))
-        self.assertEqual(files_count + 1, len(ps))
 
-        # 生成したファイルの削除
-        [i.unlink() for i in ps]
+            # 実際にファイルがあるかテスト
+            dbfile_path = p / 'db.ini'
+            self.assertTrue(dbfile_path.exists())
+
+            # ファイルの中身があっているかテスト
+            a = configparser.ConfigParser()
+            a.read(dbfile_path)
+            actual_db = dict([i for i in a['DB'].items()])
+            c = 'mongodb://' + data['username'] + ':' + data['userpwd'] \
+                + '@' + data['host'] + ':' + str(data['port']) + '/'
+
+            self.assertEqual(c, actual_db['mongo_statement'])
+            self.assertEqual(data['dbname'], actual_db['db_name'])
+
+            # 連続したファイルの場合のテスト
+            files_count = 2
+            for i in range(files_count):
+                self.db._create_ini(data, p)
+            ps = sorted(p.glob('*.ini'))
+            self.assertEqual(files_count + 1, len(ps))
 
     def test__reference_item_delete(self):
         # 正常系

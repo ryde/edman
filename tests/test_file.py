@@ -1,4 +1,5 @@
 import configparser
+import tempfile
 from unittest import TestCase
 from pathlib import Path
 import gridfs
@@ -55,9 +56,6 @@ class TestFile(TestCase):
         }
         cls.testdb = cls.db.connect(**cls.con)
 
-        # テスト用一時ディレクトリ作成
-        Path('test_files').mkdir()
-
     @classmethod
     def tearDownClass(cls):
         # cls.clientはpymongo経由でDB削除
@@ -65,9 +63,6 @@ class TestFile(TestCase):
         cls.client.drop_database(cls.test_ini['db'])
         # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
         cls.testdb.command("dropUser", cls.test_ini['user'])
-
-        # テスト用ディレクトリの削除
-        Path('test_files').rmdir()
 
     def setUp(self):
 
@@ -80,26 +75,25 @@ class TestFile(TestCase):
     def test_file_gen(self):
 
         # 正常系
-        # ファイル作成
-        p = Path('./test_files')
-        expected = []
-        for i in range(2):
-            with open('./test_files/gen_test' + str(i) + '.txt', 'w') as f:
-                test_var = 'test' + str(i)
-                expected.append(('gen_test' + str(i) + '.txt', test_var))
-                f.write(test_var)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
 
-        # ファイル読み込み、テスト
-        actual = []
-        files = tuple(p.glob('gen_test*.txt'))
-        for idx, f in enumerate(self.file.file_gen(files)):
-            filename, filedata = f
-            actual.append((filename, filedata.decode()))
-        self.assertListEqual(sorted(actual), sorted(expected))
+            expected = []
+            for i in range(2):
+                gen_file = 'gen_test' + str(i) + '.txt'
+                gen_path = p / gen_file
+                with gen_path.open('w') as f:
+                    test_var = 'test' + str(i)
+                    expected.append((gen_file, test_var))
+                    f.write(test_var)
 
-        # 作成したファイルを削除
-        for i in p.glob('gen_test*.txt'):
-            i.unlink()
+            # ファイル読み込み、テスト
+            actual = []
+            files = tuple(p.glob('gen_test*.txt'))
+            for idx, f in enumerate(self.file.file_gen(files)):
+                filename, filedata = f
+                actual.append((filename, filedata.decode()))
+            self.assertListEqual(sorted(actual), sorted(expected))
 
     def test_add_file_reference(self):
         # refの場合
@@ -179,44 +173,42 @@ class TestFile(TestCase):
         converted_edman = convert.dict_to_edman(ref_json, mode='ref')
         insert_result = self.db.insert(converted_edman)
 
-        # ファイル作成
-        p = Path('./test_files')
-        expected = []
-        for i in range(2):
-            with open('./test_files/insert_file_ref_test' + str(i) + '.txt',
-                      'w') as f:
-                test_var = 'test' + str(i)
-                expected.append(
-                    ('insert_file_ref_test' + str(i) + '.txt', test_var))
-                f.write(test_var)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
 
-        file_path = tuple(p.glob('insert_file_ref_test*.txt'))
+            expected = []
+            for i in range(2):
+                gen_file = 'insert_file_ref_test' + str(i) + '.txt'
+                gen_path = p / gen_file
+                with gen_path.open('w') as f:
+                    test_var = 'test' + str(i)
+                    expected.append((gen_file, test_var))
+                    f.write(test_var)
 
-        # メソッド実行
-        collection = 'structure_5'
-        oid = [i[collection][0] for i in insert_result if collection in i][0]
-        insert_file_result = self.file.add_file_reference(collection, oid,
-                                                          file_path, 'ref')
+            file_path = tuple(p.glob('insert_file_ref_test*.txt'))
 
-        # DBからデータ取得
-        query = {'_id': oid}
-        result = self.testdb[collection].find_one(query)
+            # メソッド実行
+            collection = 'structure_5'
+            oid = [i[collection][0] for i in insert_result if collection in i][
+                0]
+            insert_file_result = self.file.add_file_reference(collection, oid,
+                                                              file_path, 'ref')
 
-        # 取得したデータからgridfsのファイルを取得
-        actual = []
-        self.fs = gridfs.GridFS(self.testdb)
-        for file_oid in result[self.config.file]:
-            data = self.fs.get(file_oid)
-            d = data.read()
-            actual.append((data.filename, d.decode()))
+            # DBからデータ取得
+            query = {'_id': oid}
+            result = self.testdb[collection].find_one(query)
 
-        # テスト
-        self.assertTrue(insert_file_result)
-        self.assertListEqual(sorted(actual), sorted(expected))
+            # 取得したデータからgridfsのファイルを取得
+            actual = []
+            self.fs = gridfs.GridFS(self.testdb)
+            for file_oid in result[self.config.file]:
+                data = self.fs.get(file_oid)
+                d = data.read()
+                actual.append((data.filename, d.decode()))
 
-        # 作成したファイルを削除
-        for i in p.glob('insert_file_ref_test*.txt'):
-            i.unlink()
+            # テスト
+            self.assertTrue(insert_file_result)
+            self.assertListEqual(sorted(actual), sorted(expected))
 
         # embの場合
         data = {
@@ -286,43 +278,43 @@ class TestFile(TestCase):
         }
         insert_result = self.testdb['structure_emb'].insert_one(data)
 
-        # ファイル作成
-        expected = []
-        p = Path('./test_files')
-        for i in range(2):
-            with open('./test_files/emb_test' + str(i) + '.txt', 'w') as f:
-                test_var = 'test' + str(i)
-                f.write(test_var)
-                expected.append(test_var)
-        files = tuple(p.glob('emb_test*.txt'))
-        collection = 'structure_emb'
-        oid = insert_result.inserted_id
-        query = ['structure_2', '1']
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
 
-        # メソッド実行
-        insert_file_emb_result = self.file.add_file_reference(collection, oid,
-                                                              files, 'emb',
-                                                              query)
-        # ドキュメントをfindして出す
-        result = self.testdb[collection].find_one({'_id': oid})
+            expected = []
+            for i in range(2):
+                gen_file = 'emb_test' + str(i) + '.txt'
+                gen_path = p / gen_file
+                with gen_path.open('w') as f:
+                    test_var = 'test' + str(i)
+                    f.write(test_var)
+                    expected.append(test_var)
+            files = tuple(p.glob('emb_test*.txt'))
+            collection = 'structure_emb'
+            oid = insert_result.inserted_id
+            query = ['structure_2', '1']
 
-        # gridfsからデータ取得
-        out_data = []
-        self.fs = gridfs.GridFS(self.testdb)
-        for oid in result['structure_2'][1][self.config.file]:
-            data = self.fs.get(oid)
-            f_data = data.read()
-            out_data.append(f_data.decode())
+            # メソッド実行
+            insert_file_emb_result = self.file.add_file_reference(collection,
+                                                                  oid,
+                                                                  files, 'emb',
+                                                                  query)
+            # ドキュメントをfindして出す
+            result = self.testdb[collection].find_one({'_id': oid})
 
-        # DBデータとファイルのデータに差異はないか
-        self.assertListEqual(sorted(expected), sorted(out_data))
+            # gridfsからデータ取得
+            out_data = []
+            self.fs = gridfs.GridFS(self.testdb)
+            for oid in result['structure_2'][1][self.config.file]:
+                data = self.fs.get(oid)
+                f_data = data.read()
+                out_data.append(f_data.decode())
 
-        # メソッド成功時のフラグ
-        self.assertTrue(insert_file_emb_result)
+            # DBデータとファイルのデータに差異はないか
+            self.assertListEqual(sorted(expected), sorted(out_data))
 
-        # 作成したファイルを削除
-        for i in p.glob('emb_test*.txt'):
-            i.unlink()
+            # メソッド成功時のフラグ
+            self.assertTrue(insert_file_emb_result)
 
     def test__file_list_attachment(self):
 
@@ -402,127 +394,120 @@ class TestFile(TestCase):
         self.assertFalse(actual)
 
     def test__fs_delete(self):
+
         # 正常系
-        p = Path('./test_files')
-        for i in range(2):
-            with open('./test_files/delete_test' + str(i) + '.txt', 'w') as f:
-                test_var = 'test' + str(i)
-                f.write(test_var)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
 
-        fs_oids = []
-        for i in tuple(p.glob('delete_test*.txt')):
-            with i.open('rb') as f:
-                self.fs = gridfs.GridFS(self.testdb)
-                fs_oids.append(
-                    self.fs.put(f.read(), filename=str(i.name)))
+            for i in range(2):
+                gen_file = 'delete_test' + str(i) + '.txt'
+                gen_path = p / gen_file
+                with gen_path.open('w') as f:
+                    test_var = 'test' + str(i)
+                    f.write(test_var)
 
-        self.file._fs_delete(fs_oids)
-        for i in fs_oids:
-            with self.subTest(i=i):
-                self.assertFalse(self.fs.exists(i))
+            fs_oids = []
+            for i in tuple(p.glob('delete_test*.txt')):
+                with i.open('rb') as f:
+                    self.fs = gridfs.GridFS(self.testdb)
+                    fs_oids.append(
+                        self.fs.put(f.read(), filename=str(i.name)))
 
-        # 作成したファイルを削除
-        for i in p.glob('delete_test*.txt'):
-            i.unlink()
+            self.file._fs_delete(fs_oids)
+            for i in fs_oids:
+                with self.subTest(i=i):
+                    self.assertFalse(self.fs.exists(i))
 
     def test_download(self):
-        # ファイル作成
-        test_vars = {}
-        p = Path('./test_files')
-        filename_list = []
-        for i in range(2):
-            name = 'file_dl' + str(i) + '.txt'
-            filename_list.append(name)
-            save_path = p / name
-            with save_path.open('w') as f:
-                test_var = 'test' + str(i)
-                f.write(test_var)
-                test_vars.update({name: test_var})
 
-        # ファイル読み込み、ファイルをgridfsに入れる
-        files_oid = []
-        self.fs = gridfs.GridFS(self.testdb)
-        for filename in p.glob('file_dl*.txt'):
-            with filename.open('rb') as f:
-                files_oid.append(self.fs.put(f.read(), filename=filename.name))
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
+            test_vars = {}
+            filename_list = []
+            for i in range(2):
+                name = 'file_dl' + str(i) + '.txt'
+                filename_list.append(name)
+                save_path = p / name
+                with save_path.open('w') as f:
+                    test_var = 'test' + str(i)
+                    f.write(test_var)
+                    test_vars.update({name: test_var})
 
-        files_list_dic = dict(zip(files_oid, filename_list))
+            # ファイル読み込み、ファイルをgridfsに入れる
+            files_oid = []
+            self.fs = gridfs.GridFS(self.testdb)
+            for filename in p.glob('file_dl*.txt'):
+                with filename.open('rb') as f:
+                    files_oid.append(
+                        self.fs.put(f.read(), filename=filename.name))
 
-        # pの中にダウンロード用のディレクトリを作成
-        path = p / 'dl'
-        path.mkdir()
+            files_list_dic = dict(zip(files_oid, filename_list))
 
-        # 正常テスト
-        expected = {}
-        for oid, file_name in files_list_dic.items():
-            if self.file.download(oid, path):
-                if path.exists():
-                    expected.update({oid: file_name})
-        self.assertDictEqual(files_list_dic, expected)
+        with tempfile.TemporaryDirectory() as tmp_dl_dir:
+            path = Path(tmp_dl_dir)
 
-        # files_list_dicファイルの中身が同じかテスト
-        for name, txt in test_vars.items():
-            dl_path = path / name
-            with dl_path.open('rb') as f:
-                raw_data = f.read()
-                dl_data = raw_data.decode()
-                with self.subTest(name=name):
-                    self.assertEqual(dl_data, txt)
+            # 正常テスト
+            expected = {}
+            for oid, file_name in files_list_dic.items():
+                if self.file.download(oid, path):
+                    if path.exists():
+                        expected.update({oid: file_name})
+            self.assertDictEqual(files_list_dic, expected)
 
-        # ファイル削除
-        for i in p.glob('file_dl*.txt'):
-            i.unlink()
-        for i in path.glob('*'):
-            i.unlink()
-        # DLディレクトリ削除
-        path.rmdir()
+            # files_list_dicファイルの中身が同じかテスト
+            for name, txt in test_vars.items():
+                dl_path = path / name
+                with dl_path.open('rb') as f:
+                    raw_data = f.read()
+                    dl_data = raw_data.decode()
+                    with self.subTest(name=name):
+                        self.assertEqual(dl_data, txt)
 
     def test_get_file_names(self):
-        # ファイル作成
-        p = Path('./test_files')
-        filename_list = []
-        for i in range(2):
-            name = 'file_names' + str(i) + '.txt'
-            filename_list.append(name)
-            save_path = p / name
-            with save_path.open('w') as f:
-                test_var = 'test' + str(i)
-                f.write(test_var)
 
-        # ファイル読み込み、ファイルをgridfsに入れる
-        files_oid = []
-        self.fs = gridfs.GridFS(self.testdb)
-        for filename in p.glob('file_names*.txt'):
-            with filename.open('rb') as f:
-                files_oid.append(self.fs.put(f.read(), filename=filename.name))
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
+            filename_list = []
+            for i in range(2):
+                name = 'file_names' + str(i) + '.txt'
+                filename_list.append(name)
+                save_path = p / name
+                with save_path.open('w') as f:
+                    test_var = 'test' + str(i)
+                    f.write(test_var)
 
-        # DocをDBに入れる
-        doc = {
-            'test1': {
-                'test2': 'name',
-                'test3': {
-                    'test4': [
-                        {
-                            'test5': 'moon',
-                            self.config.file: files_oid,
-                        },
-                        {'test6': 'star'}
-                    ]
+            # ファイル読み込み、ファイルをgridfsに入れる
+            files_oid = []
+            self.fs = gridfs.GridFS(self.testdb)
+            for filename in p.glob('file_names*.txt'):
+                with filename.open('rb') as f:
+                    files_oid.append(
+                        self.fs.put(f.read(), filename=filename.name))
+
+            # DocをDBに入れる
+            doc = {
+                'test1': {
+                    'test2': 'name',
+                    'test3': {
+                        'test4': [
+                            {
+                                'test5': 'moon',
+                                self.config.file: files_oid,
+                            },
+                            {'test6': 'star'}
+                        ]
+                    }
                 }
             }
-        }
-        insert_result = self.testdb['structure_emb'].insert_one(doc)
+            insert_result = self.testdb['structure_emb'].insert_one(doc)
 
-        # 正常系テスト(embのみ.refとembの判断はget_file_ref()で行っているので割愛)
-        oid = insert_result.inserted_id
-        query = ['test1', 'test3', 'test4', '0']
-        actual = self.file.get_file_names('structure_emb', oid, 'emb', query)
-        expected = dict(zip(files_oid, filename_list))
-        self.assertDictEqual(actual, expected)
-
-        # ファイル削除
-        for i in p.glob('file_names*.txt'):
-            i.unlink()
+            # 正常系テスト(embのみ.refとembの判断はget_file_ref()で行っているので割愛)
+            oid = insert_result.inserted_id
+            query = ['test1', 'test3', 'test4', '0']
+            actual = self.file.get_file_names('structure_emb', oid, 'emb',
+                                              query)
+            expected = dict(zip(files_oid, filename_list))
+            self.assertDictEqual(actual, expected)
 
     def test__get_file_ref(self):
         # 正常系(ref)
@@ -560,78 +545,78 @@ class TestFile(TestCase):
         self.assertListEqual(expected, actual)
 
     def test_delete(self):
-        # ファイル作成
-        p = Path('./test_files')
-        filename_list = []
-        name = 'file_delete.txt'
-        filename_list.append(name)
-        save_path = p / name
-        with save_path.open('w') as f:
-            test_var = 'test'
-            f.write(test_var)
 
-        # embの添付ファイル削除テスト
-        # ファイル読み込み、ファイルをgridfsに入れる
-        files_oid = []
-        self.fs = gridfs.GridFS(self.testdb)
-        for filename in p.glob('file_delete*.txt'):
-            with filename.open('rb') as f:
-                files_oid.append(self.fs.put(f.read(), filename=filename.name))
+        with tempfile.TemporaryDirectory() as tmp_dl_dir:
+            p = Path(tmp_dl_dir)
+            filename_list = []
+            name = 'file_delete.txt'
+            filename_list.append(name)
+            save_path = p / name
+            with save_path.open('w') as f:
+                test_var = 'test'
+                f.write(test_var)
 
-        # DocをDBに入れる
-        doc = {
-            'test1': {
-                'test2': 'name',
-                'test3': {
-                    'test4': [
-                        {
-                            'test5': 'moon',
-                            self.config.file: files_oid,
-                        },
-                        {'test6': 'star'}
-                    ]
+            # embの添付ファイル削除テスト
+            # ファイル読み込み、ファイルをgridfsに入れる
+            files_oid = []
+            self.fs = gridfs.GridFS(self.testdb)
+            for filename in p.glob('file_delete*.txt'):
+                with filename.open('rb') as f:
+                    files_oid.append(
+                        self.fs.put(f.read(), filename=filename.name))
+
+            # DocをDBに入れる
+            doc = {
+                'test1': {
+                    'test2': 'name',
+                    'test3': {
+                        'test4': [
+                            {
+                                'test5': 'moon',
+                                self.config.file: files_oid,
+                            },
+                            {'test6': 'star'}
+                        ]
+                    }
                 }
             }
-        }
-        insert_result = self.testdb['structure_emb'].insert_one(doc)
-        oid = str(insert_result.inserted_id)
-        query = ['test1', 'test3', 'test4', '0']
+            insert_result = self.testdb['structure_emb'].insert_one(doc)
+            oid = str(insert_result.inserted_id)
+            query = ['test1', 'test3', 'test4', '0']
 
-        result = self.file.delete(files_oid[0], 'structure_emb', oid, 'emb',
-                                  query)
-        self.assertTrue(result)
-        # ファイルが消えたか検証
-        self.assertFalse(self.fs.exists(files_oid[0]))
+            result = self.file.delete(files_oid[0], 'structure_emb', oid,
+                                      'emb', query)
+            self.assertTrue(result)
+            # ファイルが消えたか検証
+            self.assertFalse(self.fs.exists(files_oid[0]))
 
-        # refの添付ファイル削除テスト
-        # ファイル読み込み、ファイルをgridfsに入れる
-        files_oid = []
-        self.fs = gridfs.GridFS(self.testdb)
-        for filename in p.glob('file_delete*.txt'):
-            with filename.open('rb') as f:
-                files_oid.append(self.fs.put(f.read(), filename=filename.name))
+            # refの添付ファイル削除テスト
+            # ファイル読み込み、ファイルをgridfsに入れる
+            files_oid = []
+            self.fs = gridfs.GridFS(self.testdb)
+            for filename in p.glob('file_delete*.txt'):
+                with filename.open('rb') as f:
+                    files_oid.append(
+                        self.fs.put(f.read(), filename=filename.name))
 
-        # docをDBに入れる
-        doc = {'name': 'test1',
-               self.config.file: files_oid,
-               self.config.parent: ObjectId(),
-               self.config.child: DBRef('child_col', ObjectId())}
+            # docをDBに入れる
+            doc = {'name': 'test1',
+                   self.config.file: files_oid,
+                   self.config.parent: ObjectId(),
+                   self.config.child: DBRef('child_col', ObjectId())}
 
-        insert_result = self.testdb['structure_ref'].insert_one(doc)
-        oid = str(insert_result.inserted_id)
+            insert_result = self.testdb['structure_ref'].insert_one(doc)
+            oid = str(insert_result.inserted_id)
 
-        result = self.file.delete(files_oid[0], 'structure_ref', oid, 'ref')
-        self.assertTrue(result)
-        # ファイルが消えたか検証
-        self.assertFalse(self.fs.exists(files_oid[0]))
-
-        # ファイル削除
-        for i in p.glob('file_delete*.txt'):
-            i.unlink()
+            result = self.file.delete(files_oid[0], 'structure_ref', oid,
+                                      'ref')
+            self.assertTrue(result)
+            # ファイルが消えたか検証
+            self.assertFalse(self.fs.exists(files_oid[0]))
 
     def test__get_emb_files_list(self):
-        # 正常系
 
+        # 正常系
         file_list = [ObjectId(), ObjectId()]
 
         doc = {
