@@ -2,6 +2,8 @@ EDMAN
 =====
 .. image:: https://img.shields.io/badge/python-3.6-blue.svg
 
+.. image:: https://circleci.com/gh/ryde/edman_test.svg?style=svg
+
 Description
 -----------
 
