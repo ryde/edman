@@ -1,9 +1,7 @@
 EDMAN
 =====
 
-.. image:: https://img.shields.io/badge/python-3.6-blue.svg
-
-.. image:: https://circleci.com/gh/ryde/edman_test/tree/develop.svg?style=svg&circle-token=f669e73a212627c6f4e57e18fa7002c3454d07fd
+|py_version| |circleci|
 
 |  KEK IMSS SBRC/PF Experimental Data Management System.
 |  jsonファイル(階層構造になった実験データ等)をMongoDBに投入します。
@@ -99,3 +97,9 @@ Author
 [ryde](https://github.com/ryde)
 
 ✨🍰✨
+
+.. |py_version| image:: https://img.shields.io/badge/python-3.6-blue.svg
+    :alt: Build status on
+
+.. |circleci| image:: https://circleci.com/gh/ryde/edman_test/tree/develop.svg?style=svg&circle-token=f669e73a212627c6f4e57e18fa7002c3454d07fd
+    :alt: Build status on circleCi
