@@ -5,9 +5,6 @@ EDMAN
 
 .. image:: https://circleci.com/gh/ryde/edman_test/tree/develop.svg?style=svg&circle-token=f669e73a212627c6f4e57e18fa7002c3454d07fd
 
-Description
------------
-
 |  KEK IMSS SBRC/PF Experimental Data Management System.
 |  jsonファイル(階層構造になった実験データ等)をMongoDBに投入します。
 
