@@ -1,8 +1,9 @@
 import configparser
 from pathlib import Path
 from datetime import datetime
-from unittest import TestCase
+from unittest import TestCase, skipUnless
 import pymongo
+from pymongo import errors
 import dateutil.parser
 from bson import ObjectId, DBRef
 from bson.errors import InvalidId
@@ -12,6 +13,7 @@ from edman.db import DB
 
 
 class TestSearch(TestCase):
+    db_server_connect = False
 
     @classmethod
     def setUpClass(cls):
@@ -25,45 +27,55 @@ class TestSearch(TestCase):
         cls.client = pymongo.MongoClient(cls.test_ini['host'],
                                          cls.test_ini['port'])
 
-        # adminで認証
-        cls.client[cls.test_ini['admin_db']].authenticate(
-            cls.test_ini['admin_user'],
-            cls.test_ini['admin_password'])
-        # DB作成
-        cls.client[cls.test_ini['db']].command(
-            "createUser",
-            cls.test_ini['user'],
-            pwd=cls.test_ini['password'],
-            roles=[
-                {
-                    'role': 'dbOwner',
-                    'db': cls.test_ini['db'],
-                },
-            ],
-        )
-        # ユーザ側認証
-        cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
-                                                    cls.test_ini['password'])
+        # 接続確認
+        try:
+            cls.client.admin.command('ismaster')
+        except pymongo.errors.ConnectionFailure:
+            cls.db_server_connect = False
 
-        # edmanのDB接続オブジェクト作成
-        con = {
-            'host': cls.test_ini['host'],
-            'port': cls.test_ini['port'],
-            'database': cls.test_ini['db'],
-            'user': cls.test_ini['user'],
-            'password': cls.test_ini['password']
-        }
-        db = DB()
-        cls.testdb = db.connect(**con)
-        cls.search = Search(cls.testdb)
+        if cls.db_server_connect:
+            # adminで認証
+            cls.client[cls.test_ini['admin_db']].authenticate(
+                cls.test_ini['admin_user'],
+                cls.test_ini['admin_password'])
+            # DB作成
+            cls.client[cls.test_ini['db']].command(
+                "createUser",
+                cls.test_ini['user'],
+                pwd=cls.test_ini['password'],
+                roles=[
+                    {
+                        'role': 'dbOwner',
+                        'db': cls.test_ini['db'],
+                    },
+                ],
+            )
+            # ユーザ側認証
+            cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
+                                                        cls.test_ini['password'])
+
+            # edmanのDB接続オブジェクト作成
+            con = {
+                'host': cls.test_ini['host'],
+                'port': cls.test_ini['port'],
+                'database': cls.test_ini['db'],
+                'user': cls.test_ini['user'],
+                'password': cls.test_ini['password']
+            }
+            db = DB()
+            cls.testdb = db.connect(**con)
+            cls.search = Search(cls.testdb)
+        else:
+            cls.search = Search()
 
     @classmethod
     def tearDownClass(cls):
-        # cls.clientはpymongo経由でDB削除
-        # cls.testdb.dbはedman側の接続オブジェクト経由でユーザ(自分自身)の削除
-        cls.client.drop_database(cls.test_ini['db'])
-        # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
-        cls.testdb.command("dropUser", cls.test_ini['user'])
+        if cls.db_server_connect:
+            # cls.clientはpymongo経由でDB削除
+            # cls.testdb.dbはedman側の接続オブジェクト経由でユーザ(自分自身)の削除
+            cls.client.drop_database(cls.test_ini['db'])
+            # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
+            cls.testdb.command("dropUser", cls.test_ini['user'])
 
     def setUp(self):
         self.config = Config()
@@ -73,13 +85,14 @@ class TestSearch(TestCase):
         self.file = self.config.file
 
     def tearDown(self):
-        # システムログ以外のコレクションを削除
-        collections_all = self.testdb.list_collection_names()
-        log_coll = 'system.profile'
-        if log_coll in collections_all:
-            collections_all.remove(log_coll)
-        for collection in collections_all:
-            self.testdb.drop_collection(collection)
+        if self.db_server_connect:
+            # システムログ以外のコレクションを削除
+            collections_all = self.testdb.list_collection_names()
+            log_coll = 'system.profile'
+            if log_coll in collections_all:
+                collections_all.remove(log_coll)
+            for collection in collections_all:
+                self.testdb.drop_collection(collection)
 
     def test__search_necessity_judge(self):
         # データ構造及び、値のテスト
@@ -153,6 +166,7 @@ class TestSearch(TestCase):
         with self.assertRaises((InvalidId, SystemExit)) as cm:
             _ = self.search._objectid_replacement(query)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__get_self(self):
         # テストデータをDBに挿入
         data = {'test_data': 'test'}
@@ -168,6 +182,7 @@ class TestSearch(TestCase):
         self.assertEqual(sorted(list(data.keys())),
                          sorted(list(actual[test_collection].keys())))
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__get_parent(self):
         # テストデータをDBに挿入
         db = self.client[self.test_ini['db']]
@@ -236,6 +251,7 @@ class TestSearch(TestCase):
         expected = actual['parent_1']['parent_2']['car_name']
         self.assertEqual('STORATOS', expected)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__child_storaged(self):
         # テストデータ入力
         db = self.client[self.test_ini['db']]
@@ -291,6 +307,7 @@ class TestSearch(TestCase):
         self.assertIsInstance(actual, list)
         self.assertEqual(2, len(actual[0]['collection_A']))
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__get_child(self):
         db = self.client[self.test_ini['db']]
         parent_id = ObjectId()

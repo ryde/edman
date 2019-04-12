@@ -1,9 +1,10 @@
 import configparser
 import tempfile
-from unittest import TestCase
+from unittest import TestCase, skipUnless
 from pathlib import Path
 import gridfs
 import pymongo
+from pymongo import errors
 from bson import ObjectId, DBRef
 from edman.db import DB
 from edman.file import File
@@ -12,6 +13,7 @@ from edman.convert import Convert
 
 
 class TestFile(TestCase):
+    db_server_connect = False
 
     @classmethod
     def setUpClass(cls):
@@ -27,46 +29,57 @@ class TestFile(TestCase):
         cls.client = pymongo.MongoClient(cls.test_ini['host'],
                                          cls.test_ini['port'])
 
-        # adminで認証
-        cls.client[cls.test_ini['admin_db']].authenticate(
-            cls.test_ini['admin_user'],
-            cls.test_ini['admin_password'])
-        # DB作成
-        cls.client[cls.test_ini['db']].command(
-            "createUser",
-            cls.test_ini['user'],
-            pwd=cls.test_ini['password'],
-            roles=[
-                {
-                    'role': 'dbOwner',
-                    'db': cls.test_ini['db'],
-                },
-            ],
-        )
-        # ユーザ側認証
-        cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
-                                                    cls.test_ini['password'])
-        # edmanのDB接続オブジェクト作成
-        cls.con = {
-            'host': cls.test_ini['host'],
-            'port': cls.test_ini['port'],
-            'database': cls.test_ini['db'],
-            'user': cls.test_ini['user'],
-            'password': cls.test_ini['password']
-        }
-        cls.testdb = cls.db.connect(**cls.con)
+        # 接続確認
+        try:
+            cls.client.admin.command('ismaster')
+        except pymongo.errors.ConnectionFailure:
+            cls.db_server_connect = False
+
+        if cls.db_server_connect:
+            # adminで認証
+            cls.client[cls.test_ini['admin_db']].authenticate(
+                cls.test_ini['admin_user'],
+                cls.test_ini['admin_password'])
+            # DB作成
+            cls.client[cls.test_ini['db']].command(
+                "createUser",
+                cls.test_ini['user'],
+                pwd=cls.test_ini['password'],
+                roles=[
+                    {
+                        'role': 'dbOwner',
+                        'db': cls.test_ini['db'],
+                    },
+                ],
+            )
+            # ユーザ側認証
+            cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
+                                                        cls.test_ini['password'])
+            # edmanのDB接続オブジェクト作成
+            cls.con = {
+                'host': cls.test_ini['host'],
+                'port': cls.test_ini['port'],
+                'database': cls.test_ini['db'],
+                'user': cls.test_ini['user'],
+                'password': cls.test_ini['password']
+            }
+            cls.testdb = cls.db.connect(**cls.con)
 
     @classmethod
     def tearDownClass(cls):
-        # cls.clientはpymongo経由でDB削除
-        # cls.testdb.dbはedman側の接続オブジェクト経由でユーザ(自分自身)の削除
-        cls.client.drop_database(cls.test_ini['db'])
-        # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
-        cls.testdb.command("dropUser", cls.test_ini['user'])
+        if cls.db_server_connect:
+            # cls.clientはpymongo経由でDB削除
+            # cls.testdb.dbはedman側の接続オブジェクト経由でユーザ(自分自身)の削除
+            cls.client.drop_database(cls.test_ini['db'])
+            # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
+            cls.testdb.command("dropUser", cls.test_ini['user'])
 
     def setUp(self):
 
-        self.file = File(self.testdb)
+        if self.db_server_connect:
+            self.file = File(self.testdb)
+        else:
+            self.file = File()
         self.config = Config()
 
     # def tearDown(self):
@@ -95,6 +108,7 @@ class TestFile(TestCase):
                 actual.append((filename, filedata.decode()))
             self.assertListEqual(sorted(actual), sorted(expected))
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_add_file_reference(self):
         # refの場合
         # refデータ入力
@@ -393,6 +407,7 @@ class TestFile(TestCase):
         self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__fs_delete(self):
 
         # 正常系
@@ -418,6 +433,7 @@ class TestFile(TestCase):
                 with self.subTest(i=i):
                     self.assertFalse(self.fs.exists(i))
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_download(self):
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -463,6 +479,7 @@ class TestFile(TestCase):
                     with self.subTest(name=name):
                         self.assertEqual(dl_data, txt)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_get_file_names(self):
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -544,6 +561,7 @@ class TestFile(TestCase):
         actual = self.file.get_file_ref(doc, structure, query)
         self.assertListEqual(expected, actual)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_delete(self):
 
         with tempfile.TemporaryDirectory() as tmp_dl_dir:

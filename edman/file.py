@@ -15,9 +15,11 @@ class File:
     ファイル取扱クラス
     """
 
-    def __init__(self, db) -> None:
-        self.db = db
-        self.fs = gridfs.GridFS(self.db)
+    def __init__(self, db=None) -> None:
+
+        if db is not None:
+            self.db = db
+            self.fs = gridfs.GridFS(self.db)
         self.file_ref = Config.file
 
     def connect(self):

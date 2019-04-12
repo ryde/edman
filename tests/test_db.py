@@ -1,16 +1,19 @@
 import configparser
 import copy
 import tempfile
-from unittest import TestCase
+from unittest import TestCase, skipUnless
 from pathlib import Path
 from datetime import datetime
 import pymongo
+from pymongo import errors
 from bson import ObjectId
 from edman.db import DB
 from edman.config import Config
 
 
 class TestDB(TestCase):
+
+    db_server_connect = False
 
     @classmethod
     def setUpClass(cls):
@@ -25,42 +28,50 @@ class TestDB(TestCase):
         cls.client = pymongo.MongoClient(cls.test_ini['host'],
                                          cls.test_ini['port'])
 
-        # adminで認証
-        cls.client[cls.test_ini['admin_db']].authenticate(
-            cls.test_ini['admin_user'],
-            cls.test_ini['admin_password'])
-        # DB作成
-        cls.client[cls.test_ini['db']].command(
-            "createUser",
-            cls.test_ini['user'],
-            pwd=cls.test_ini['password'],
-            roles=[
-                {
-                    'role': 'dbOwner',
-                    'db': cls.test_ini['db'],
-                },
-            ],
-        )
-        # ユーザ側認証
-        cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
-                                                    cls.test_ini['password'])
-        # edmanのDB接続オブジェクト作成
-        cls.con = {
-            'host': cls.test_ini['host'],
-            'port': cls.test_ini['port'],
-            'database': cls.test_ini['db'],
-            'user': cls.test_ini['user'],
-            'password': cls.test_ini['password']
-        }
-        cls.testdb = cls.db.connect(**cls.con)
+        # 接続確認
+        try:
+            cls.client.admin.command('ismaster')
+        except pymongo.errors.ConnectionFailure:
+            cls.db_server_connect = False
+
+        if cls.db_server_connect:
+            # adminで認証
+            cls.client[cls.test_ini['admin_db']].authenticate(
+                cls.test_ini['admin_user'],
+                cls.test_ini['admin_password'])
+            # DB作成
+            cls.client[cls.test_ini['db']].command(
+                "createUser",
+                cls.test_ini['user'],
+                pwd=cls.test_ini['password'],
+                roles=[
+                    {
+                        'role': 'dbOwner',
+                        'db': cls.test_ini['db'],
+                    },
+                ],
+            )
+            # ユーザ側認証
+            cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
+                                                        cls.test_ini['password'])
+            # edmanのDB接続オブジェクト作成
+            cls.con = {
+                'host': cls.test_ini['host'],
+                'port': cls.test_ini['port'],
+                'database': cls.test_ini['db'],
+                'user': cls.test_ini['user'],
+                'password': cls.test_ini['password']
+            }
+            cls.testdb = cls.db.connect(**cls.con)
 
     @classmethod
     def tearDownClass(cls):
-        # cls.clientはpymongo経由でDB削除
-        # cls.testdb.dbはedman側の接続オブジェクト経由でユーザ(自分自身)の削除
-        cls.client.drop_database(cls.test_ini['db'])
-        # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
-        cls.testdb.command("dropUser", cls.test_ini['user'])
+        if cls.db_server_connect:
+            # cls.clientはpymongo経由でDB削除
+            # cls.testdb.dbはedman側の接続オブジェクト経由でユーザ(自分自身)の削除
+            cls.client.drop_database(cls.test_ini['db'])
+            # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
+            cls.testdb.command("dropUser", cls.test_ini['user'])
 
     def setUp(self):
         self.config = Config()
@@ -73,6 +84,7 @@ class TestDB(TestCase):
     #     # DB破棄
     #     pass
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_insert(self):
         data = [
             {'collection1': [
@@ -151,6 +163,7 @@ class TestDB(TestCase):
         expected = {'param': 'OK'}
         self.assertDictEqual(actual, expected)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_doc(self):
         # 正常系(ref) reference_delete=True
         doc = {
@@ -232,6 +245,7 @@ class TestDB(TestCase):
         expected = 'light'
         self.assertEqual(actual, expected)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_item_delete(self):
         # 正常系(emb)
         doc = {
@@ -267,6 +281,7 @@ class TestDB(TestCase):
         actual = self.db.item_delete(collection, oid, delete_key, query)
         self.assertTrue(actual)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_update(self):
         # 正常系 emb
         collection = 'test_update'
@@ -661,6 +676,7 @@ class TestDB(TestCase):
         expected = ['1', '2', {'A': '4'}, '3', '4']
         self.assertListEqual(expected, actual)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_collections(self):
 
         # 正常系
@@ -679,6 +695,7 @@ class TestDB(TestCase):
         expected = sorted(collections)
         self.assertListEqual(actual, expected)
 
+    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_find_collection_from_objectid(self):
         # 正常系
         collection = 'find_collection_from_objectid'
