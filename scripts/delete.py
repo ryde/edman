@@ -9,11 +9,6 @@ from action import Action
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
 
-# iniファイル読み込み
-settings = configparser.ConfigParser()
-settings.read(Path.cwd() / 'ini' / 'db.ini')
-con = dict([i for i in settings['DB'].items()])
-
 # コマンドライン引数処理
 parser = argparse.ArgumentParser(description='ドキュメントの項目を削除するスクリプト')
 # parser.add_argument('-c', '--collection', help='collection name.')
@@ -28,6 +23,11 @@ args = parser.parse_args()
 
 # クエリの変換
 query = Action.file_query_eval(args.query, args.structure)
+
+# iniファイル読み込み
+settings = configparser.ConfigParser()
+settings.read(Path.cwd() / 'ini' / 'db.ini')
+con = dict([i for i in settings['DB'].items()])
 
 db = DB()
 edman = db.connect(**con)

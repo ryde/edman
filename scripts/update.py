@@ -9,11 +9,6 @@ from edman.db import DB
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
 
-# iniファイル読み込み
-settings = configparser.ConfigParser()
-settings.read(Path.cwd() / 'ini' / 'db.ini')
-con = dict([i for i in settings['DB'].items()])
-
 # コマンドライン引数処理
 parser = argparse.ArgumentParser(description='ドキュメントの項目を修正するスクリプト')
 # parser.add_argument('-c', '--collection', help='collection name.')
@@ -26,6 +21,11 @@ args = parser.parse_args()
 # 構造はrefかembのどちらか
 if not (args.structure == 'ref' or args.structure == 'emb'):
     parser.error("--structure requires 'ref' or 'emb'.")
+
+# iniファイル読み込み
+settings = configparser.ConfigParser()
+settings.read(Path.cwd() / 'ini' / 'db.ini')
+con = dict([i for i in settings['DB'].items()])
 
 # ファイル読み込み
 try:

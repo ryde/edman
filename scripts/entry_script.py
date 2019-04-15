@@ -11,11 +11,6 @@ from action import Action
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
 
-# iniファイル読み込み
-settings = configparser.ConfigParser()
-settings.read(Path.cwd() / 'ini' / 'db.ini')
-con = dict([i for i in settings['DB'].items()])
-
 # コマンドライン引数処理
 parser = argparse.ArgumentParser(description='JSONからDBに投入するスクリプト')
 parser.add_argument('path', help='file or Dir path.')
@@ -28,6 +23,11 @@ args = parser.parse_args()
 # 構造はrefかembのどちらか ※モジュール内でも判断できる
 if not (args.structure == 'ref' or args.structure == 'emb'):
     parser.error("--structure requires 'ref' or 'emb'.")
+
+# iniファイル読み込み
+settings = configparser.ConfigParser()
+settings.read(Path.cwd() / 'ini' / 'db.ini')
+con = dict([i for i in settings['DB'].items()])
 
 db = DB()
 db.connect(**con)  # DB接続
