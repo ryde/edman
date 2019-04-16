@@ -6,7 +6,8 @@ import signal
 import getpass
 import argparse
 from collections import OrderedDict
-from edman.db import DB
+# from edman.db import DB
+from action import Action
 
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
@@ -101,5 +102,6 @@ while True:
         continue
 
 # DBの削除
-db = DB()
-db.destroy(user_account, host, port, admin=admin_account, del_user=del_user)
+# db = DB()
+# db.destroy(user_account, host, port, admin=admin_account, del_user=del_user)
+Action.destroy(user_account, host, port, admin=admin_account, del_user=del_user)

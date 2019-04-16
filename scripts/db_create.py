@@ -6,7 +6,8 @@ import signal
 import getpass
 from pathlib import Path
 from collections import OrderedDict
-from edman.db import DB
+# from edman.db import DB
+from action import Action
 
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
@@ -100,8 +101,9 @@ while True:
         continue
 
 # DB作成
-db = DB()
-db.create(admin_account, user_account, ini_dir, host, port)
+# db = DB()
+# db.create(admin_account, user_account, ini_dir, host, port)
+Action.create(admin_account, user_account, ini_dir, host, port)
 
 # テスト用のためにここに置く
 # db.destroy(user_account, host, port, admin=admin_account, del_user=True)
