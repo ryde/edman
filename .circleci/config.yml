@@ -31,10 +31,10 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             # - v1-dependencies-
 
-      - run:
-          name: mongodb config
-          command: |
-            mongo admin --eval 'db.createUser({ user: "admin", pwd: "admin", roles: [{ role: "userAdminAnyDatabase", db: "admin" }]})'
+#      - run:
+#          name: mongodb config
+#          command: |
+#            mongo admin --eval 'db.createUser({ user: "admin", pwd: "admin", roles: [{ role: "userAdminAnyDatabase", db: "admin" }]})'
 
       - run:
           name: install dependencies
