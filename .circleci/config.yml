@@ -8,7 +8,8 @@ jobs:
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.7
+      - image: messa/circleci-python-with-mongodb:3.6
+      # - image: circleci/python:3.6.7
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -31,10 +32,16 @@ jobs:
             # - v1-dependencies-
 
       - run:
+          name: mongodb config
+          command: |
+            mongo admin --eval 'db.createUser({ user: "admin", pwd: "admin", roles: [{ role: "userAdminAnyDatabase", db: "admin" }]})'
+
+      - run:
           name: install dependencies
           command: |
             python3 -m venv venv
             source ./venv/bin/activate
+            python --version
             pip install -U pip
             pip install -U setuptools
             pip install ~/edman_test/
