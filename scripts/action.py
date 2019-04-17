@@ -43,44 +43,79 @@ class Action:
                     sys.exit(f'File is not json format. {file}')
                 yield read_data
 
-    @staticmethod
-    def files_read(file_or_dir_path: Union[str, Path], suffix: str) -> tuple:
-        """
-        ファイルのパスを、
-        単一ファイルもディレクトリ内の複数ファイルもタプルにして返す
-
-        :param str or Path file_or_dir_path:
-        :param str suffix:
-        :return tuple files:
-        """
-        if isinstance(file_or_dir_path, str):
-            p = Path(file_or_dir_path)
-        elif isinstance(file_or_dir_path, Path):
-            p = file_or_dir_path
-        else:
-            sys.exit('file_read() is a str or path Object is required.')
-
-        if p.exists():
-            if p.is_dir():
-                files = tuple(sorted(p.glob(f'*.{suffix}')))
-            else:
-                files = (p,) if f'.{suffix}' in p.suffix else tuple()
-            if len(files) != 0:
-                return files
-            else:
-                sys.exit(f'{suffix} files not in directory.')
-        else:
-            sys.exit('That path does not exist.')
+    # @staticmethod
+    # def files_read(file_or_dir_path: Union[str, Path], suffix: str) -> tuple:
+    #     """
+    #     ファイルのパスを、
+    #     単一ファイルもディレクトリ内の複数ファイルもタプルにして返す
+    #
+    #     :param str or Path file_or_dir_path:
+    #     :param str suffix:
+    #     :return tuple files:
+    #     """
+    #     if isinstance(file_or_dir_path, str):
+    #         p = Path(file_or_dir_path)
+    #     elif isinstance(file_or_dir_path, Path):
+    #         p = file_or_dir_path
+    #     else:
+    #         sys.exit('file_read() is a str or path Object is required.')
+    #
+    #     if p.exists():
+    #         if p.is_dir():
+    #             files = tuple(sorted(p.glob(f'*.{suffix}')))
+    #         else:
+    #             files = (p,) if f'.{suffix}' in p.suffix else tuple()
+    #         if len(files) != 0:
+    #             return files
+    #         else:
+    #             sys.exit(f'{suffix} files not in directory.')
+    #     else:
+    #         sys.exit('That path does not exist.')
+    #
+    # @staticmethod
+    # def add_files_read(file_or_dir_path: Union[str, Path]) -> tuple:
+    #     """
+    #     ファイルのパスを、
+    #     単一ファイルもディレクトリ内の複数ファイルもタプルにして返す
+    #     拡張子の指定なし
+    #     多種多様なファイルをアップロードする場合などに使用
+    #
+    #     :param str or Path file_or_dir_path:
+    #     :return tuple files:
+    #     """
+    #     if isinstance(file_or_dir_path, str):
+    #         p = Path(file_or_dir_path)
+    #     elif isinstance(file_or_dir_path, Path):
+    #         p = file_or_dir_path
+    #     else:
+    #         sys.exit('file_read() is a str or path Object is required.')
+    #
+    #     if p.exists():
+    #         if p.is_dir():
+    #             files = tuple(sorted(p.glob('*')))
+    #         else:
+    #             files = (p,)
+    #         if len(files) != 0:
+    #             return files
+    #         else:
+    #             sys.exit('files not in directory.')
+    #     else:
+    #         sys.exit('That path does not exist.')
 
     @staticmethod
     def add_files_read(file_or_dir_path: Union[str, Path]) -> tuple:
+        # TODO リファクタリングのために一時的に用意
+        return Action.files_read(file_or_dir_path)
+
+    @staticmethod
+    def files_read(file_or_dir_path: Union[str, Path], suffix=None) -> tuple:
         """
         ファイルのパスを、
         単一ファイルもディレクトリ内の複数ファイルもタプルにして返す
-        拡張子の指定なし
-        多種多様なファイルをアップロードする場合などに使用
+        拡張子の指定をすると、ディレクトリ内の該当のファイルのみ取得
 
         :param str or Path file_or_dir_path:
+        :param str or None suffix:
         :return tuple files:
         """
         if isinstance(file_or_dir_path, str):
@@ -90,17 +125,24 @@ class Action:
         else:
             sys.exit('file_read() is a str or path Object is required.')
 
-        if p.exists():
-            if p.is_dir():
-                files = tuple(sorted(p.glob('*')))
-            else:
-                files = (p,)
-            if len(files) != 0:
-                return files
-            else:
-                sys.exit('files not in directory.')
-        else:
+        if not p.exists():
             sys.exit('That path does not exist.')
+
+        if suffix is None:
+            files = tuple(sorted(p.glob('*'))) if p.is_dir() else (p,)
+            message = ''
+        else:
+            files = (
+                tuple(sorted(p.glob(f'*.{suffix}')))
+                if p.is_dir() else (p,)
+                if f'.{suffix}' in p.suffix else tuple()
+            )
+            message = suffix
+
+        if not len(files):
+            sys.exit(f'{message} files not in directory.')
+
+        return files
 
     @staticmethod
     def query_eval(raw_query: str) -> dict:
