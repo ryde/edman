@@ -147,7 +147,8 @@ class Action:
             sys.exit('ref or embを指定してください')
         return query
 
-    def create(self, admin: dict, user: dict, ini_dir: Path, host='127.0.0.1',
+    @staticmethod
+    def create(admin: dict, user: dict, ini_dir: Path, host='127.0.0.1',
                port=27017) -> None:
         """
         ユーザ権限のDBを作成する
@@ -221,10 +222,10 @@ class Action:
             'userpwd': userpwd,
             'dbname': userdb
         }
-        self._create_ini(ini_data, ini_dir)
+        Action.create_ini(ini_data, ini_dir)
 
     @staticmethod
-    def _create_ini(ini_data: dict, ini_dir: Path) -> None:
+    def create_ini(ini_data: dict, ini_dir: Path) -> None:
         """
         指定のディレクトリにiniファイルを作成
         同名ファイルがあった場合はname_[file_count +1].iniとして作成

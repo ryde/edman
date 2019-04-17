@@ -101,9 +101,9 @@ while True:
         continue
 
 # DB作成
-db = DB()
-db.create(admin_account, user_account, ini_dir, host, port)
-# Action.create(admin_account, user_account, ini_dir, host, port)
+# db = DB()
+# db.create(admin_account, user_account, ini_dir, host, port)
+Action.create(admin_account, user_account, ini_dir, host, port)
 
 # テスト用のためにここに置く
 # db.destroy(user_account, host, port, admin=admin_account, del_user=True)

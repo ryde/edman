@@ -136,171 +136,171 @@ class DB:
                 break
         return result
 
-    def create(self, admin: dict, user: dict, ini_dir: Path, host='127.0.0.1',
-               port=27017) -> None:
-        """
-        ユーザ権限のDBを作成する
-
-        :param dict admin: 管理者のユーザ情報
-        :param dict user: 作成するユーザ情報
-        :param str host: ホスト名
-        :param int port: 接続ポート
-        :param Path ini_dir: 接続情報用iniファイルの格納場所
-        :return:
-        """
-        admindb = admin['dbname']
-        adminname = admin['name']
-        adminpwd = admin['pwd']
-
-        userdb = user['dbname']
-        username = user['name']
-        userpwd = user['pwd']
-
-        try:
-            client = pymongo.MongoClient(host, port)
-            client[admindb].command('ismaster')
-        except ConnectionFailure:
-            sys.exit('DB server not exists.')
-
-        try:  # DB管理者認証
-            client[admindb].authenticate(adminname, adminpwd)
-        except OperationFailure:
-            sys.exit('Authenticate failed.')
-
-        if userdb in client.list_database_names():
-            sys.exit('DB name is duplicated.')
-
-        # 指定のDBを作成
-        try:
-            client[userdb].command(
-                "createUser",
-                username,
-                pwd=userpwd,
-                roles=[
-                    {
-                        'role': 'dbOwner',
-                        'db': userdb,
-                    },
-                ],
-            )
-            client[userdb].authenticate(username, userpwd)
-        except OperationFailure:
-            sys.exit('DB creation failed.')
-
-        # 初期データを入力
-        # MongoDBはデータが入力されるまでDBが作成されないため
-        db = client[userdb]
-        init_collection = 'init'
-        try:
-            result = db[init_collection].insert_one({'generate': True})
-            db[init_collection].delete_one({'_id': result.inserted_id})
-            db[init_collection].drop()
-            print('DB Create OK.')
-        except OperationFailure:
-            print(f"""
-            Initialization failed.
-            Please delete manually if there is data remaining.
-            """)
-
-        # iniファイル書き出し処理
-        ini_data = {
-            'host': host,
-            'port': port,
-            'username': username,
-            'userpwd': userpwd,
-            'dbname': userdb
-        }
-        self._create_ini(ini_data, ini_dir)
-
-    @staticmethod
-    def _create_ini(ini_data: dict, ini_dir: Path) -> None:
-        """
-        指定のディレクトリにiniファイルを作成
-        同名ファイルがあった場合はname_[file_count +1].iniとして作成
-
-        :param dict ini_data: 接続情報用iniファイルに記載するデータ
-        :param Path ini_dir: 格納場所
-        :return:
-        """
-        # この値は現在固定
-        name = 'db'
-        ext = '.ini'
-
-        default_filename = name + ext
-        ini_files = tuple(
-            [i.name for i in tuple(ini_dir.glob(name + '*' + ext))])
-
-        if default_filename in ini_files:
-            filename = name + '_' + str(len(ini_files) + 1) + ext
-            print(f'{default_filename} is exists.Create it as a [{filename}].')
-        else:
-            filename = default_filename
-
-        # iniファイルの内容
-        put_data = [
-            '[DB]',
-            'mongo_statement = mongodb://' + ini_data['username'] + ':' +
-            ini_data[
-                'userpwd'] + '@' + ini_data['host'] + ':' + str(
-                ini_data['port']) + '/',
-            'db_name = ' + ini_data['dbname'] + '\n'
-        ]
-
-        # iniファイルの書き出し
-        savefile = ini_dir / filename
-        try:
-            with savefile.open("w") as file:
-                file.writelines('\n'.join(put_data))
-                file.flush()
-                os.fsync(file.fileno())
-
-                print(f'Create {savefile}')
-        except IOError:
-            print('ini file not create.Please create it manually.')
-
-    @staticmethod
-    def destroy(user: dict, host: str, port: int, admin=None,
-                del_user=False) -> None:
-        """
-        DBを削除する
-        del_userがTrue, かつadmin_accountがNoneでない時はユーザも削除する
-
-        :param dict user: 削除対象のユーザデータ
-        :param str host: ホスト名
-        :param int port: ポート番号
-        :param dict or None admin: ユーザを削除する場合のみ管理者のデータが必要
-        :param bool del_user: ユーザ削除フラグ
-        :return: None
-        """
-        if del_user and admin is None:
-            sys.exit('You need administrator privileges to delete users.')
-
-        userdb = user['dbname']
-        userid = user['name']
-        userpwd = user['pwd']
-
-        client = pymongo.MongoClient(host, port)
-
-        # DB削除
-        try:
-            client[userdb].authenticate(userid, userpwd)
-            client.drop_database(userdb)
-            print('DB delete OK.')
-        except OperationFailure:
-            sys.exit('Delete DB failed. Delete DB in Mongo shell.')
-
-        # admin権限にてユーザを削除
-        if del_user:
-            admindb = admin['dbname']
-            adminid = admin['name']
-            adminpwd = admin['pwd']
-            try:
-                client[admindb].authenticate(adminid, adminpwd)
-                db = client[userdb]
-                db.command("dropUser", userid)
-                print('DB User delete OK.')
-            except OperationFailure:
-                sys.exit('Delete user failed. Delete user in Mongo shell.')
+    # def create(self, admin: dict, user: dict, ini_dir: Path, host='127.0.0.1',
+    #            port=27017) -> None:
+    #     """
+    #     ユーザ権限のDBを作成する
+    #
+    #     :param dict admin: 管理者のユーザ情報
+    #     :param dict user: 作成するユーザ情報
+    #     :param str host: ホスト名
+    #     :param int port: 接続ポート
+    #     :param Path ini_dir: 接続情報用iniファイルの格納場所
+    #     :return:
+    #     """
+    #     admindb = admin['dbname']
+    #     adminname = admin['name']
+    #     adminpwd = admin['pwd']
+    #
+    #     userdb = user['dbname']
+    #     username = user['name']
+    #     userpwd = user['pwd']
+    #
+    #     try:
+    #         client = pymongo.MongoClient(host, port)
+    #         client[admindb].command('ismaster')
+    #     except ConnectionFailure:
+    #         sys.exit('DB server not exists.')
+    #
+    #     try:  # DB管理者認証
+    #         client[admindb].authenticate(adminname, adminpwd)
+    #     except OperationFailure:
+    #         sys.exit('Authenticate failed.')
+    #
+    #     if userdb in client.list_database_names():
+    #         sys.exit('DB name is duplicated.')
+    #
+    #     # 指定のDBを作成
+    #     try:
+    #         client[userdb].command(
+    #             "createUser",
+    #             username,
+    #             pwd=userpwd,
+    #             roles=[
+    #                 {
+    #                     'role': 'dbOwner',
+    #                     'db': userdb,
+    #                 },
+    #             ],
+    #         )
+    #         client[userdb].authenticate(username, userpwd)
+    #     except OperationFailure:
+    #         sys.exit('DB creation failed.')
+    #
+    #     # 初期データを入力
+    #     # MongoDBはデータが入力されるまでDBが作成されないため
+    #     db = client[userdb]
+    #     init_collection = 'init'
+    #     try:
+    #         result = db[init_collection].insert_one({'generate': True})
+    #         db[init_collection].delete_one({'_id': result.inserted_id})
+    #         db[init_collection].drop()
+    #         print('DB Create OK.')
+    #     except OperationFailure:
+    #         print(f"""
+    #         Initialization failed.
+    #         Please delete manually if there is data remaining.
+    #         """)
+    #
+    #     # iniファイル書き出し処理
+    #     ini_data = {
+    #         'host': host,
+    #         'port': port,
+    #         'username': username,
+    #         'userpwd': userpwd,
+    #         'dbname': userdb
+    #     }
+    #     self._create_ini(ini_data, ini_dir)
+    #
+    # @staticmethod
+    # def _create_ini(ini_data: dict, ini_dir: Path) -> None:
+    #     """
+    #     指定のディレクトリにiniファイルを作成
+    #     同名ファイルがあった場合はname_[file_count +1].iniとして作成
+    #
+    #     :param dict ini_data: 接続情報用iniファイルに記載するデータ
+    #     :param Path ini_dir: 格納場所
+    #     :return:
+    #     """
+    #     # この値は現在固定
+    #     name = 'db'
+    #     ext = '.ini'
+    #
+    #     default_filename = name + ext
+    #     ini_files = tuple(
+    #         [i.name for i in tuple(ini_dir.glob(name + '*' + ext))])
+    #
+    #     if default_filename in ini_files:
+    #         filename = name + '_' + str(len(ini_files) + 1) + ext
+    #         print(f'{default_filename} is exists.Create it as a [{filename}].')
+    #     else:
+    #         filename = default_filename
+    #
+    #     # iniファイルの内容
+    #     put_data = [
+    #         '[DB]',
+    #         'mongo_statement = mongodb://' + ini_data['username'] + ':' +
+    #         ini_data[
+    #             'userpwd'] + '@' + ini_data['host'] + ':' + str(
+    #             ini_data['port']) + '/',
+    #         'db_name = ' + ini_data['dbname'] + '\n'
+    #     ]
+    #
+    #     # iniファイルの書き出し
+    #     savefile = ini_dir / filename
+    #     try:
+    #         with savefile.open("w") as file:
+    #             file.writelines('\n'.join(put_data))
+    #             file.flush()
+    #             os.fsync(file.fileno())
+    #
+    #             print(f'Create {savefile}')
+    #     except IOError:
+    #         print('ini file not create.Please create it manually.')
+    #
+    # @staticmethod
+    # def destroy(user: dict, host: str, port: int, admin=None,
+    #             del_user=False) -> None:
+    #     """
+    #     DBを削除する
+    #     del_userがTrue, かつadmin_accountがNoneでない時はユーザも削除する
+    #
+    #     :param dict user: 削除対象のユーザデータ
+    #     :param str host: ホスト名
+    #     :param int port: ポート番号
+    #     :param dict or None admin: ユーザを削除する場合のみ管理者のデータが必要
+    #     :param bool del_user: ユーザ削除フラグ
+    #     :return: None
+    #     """
+    #     if del_user and admin is None:
+    #         sys.exit('You need administrator privileges to delete users.')
+    #
+    #     userdb = user['dbname']
+    #     userid = user['name']
+    #     userpwd = user['pwd']
+    #
+    #     client = pymongo.MongoClient(host, port)
+    #
+    #     # DB削除
+    #     try:
+    #         client[userdb].authenticate(userid, userpwd)
+    #         client.drop_database(userdb)
+    #         print('DB delete OK.')
+    #     except OperationFailure:
+    #         sys.exit('Delete DB failed. Delete DB in Mongo shell.')
+    #
+    #     # admin権限にてユーザを削除
+    #     if del_user:
+    #         admindb = admin['dbname']
+    #         adminid = admin['name']
+    #         adminpwd = admin['pwd']
+    #         try:
+    #             client[admindb].authenticate(adminid, adminpwd)
+    #             db = client[userdb]
+    #             db.command("dropUser", userid)
+    #             print('DB User delete OK.')
+    #         except OperationFailure:
+    #             sys.exit('Delete user failed. Delete user in Mongo shell.')
 
     def _reference_item_delete(self, doc: dict) -> dict:
         """
