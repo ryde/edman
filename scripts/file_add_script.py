@@ -39,7 +39,7 @@ file = File(edman)
 collection = db.find_collection_from_objectid(args.objectid)
 
 if file.add_file_reference(collection, args.objectid,
-                           Action.add_files_read(args.path),
+                           Action.files_read(args.path),
                            args.structure, query):
     print('更新しました')
 else:
