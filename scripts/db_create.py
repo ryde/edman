@@ -6,7 +6,6 @@ import signal
 import getpass
 from pathlib import Path
 from collections import OrderedDict
-from edman.db import DB
 from action import Action
 
 # Ctrl-Cを押下された時の対策
@@ -101,8 +100,6 @@ while True:
         continue
 
 # DB作成
-# db = DB()
-# db.create(admin_account, user_account, ini_dir, host, port)
 Action.create(admin_account, user_account, ini_dir, host, port)
 
 # テスト用のためにここに置く
