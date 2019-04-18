@@ -239,7 +239,7 @@ class Action:
             '[DB]',
             '# DB user settings\n',
             '# MongoDB default port 27017',
-            'port = ' + ini_data['port'] + '\n',
+            'port = ' + str(ini_data['port']) + '\n',
             '# MongoDB server host',
             'host = ' + ini_data['host'] + '\n',
             'database = ' + ini_data['dbname'],
