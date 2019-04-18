@@ -227,13 +227,27 @@ class Action:
             filename = default_filename
 
         # iniファイルの内容
+        # put_data = [
+        #     '[DB]',
+        #     'mongo_statement = mongodb://' + ini_data['username'] + ':' +
+        #     ini_data[
+        #         'userpwd'] + '@' + ini_data['host'] + ':' + str(
+        #         ini_data['port']) + '/',
+        #     'db_name = ' + ini_data['dbname'] + '\n'
+        # ]
         put_data = [
             '[DB]',
-            'mongo_statement = mongodb://' + ini_data['username'] + ':' +
-            ini_data[
-                'userpwd'] + '@' + ini_data['host'] + ':' + str(
-                ini_data['port']) + '/',
-            'db_name = ' + ini_data['dbname'] + '\n'
+            '# DB user settings\n',
+            '# MongoDB default port 27017',
+            'port = ' + ini_data['port'] + '\n',
+            '# MongoDB server host',
+            'host = ' + ini_data['host'] + '\n',
+            'database = ' + ini_data['dbname'],
+            'user = ' + ini_data['username'],
+            'password = ' + ini_data['userpwd'] + '\n',
+            '[COLLECTION]',
+            '# Collection name in MongoDB of file section in XML',
+            'file = ' + '_file' + '\n'
         ]
 
         # iniファイルの書き出し
