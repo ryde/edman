@@ -178,21 +178,6 @@ class Action:
             sys.exit('DB creation failed.')
         print('DB Create OK.')
 
-        # 初期データを入力
-        # MongoDBはデータが入力されるまでDBが作成されないため
-        # db = client[userdb]
-        # init_collection = 'init'
-        # try:
-        #     result = db[init_collection].insert_one({'generate': True})
-        #     db[init_collection].delete_one({'_id': result.inserted_id})
-        #     db[init_collection].drop()
-        #     print('DB Create OK.')
-        # except OperationFailure:
-        #     print(f"""
-        #     Initialization failed.
-        #     Please delete manually if there is data remaining.
-        #     """)
-
         # iniファイル書き出し処理
         ini_data = {
             'host': host,
@@ -228,14 +213,6 @@ class Action:
             filename = default_filename
 
         # iniファイルの内容
-        # put_data = [
-        #     '[DB]',
-        #     'mongo_statement = mongodb://' + ini_data['username'] + ':' +
-        #     ini_data[
-        #         'userpwd'] + '@' + ini_data['host'] + ':' + str(
-        #         ini_data['port']) + '/',
-        #     'db_name = ' + ini_data['dbname'] + '\n'
-        # ]
         put_data = [
             '[DB]',
             '# DB user settings\n',
