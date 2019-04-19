@@ -91,4 +91,3 @@ ENV/
 .ropeproject
 
 /scripts/ini/db.ini
-.circleci

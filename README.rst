@@ -69,8 +69,8 @@ Usage
 |  file_add_script.py:  該当データにファイルを添付する embの時クエリ2を使用します
 |  file_dl_script.py: 添付ファイルをダウンロード embの時クエリ2を使用します
 |  file_delete_script.py: 添付ファイルを削除 embの時クエリ2を使用します
-|  db_create.py: データベース作成操作支援用
-|  db_destroy.py: データベース削除操作支援用
+|  db_create.py: データベース及びユーザ作成操作支援用(MongoDBの管理者アカウントが必要)
+|  db_destroy.py: データベース削除操作支援用(ユーザ削除はソース書き換えが必要)
 |
 オプションなど詳しくは::
 
