@@ -40,6 +40,11 @@ jobs:
             pip install -U pip
             pip install -U setuptools
             pip install ~/edman_test/
+          working_directory: ~/edman_test/tests
+
+      - run:
+          name: testing
+          command: |
             python -m unittest
           working_directory: ~/edman_test/tests
 
