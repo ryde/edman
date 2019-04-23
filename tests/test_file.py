@@ -1,6 +1,6 @@
 import configparser
 import tempfile
-from unittest import TestCase, skip
+from unittest import TestCase
 from pathlib import Path
 import gridfs
 import pymongo
@@ -110,7 +110,7 @@ class TestFile(TestCase):
 
     def test_add_file_reference(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # refの場合
         # refデータ入力
@@ -411,7 +411,7 @@ class TestFile(TestCase):
 
     def test__fs_delete(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # 正常系
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -438,7 +438,7 @@ class TestFile(TestCase):
 
     def test_download(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             p = Path(tmp_dir)
@@ -485,7 +485,7 @@ class TestFile(TestCase):
 
     def test_get_file_names(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             p = Path(tmp_dir)
@@ -568,7 +568,7 @@ class TestFile(TestCase):
 
     def test_delete(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         with tempfile.TemporaryDirectory() as tmp_dl_dir:
             p = Path(tmp_dl_dir)

@@ -1,7 +1,7 @@
 import configparser
 from pathlib import Path
 from datetime import datetime
-from unittest import TestCase, skip
+from unittest import TestCase
 import pymongo
 from pymongo import errors
 import dateutil.parser
@@ -168,7 +168,7 @@ class TestSearch(TestCase):
 
     def test__get_self(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # テストデータをDBに挿入
         data = {'test_data': 'test'}
@@ -186,7 +186,7 @@ class TestSearch(TestCase):
 
     def test__get_parent(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # テストデータをDBに挿入
         db = self.client[self.test_ini['db']]
@@ -257,7 +257,7 @@ class TestSearch(TestCase):
 
     def test__child_storaged(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # テストデータ入力
         db = self.client[self.test_ini['db']]
@@ -315,7 +315,7 @@ class TestSearch(TestCase):
 
     def test__get_child(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         db = self.client[self.test_ini['db']]
         parent_id = ObjectId()

@@ -1,6 +1,6 @@
 import configparser
 import copy
-from unittest import TestCase, skip
+from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
 import pymongo
@@ -84,7 +84,7 @@ class TestDB(TestCase):
 
     def test_insert(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         data = [
             {'collection1': [
@@ -165,7 +165,7 @@ class TestDB(TestCase):
 
     def test_doc(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # 正常系(ref) reference_delete=True
         doc = {
@@ -249,7 +249,7 @@ class TestDB(TestCase):
 
     def test_item_delete(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # 正常系(emb)
         doc = {
@@ -287,7 +287,7 @@ class TestDB(TestCase):
 
     def test_update(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # 正常系 emb
         collection = 'test_update'
@@ -684,7 +684,7 @@ class TestDB(TestCase):
 
     def test_collections(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # 正常系
         collections = ['test_collections_A', 'test_collections_B',
@@ -704,7 +704,7 @@ class TestDB(TestCase):
 
     def test_find_collection_from_objectid(self):
         if not self.db_server_connect:
-            skip('DB接続が確認できないのでスキップ')
+            return
 
         # 正常系
         collection = 'find_collection_from_objectid'
