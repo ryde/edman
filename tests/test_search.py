@@ -1,7 +1,7 @@
 import configparser
 from pathlib import Path
 from datetime import datetime
-from unittest import TestCase, skipUnless
+from unittest import TestCase, skip
 import pymongo
 from pymongo import errors
 import dateutil.parser
@@ -13,7 +13,6 @@ from edman.db import DB
 
 
 class TestSearch(TestCase):
-    db_server_connect = False
 
     @classmethod
     def setUpClass(cls):
@@ -30,6 +29,7 @@ class TestSearch(TestCase):
         # 接続確認
         try:
             cls.client.admin.command('ismaster')
+            cls.db_server_connect = True
         except pymongo.errors.ConnectionFailure:
             cls.db_server_connect = False
 
@@ -166,8 +166,10 @@ class TestSearch(TestCase):
         with self.assertRaises((InvalidId, SystemExit)) as cm:
             _ = self.search._objectid_replacement(query)
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__get_self(self):
+        if not self.db_server_connect:
+            skip('DB接続が確認できないのでスキップ')
+
         # テストデータをDBに挿入
         data = {'test_data': 'test'}
         test_collection = 'get_self_test'
@@ -182,8 +184,10 @@ class TestSearch(TestCase):
         self.assertEqual(sorted(list(data.keys())),
                          sorted(list(actual[test_collection].keys())))
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__get_parent(self):
+        if not self.db_server_connect:
+            skip('DB接続が確認できないのでスキップ')
+
         # テストデータをDBに挿入
         db = self.client[self.test_ini['db']]
         data1_id = ObjectId()
@@ -251,8 +255,10 @@ class TestSearch(TestCase):
         expected = actual['parent_1']['parent_2']['car_name']
         self.assertEqual('STORATOS', expected)
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__child_storaged(self):
+        if not self.db_server_connect:
+            skip('DB接続が確認できないのでスキップ')
+
         # テストデータ入力
         db = self.client[self.test_ini['db']]
         parent_id = ObjectId()
@@ -307,8 +313,10 @@ class TestSearch(TestCase):
         self.assertIsInstance(actual, list)
         self.assertEqual(2, len(actual[0]['collection_A']))
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test__get_child(self):
+        if not self.db_server_connect:
+            skip('DB接続が確認できないのでスキップ')
+
         db = self.client[self.test_ini['db']]
         parent_id = ObjectId()
         child1_id = ObjectId()
