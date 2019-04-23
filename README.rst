@@ -22,17 +22,17 @@ Usage
 |  scripts/ini/db.ini.sampleをdb.iniに変更後、中身を設定してください。
 |
 |  ◯emb(Embedded)とref(reference)について
-|  embはjsonファイルの構造をそのままMongoDBに投入します。
-|  refはxmlの親子構造を解析し、親をコレクションとして登録、データはドキュメントとして投入します。
+|  embはjsonファイルの構造をそのままドキュメントとしてMongoDBに投入します。
+|  refはjsonの親子構造を解析し、各親をコレクションとして登録、データはドキュメントとして投入します。
 |
 |  ◯スクリプトで使用するクエリについて
 |
-|  クエリ1
+|  検索用クエリ
 |    検索の際はpymongoのフィルタ形式で指定します
-|    クエリ形式は "{中にpymongoでのフィルタ条件を書く}"
+|    クエリ形式は "{pymongoでのフィルタ条件}"
 |      参照:  http://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.find
 |
-|  クエリ2
+|  階層指定クエリ
 |    emb(Embedded)形式でデータが入っている場合は下記のようなクエリで指定します
 |    構造上、embの時はクエリを使用しなければデータに到達できません
 |    例:
@@ -59,7 +59,7 @@ Usage
 |   ・data4を消したい場合
 |   "['collectionA', '1', 'collectionC', 'collectionD']"
 |   リストで消したい項目の直近の親までを指定する
-|   (データが複数あり、リストで囲まれていた場合は添字を数字で指定)
+|   データが複数あり、リストで囲まれていた場合は添字を数字で指定
 |
 |  ◯各スクリプトファイル
 |  entry_script.py: jsonファイルからMongoDBに投入
