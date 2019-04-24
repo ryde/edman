@@ -40,6 +40,12 @@ jobs:
             pip install -U pip
             pip install -U setuptools
             pip install ~/edman_test/
+          working_directory: ~/
+
+      - run:
+          name: tests
+          command: |
+            source ~/venv/bin/activate
             python -m unittest
           working_directory: ~/edman_test/tests
 
