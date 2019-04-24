@@ -1,7 +1,6 @@
 import configparser
 import copy
-# import tempfile
-from unittest import TestCase, skipUnless
+from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
 import pymongo
@@ -12,8 +11,6 @@ from edman.config import Config
 
 
 class TestDB(TestCase):
-
-    db_server_connect = False
 
     @classmethod
     def setUpClass(cls):
@@ -31,6 +28,7 @@ class TestDB(TestCase):
         # 接続確認
         try:
             cls.client.admin.command('ismaster')
+            cls.db_server_connect = True
         except pymongo.errors.ConnectionFailure:
             cls.db_server_connect = False
 
@@ -84,8 +82,10 @@ class TestDB(TestCase):
     #     # DB破棄
     #     pass
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_insert(self):
+        if not self.db_server_connect:
+            return
+
         data = [
             {'collection1': [
                 {'name': 'IBM 5100', 'value': 100},
@@ -163,8 +163,10 @@ class TestDB(TestCase):
         expected = {'param': 'OK'}
         self.assertDictEqual(actual, expected)
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_doc(self):
+        if not self.db_server_connect:
+            return
+
         # 正常系(ref) reference_delete=True
         doc = {
             'test': 'star',
@@ -245,8 +247,10 @@ class TestDB(TestCase):
         expected = 'light'
         self.assertEqual(actual, expected)
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_item_delete(self):
+        if not self.db_server_connect:
+            return
+
         # 正常系(emb)
         doc = {
             'test': 'star',
@@ -281,8 +285,10 @@ class TestDB(TestCase):
         actual = self.db.item_delete(collection, oid, delete_key, query)
         self.assertTrue(actual)
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_update(self):
+        if not self.db_server_connect:
+            return
+
         # 正常系 emb
         collection = 'test_update'
         file_ref = [ObjectId(), ObjectId(), ObjectId()]
@@ -676,8 +682,9 @@ class TestDB(TestCase):
         expected = ['1', '2', {'A': '4'}, '3', '4']
         self.assertListEqual(expected, actual)
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_collections(self):
+        if not self.db_server_connect:
+            return
 
         # 正常系
         collections = ['test_collections_A', 'test_collections_B',
@@ -695,8 +702,10 @@ class TestDB(TestCase):
         expected = sorted(collections)
         self.assertListEqual(actual, expected)
 
-    @skipUnless(db_server_connect, 'DB接続が確認できないのでスキップ')
     def test_find_collection_from_objectid(self):
+        if not self.db_server_connect:
+            return
+
         # 正常系
         collection = 'find_collection_from_objectid'
         insert_data = {'test_data': 'test'}
