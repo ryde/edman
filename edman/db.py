@@ -99,6 +99,7 @@ class DB:
             doc_bar.close()
             sys.stdout.write('\r\n')  # tqdmとの干渉を防ぐための改行
             collection_bar.close()
+        sys.stdout.write('\r\n')  # tqdmとの干渉を防ぐための改行
         print('inserted')
         return results
 
