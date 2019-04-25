@@ -16,13 +16,19 @@ parser = argparse.ArgumentParser(description='JSONからDBに投入するスク�
 parser.add_argument('path', help='file or Dir path.')
 parser.add_argument('-rd', '--result_dir',
                     help='Dir of report files. default is current dir.',
-                    default='.')
+                    default=None)
 parser.add_argument('-s', '--structure', default='ref',
                     help='Select ref(Reference, default) or emb(embedded).')
 args = parser.parse_args()
 # 構造はrefかembのどちらか ※モジュール内でも判断できる
 if not (args.structure == 'ref' or args.structure == 'emb'):
     parser.error("--structure requires 'ref' or 'emb'.")
+
+# 結果を記録する場合はパスの存在を調べる
+if args.result_dir is not None:
+    p = Path(args.result_dir)
+    if not p.exists() and not p.is_dir():
+        sys.exit('パスが不正です')
 
 # iniファイル読み込み
 settings = configparser.ConfigParser()
@@ -44,5 +50,7 @@ for file in Action.file_gen(json_files):
 
     # DBへインサート
     inserted_report = db.insert(converted_edman)
-    jm.save({'inserted_report': inserted_report}, args.result_dir,
-            name='inserted', date=True)
+
+    if args.result_dir is not None:
+        jm.save({'inserted_report': inserted_report}, args.result_dir,
+                name='inserted', date=True)
