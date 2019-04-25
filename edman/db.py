@@ -97,10 +97,8 @@ class DB:
                     print('インサートに失敗しました:', bwe.details)
                     print('インサート結果:', results)
             doc_bar.close()
-            sys.stdout.write('\r\n')  # tqdmとの干渉を防ぐための改行
             collection_bar.close()
-        sys.stdout.write('\r\n')  # tqdmとの干渉を防ぐための改行
-        print('inserted')
+        print('\r\ninserted')
         return results
 
     def collections(self, include_system_collections=False) -> tuple:
