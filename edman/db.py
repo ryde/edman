@@ -98,7 +98,6 @@ class DB:
                     print('インサート結果:', results)
             doc_bar.close()
             collection_bar.close()
-        print('\r\ninserted')
         return results
 
     def collections(self, include_system_collections=False) -> tuple:
