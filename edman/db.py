@@ -98,6 +98,7 @@ class DB:
                     print('インサート結果:', results)
             doc_bar.close()
             collection_bar.close()
+        print('/r')  # 環境によってはtqdmで改行されない場合があるため
         return results
 
     def collections(self, include_system_collections=False) -> tuple:
