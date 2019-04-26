@@ -55,7 +55,8 @@ class Convert:
                 'system.') or collection_name.startswith('#'):
             return False
 
-        if re.match('(^\W)', collection_name):
+        # 先頭に記号があるとマッチする
+        if re.match(r'(\W)', collection_name) is not None:
             return False
 
         return True
