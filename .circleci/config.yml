@@ -47,8 +47,8 @@ jobs:
           name: tests
           command: |
             source ~/venv/bin/activate
-            pytest --junitxml=~/test-reports/junit.xml
             mkdir ~/test-reports
+            pytest --junitxml=~/test-reports/junit.xml
           working_directory: ~/edman_test/tests
 
       - store_artifacts:
