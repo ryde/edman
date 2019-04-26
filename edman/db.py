@@ -111,7 +111,7 @@ class DB:
         collections = self.db.list_collection_names()
         if not include_system_collections:
             collections = tuple(
-                [s for s in collections if not re.match('^(system\.)', s)])
+                [s for s in collections if not re.match(r'system\.', s)])
         return tuple(set(collections))
 
     def find_collection_from_objectid(self,

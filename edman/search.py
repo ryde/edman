@@ -40,7 +40,7 @@ class Search:
 
         if not include_system_collections:
             collections = tuple(
-                [s for s in collections if not re.match('^(system\.)', s)])
+                [s for s in collections if not re.match(r'system\.', s)])
 
         return collections
 
