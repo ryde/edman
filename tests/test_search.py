@@ -30,8 +30,10 @@ class TestSearch(TestCase):
         try:
             cls.client.admin.command('ismaster')
             cls.db_server_connect = True
+            print('Use DB.')
         except pymongo.errors.ConnectionFailure:
             cls.db_server_connect = False
+            print('Do not use DB.')
 
         if cls.db_server_connect:
             # adminで認証
