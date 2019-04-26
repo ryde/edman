@@ -39,6 +39,7 @@ jobs:
             python --version
             pip install -U pip
             pip install -U setuptools
+            pip install pytest
             pip install ~/edman_test/
           working_directory: ~/
 
@@ -46,7 +47,7 @@ jobs:
           name: tests
           command: |
             source ~/venv/bin/activate
-            python -m unittest
+            pytest
           working_directory: ~/edman_test/tests
 
       - store_artifacts:
