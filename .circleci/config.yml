@@ -9,7 +9,8 @@ jobs:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
       # - image: messa/circleci-python-with-mongodb:3.6
-      - image: circleci/python:3.6.7
+      # - image: circleci/python:3.6.7
+      - image: ryde11/py3-mongo4-cent7
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
