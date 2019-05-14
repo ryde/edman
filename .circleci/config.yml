@@ -11,8 +11,6 @@ jobs:
       # - image: messa/circleci-python-with-mongodb:3.6
       # - image: circleci/python:3.6.7
       - image: ryde11/py3-mongo4-cent7
-        ports:
-          - "27017:27017"
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -26,10 +24,6 @@ jobs:
 
     steps:
       - checkout
-
-      - run:
-          command: |
-            mongo admin --eval "db.createUser({user: 'admin',pwd: 'admin',roles:[{role: 'userAdminAnyDatabase',db: 'admin'},{role: 'root',db: 'admin'}]})"
 
       # Download and cache dependencies
       # - restore_cache:
