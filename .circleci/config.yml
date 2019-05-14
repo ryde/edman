@@ -26,8 +26,8 @@ jobs:
       - checkout
 
       - run:
-        command: |
-          mongo admin --eval "db.createUser({user: 'admin',pwd: 'admin',roles:[{role: 'userAdminAnyDatabase',db: 'admin'},{role: 'root',db: 'admin'}]})"
+          command: |
+            mongo admin --eval "db.createUser({user: 'admin',pwd: 'admin',roles:[{role: 'userAdminAnyDatabase',db: 'admin'},{role: 'root',db: 'admin'}]})"
 
       # Download and cache dependencies
       # - restore_cache:
