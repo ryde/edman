@@ -117,7 +117,7 @@ class Action:
             error_message = 'クエリがリスト形式ではありません.'
             try:
                 query = ast.literal_eval(raw_query)
-            except ValueError:
+            except SyntaxError:
                 sys.exit(error_message)
             if not isinstance(query, list):
                 sys.exit(error_message)

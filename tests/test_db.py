@@ -117,42 +117,6 @@ class TestDB(TestCase):
             with self.subTest(i=i, idx=idx):
                 self.assertDictEqual(i, actual[idx])
 
-    # def test__create_ini(self):
-    #
-    #     # データ作成
-    #     data = {
-    #         'host': '127.0.0.1',
-    #         'port': 27017,
-    #         'username': 'username',
-    #         'userpwd': 'userpwd',
-    #         'dbname': 'userdb'
-    #     }
-    #     with tempfile.TemporaryDirectory() as tmp_dir:
-    #         p = Path(tmp_dir)
-    #
-    #         self.db._create_ini(data, p)
-    #
-    #         # 実際にファイルがあるかテスト
-    #         dbfile_path = p / 'db.ini'
-    #         self.assertTrue(dbfile_path.exists())
-    #
-    #         # ファイルの中身があっているかテスト
-    #         a = configparser.ConfigParser()
-    #         a.read(dbfile_path)
-    #         actual_db = dict([i for i in a['DB'].items()])
-    #         c = 'mongodb://' + data['username'] + ':' + data['userpwd'] \
-    #             + '@' + data['host'] + ':' + str(data['port']) + '/'
-    #
-    #         self.assertEqual(c, actual_db['mongo_statement'])
-    #         self.assertEqual(data['dbname'], actual_db['db_name'])
-    #
-    #         # 連続したファイルの場合のテスト
-    #         files_count = 2
-    #         for i in range(files_count):
-    #             self.db._create_ini(data, p)
-    #         ps = sorted(p.glob('*.ini'))
-    #         self.assertEqual(files_count + 1, len(ps))
-
     def test__reference_item_delete(self):
         # 正常系
         doc = {
@@ -783,11 +747,4 @@ class TestDB(TestCase):
     #     # setUpClassで使用。割愛
     #     pass
     #
-    # def test_create(self):
-    #     # setUpで使用。テストは割愛
-    #     pass
-    #
-    # def test_destroy(self):
-    #     # tearDownで使用。テストは割愛
-    #     pass
-    #
+

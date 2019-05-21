@@ -25,9 +25,6 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          mongo admin --eval "db.createUser({user: 'admin',pwd: 'admin',roles:[{role: 'userAdminAnyDatabase',db: 'admin'},{role: 'root',db: 'admin'}]})"
-
       # Download and cache dependencies
       # - restore_cache:
           # keys:
