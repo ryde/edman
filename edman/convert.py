@@ -430,7 +430,7 @@ class Convert:
                 else i
                 for i in list_data]
 
-    def emb(self, raw_data: dict) -> dict:
+    def _emb(self, raw_data: dict) -> dict:
         """
         エンベデッドモードでedman用の変換を行う
         主に日付の変換
@@ -497,6 +497,6 @@ class Convert:
         if mode == 'ref':
             return self._ref(raw_data)
         elif mode == 'emb':
-            return [self._attached_oid(self.emb(raw_data))]
+            return [self._attached_oid(self._emb(raw_data))]
         else:
             sys.exit("投入モードは'ref'または'emb'です")

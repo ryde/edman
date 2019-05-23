@@ -159,7 +159,7 @@ class TestConvert(TestCase):
         #     f.write(dumps(actual, ensure_ascii=False, indent=4))
         # TODO あとでテストデータを追加し、assertできるようにする
 
-    def test_emb(self):
+    def test__emb(self):
         pass
         # with open('./test_json_files/ref_test_premo.json') as f:
         #     jsondict = json.load(f)
