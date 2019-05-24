@@ -36,8 +36,7 @@ except IOError:
     sys.exit('file read error.')
 
 #  DB接続
-db = DB()
-edman = db.connect(**con)
+db = DB(con)
 
 # 対象oidの所属コレクションを自動的に取得 ※動作が遅い場合は使用しないこと
 collection = db.find_collection_from_objectid(args.objectid)

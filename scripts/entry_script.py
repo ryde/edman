@@ -35,8 +35,7 @@ settings = configparser.ConfigParser()
 settings.read(Path.cwd() / 'ini' / 'db.ini')
 con = dict([i for i in settings['DB'].items()])
 
-db = DB()
-db.connect(**con)  # DB接続
+db = DB(con)
 jm = JsonManager()
 convert = Convert()
 json_files = Action.files_read(args.path, 'json')

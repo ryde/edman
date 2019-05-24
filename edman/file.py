@@ -18,12 +18,9 @@ class File:
     def __init__(self, db=None) -> None:
 
         if db is not None:
-            self.db = db
+            self.db = db.get_db
             self.fs = gridfs.GridFS(self.db)
         self.file_ref = Config.file
-
-    def connect(self):
-        return self.fs
 
     @staticmethod
     def file_gen(files: Tuple[Path]) -> Iterator:

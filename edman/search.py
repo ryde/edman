@@ -15,14 +15,14 @@ class Search:
     検索関連クラス
     """
 
-    def __init__(self, db_obj=None) -> None:
+    def __init__(self, db=None) -> None:
         config = Config()  # システム環境用の設定を読み込む
         self.parent = config.parent
         self.child = config.child
         self.date = config.date
         self.file = config.file
-        if db_obj is not None:
-            self.db = db_obj
+        if db is not None:
+            self.db = db.get_db
             self.collections = self.get_collections()
 
     def get_collections(self, include_system_collections=False) -> tuple:

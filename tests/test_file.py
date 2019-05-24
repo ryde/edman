@@ -16,7 +16,6 @@ class TestFile(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.db = DB()
 
         # 設定読み込み
         settings = configparser.ConfigParser()
@@ -65,7 +64,8 @@ class TestFile(TestCase):
                 'user': cls.test_ini['user'],
                 'password': cls.test_ini['password']
             }
-            cls.testdb = cls.db.connect(**cls.con)
+            cls.db = DB(cls.con)
+            cls.testdb = cls.db.get_db
 
     @classmethod
     def tearDownClass(cls):
@@ -79,7 +79,7 @@ class TestFile(TestCase):
     def setUp(self):
 
         if self.db_server_connect:
-            self.file = File(self.testdb)
+            self.file = File(self.db)
         else:
             self.file = File()
         self.config = Config()

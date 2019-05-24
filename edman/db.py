@@ -18,27 +18,28 @@ class DB:
     MongoDBへの接続や各種チェック、インサート、作成や破棄など
     """
 
-    def __init__(self) -> None:
-        self.edman_db = None
+    def __init__(self, con) -> None:
 
+        self.db = self._connect(**con)
         self.parent = Config.parent
         self.child = Config.child
         self.file_ref = Config.file
         self.date = Config.date
 
     @property
-    def db(self):
+    def get_db(self):
         """
         プロパティ
 
-        :return: DB接続インスタンス(self.edman_db)
+        :return: DB接続インスタンス(self.db)
         """
-        if self.edman_db is not None:
-            return self.edman_db
+        if self.db is not None:
+            return self.db
         else:
             sys.exit('Please connect to DB.')
 
-    def connect(self, **kwargs: dict):
+    @staticmethod
+    def _connect(**kwargs: dict):
         """
         DBに接続
         self.edman_dbというメンバ変数には、このメソッドでDBオブジェクトが入る
@@ -59,8 +60,8 @@ class DB:
         except ConnectionFailure:
             sys.exit('Server not available.')
 
-        self.edman_db = client[database]
-        return self.edman_db
+        edman_db = client[database]
+        return edman_db
 
     def insert(self, insert_data: list) -> list:
         """
@@ -86,7 +87,7 @@ class DB:
                 if isinstance(bulk_list, dict):
                     bulk_list = [bulk_list]
                 try:
-                    result = self.edman_db[collection].insert_many(bulk_list)
+                    result = self.db[collection].insert_many(bulk_list)
                     results.append({collection: result.inserted_ids})
                     # プログレスバー表示関係
                     doc_bar.update(len(bulk_list))

@@ -64,11 +64,9 @@ class TestSearch(TestCase):
                 'user': cls.test_ini['user'],
                 'password': cls.test_ini['password']
             }
-            db = DB()
-            cls.testdb = db.connect(**con)
-            cls.search = Search(cls.testdb)
-        else:
-            cls.search = Search()
+            db = DB(con)
+            cls.testdb = db.get_db
+            cls.search = Search(db)
 
     @classmethod
     def tearDownClass(cls):
