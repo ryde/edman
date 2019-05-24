@@ -64,6 +64,8 @@ class TestDB(TestCase):
             }
             cls.db = DB(cls.con)
             cls.testdb = cls.db.get_db
+        else:
+            cls.db = DB()
 
     @classmethod
     def tearDownClass(cls):

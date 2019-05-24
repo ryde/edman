@@ -67,6 +67,8 @@ class TestSearch(TestCase):
             db = DB(con)
             cls.testdb = db.get_db
             cls.search = Search(db)
+        else:
+            cls.search = Search()
 
     @classmethod
     def tearDownClass(cls):
