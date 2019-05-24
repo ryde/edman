@@ -18,9 +18,11 @@ class DB:
     MongoDBへの接続や各種チェック、インサート、作成や破棄など
     """
 
-    def __init__(self, con) -> None:
+    def __init__(self, con=None) -> None:
 
-        self.db = self._connect(**con)
+        if con is not None:
+            self.db = self._connect(**con)
+
         self.parent = Config.parent
         self.child = Config.child
         self.file_ref = Config.file
