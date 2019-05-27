@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from unittest import TestCase
 import dateutil.parser
-from pymongo import errors, MongoClient
+from pymongo import errors as py_errors, MongoClient
 from bson import ObjectId, DBRef, errors
 from edman import Config, DB, Search
 
@@ -26,7 +26,7 @@ class TestSearch(TestCase):
             cls.client.admin.command('ismaster')
             cls.db_server_connect = True
             print('Use DB.')
-        except errors.ConnectionFailure:
+        except py_errors.ConnectionFailure:
             cls.db_server_connect = False
             print('Do not use DB.')
 
