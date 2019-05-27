@@ -6,9 +6,7 @@ from datetime import datetime
 import pymongo
 from pymongo import errors
 from bson import ObjectId
-from edman.db import DB
-from edman.config import Config
-
+from edman import Config, DB
 
 class TestDB(TestCase):
 

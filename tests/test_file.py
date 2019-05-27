@@ -6,10 +6,7 @@ import gridfs
 import pymongo
 from pymongo import errors
 from bson import ObjectId, DBRef
-from edman.db import DB
-from edman.file import File
-from edman.config import Config
-from edman.convert import Convert
+from edman import Config, Convert, DB, File
 
 
 class TestFile(TestCase):

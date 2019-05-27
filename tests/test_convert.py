@@ -1,8 +1,7 @@
 from unittest import TestCase
 from datetime import datetime
 from bson import ObjectId, DBRef
-from edman.convert import Convert
-from edman.config import Config
+from edman import Config, Convert
 
 
 class TestConvert(TestCase):

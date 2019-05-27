@@ -7,9 +7,7 @@ from pymongo import errors
 import dateutil.parser
 from bson import ObjectId, DBRef
 from bson.errors import InvalidId
-from edman.config import Config
-from edman.search import Search
-from edman.db import DB
+from edman import Config, DB, Search
 
 
 class TestSearch(TestCase):
