@@ -4,8 +4,7 @@ import json
 import ast
 from pathlib import Path
 from typing import Tuple, Iterator, Union
-import pymongo
-from pymongo.errors import ConnectionFailure, OperationFailure
+from pymongo import MongoClient, errors
 
 
 class Action:
@@ -147,14 +146,14 @@ class Action:
         userpwd = user['pwd']
 
         try:
-            client = pymongo.MongoClient(host, port)
+            client = MongoClient(host, port)
             client[admindb].command('ismaster')
-        except ConnectionFailure:
+        except errors.ConnectionFailure:
             sys.exit('DB server not exists.')
 
         try:  # DB管理者認証
             client[admindb].authenticate(adminname, adminpwd)
-        except OperationFailure:
+        except errors.OperationFailure:
             sys.exit('Authenticate failed.')
 
         if userdb in client.list_database_names():
@@ -174,7 +173,7 @@ class Action:
                 ],
             )
             client[userdb].authenticate(username, userpwd)
-        except OperationFailure:
+        except errors.OperationFailure:
             sys.exit('DB creation failed.')
         print('DB Create OK.')
 
@@ -261,14 +260,14 @@ class Action:
         userid = user['name']
         userpwd = user['pwd']
 
-        client = pymongo.MongoClient(host, port)
+        client = MongoClient(host, port)
 
         # DB削除
         try:
             client[userdb].authenticate(userid, userpwd)
             client.drop_database(userdb)
             print('DB delete OK.')
-        except OperationFailure:
+        except errors.OperationFailure:
             sys.exit('Delete DB failed. Delete DB in Mongo shell.')
 
         # admin権限にてユーザを削除
@@ -281,5 +280,5 @@ class Action:
                 db = client[userdb]
                 db.command("dropUser", userid)
                 print('DB User delete OK.')
-            except OperationFailure:
+            except errors.OperationFailure:
                 sys.exit('Delete user failed. Delete user in Mongo shell.')

@@ -3,20 +3,15 @@ import tempfile
 from unittest import TestCase
 from pathlib import Path
 import gridfs
-import pymongo
-from pymongo import errors
+from pymongo import errors, MongoClient
 from bson import ObjectId, DBRef
-from edman.db import DB
-from edman.file import File
-from edman.config import Config
-from edman.convert import Convert
+from edman import Config, Convert, DB, File
 
 
 class TestFile(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.db = DB()
 
         # 設定読み込み
         settings = configparser.ConfigParser()
@@ -25,15 +20,14 @@ class TestFile(TestCase):
         cls.test_ini['port'] = int(cls.test_ini['port'])
 
         # DB作成のため、pymongoから接続
-        cls.client = pymongo.MongoClient(cls.test_ini['host'],
-                                         cls.test_ini['port'])
+        cls.client = MongoClient(cls.test_ini['host'], cls.test_ini['port'])
 
         # 接続確認
         try:
             cls.client.admin.command('ismaster')
             cls.db_server_connect = True
             print('Use DB.')
-        except pymongo.errors.ConnectionFailure:
+        except errors.ConnectionFailure:
             cls.db_server_connect = False
             print('Do not use DB.')
 
@@ -65,7 +59,8 @@ class TestFile(TestCase):
                 'user': cls.test_ini['user'],
                 'password': cls.test_ini['password']
             }
-            cls.testdb = cls.db.connect(**cls.con)
+            cls.db = DB(cls.con)
+            cls.testdb = cls.db.get_db
 
     @classmethod
     def tearDownClass(cls):
@@ -79,7 +74,7 @@ class TestFile(TestCase):
     def setUp(self):
 
         if self.db_server_connect:
-            self.file = File(self.testdb)
+            self.file = File(self.db)
         else:
             self.file = File()
         self.config = Config()

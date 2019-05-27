@@ -4,10 +4,9 @@ import copy
 from datetime import datetime
 from collections import defaultdict
 from typing import Union
-from bson.objectid import ObjectId
-from bson.errors import InvalidId
+from bson import errors, ObjectId
 from edman.utils import Utils
-from edman.config import Config
+from edman import Config
 
 
 class Search:
@@ -15,14 +14,14 @@ class Search:
     検索関連クラス
     """
 
-    def __init__(self, db_obj=None) -> None:
+    def __init__(self, db=None) -> None:
         config = Config()  # システム環境用の設定を読み込む
         self.parent = config.parent
         self.child = config.child
         self.date = config.date
         self.file = config.file
-        if db_obj is not None:
-            self.db = db_obj
+        if db is not None:
+            self.db = db.get_db
             self.collections = self.get_collections()
 
     def get_collections(self, include_system_collections=False) -> tuple:
@@ -146,7 +145,7 @@ class Search:
         if '_id' in query:
             try:
                 query['_id'] = ObjectId(query['_id'])
-            except InvalidId:
+            except errors.InvalidId:
                 sys.exit('ObjectIdが正しくありません')
         return query
 

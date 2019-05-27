@@ -3,8 +3,7 @@ import signal
 import configparser
 import argparse
 from pathlib import Path
-from edman.db import DB
-from edman.file import File
+from edman import DB, File
 from action import Action
 
 # Ctrl-Cを押下された時の対策
@@ -31,9 +30,8 @@ settings = configparser.ConfigParser()
 settings.read(Path.cwd() / 'ini' / 'db.ini')
 con = dict([i for i in settings['DB'].items()])
 
-db = DB()
-edman = db.connect(**con)
-file = File(edman)
+db = DB(con)
+file = File(db)
 
 # 対象oidの所属コレクションを自動的に取得 ※動作が遅い場合は使用しないこと
 collection = db.find_collection_from_objectid(args.objectid)

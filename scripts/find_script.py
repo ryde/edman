@@ -3,9 +3,7 @@ import signal
 import configparser
 import argparse
 from pathlib import Path
-from edman.db import DB
-from edman.json_manager import JsonManager
-from edman.search import Search
+from edman import DB, JsonManager, Search
 from action import Action
 
 # Ctrl-Cを押下された時の対策
@@ -38,10 +36,8 @@ settings = configparser.ConfigParser()
 settings.read(Path.cwd() / 'ini' / 'db.ini')
 con = dict([i for i in settings['DB'].items()])
 
-# DB接続
-db = DB()
-edman_dev = db.connect(**con)
-search = Search(edman_dev)
+db = DB(con)
+search = Search(db)
 
 # 検索
 search_result = search.find(args.collection, query, args.parent_depth,

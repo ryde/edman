@@ -3,18 +3,16 @@ import copy
 from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
-import pymongo
-from pymongo import errors
+from pymongo import errors, MongoClient
 from bson import ObjectId
-from edman.db import DB
-from edman.config import Config
+from edman import Config, DB
 
 
 class TestDB(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.db = DB()
+
         # 設定読み込み
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
@@ -22,15 +20,14 @@ class TestDB(TestCase):
         cls.test_ini['port'] = int(cls.test_ini['port'])
 
         # DB作成のため、pymongoから接続
-        cls.client = pymongo.MongoClient(cls.test_ini['host'],
-                                         cls.test_ini['port'])
+        cls.client = MongoClient(cls.test_ini['host'], cls.test_ini['port'])
 
         # 接続確認
         try:
             cls.client.admin.command('ismaster')
             cls.db_server_connect = True
             print('Use DB.')
-        except pymongo.errors.ConnectionFailure:
+        except errors.ConnectionFailure:
             cls.db_server_connect = False
             print('Do not use DB.')
 
@@ -53,7 +50,8 @@ class TestDB(TestCase):
             )
             # ユーザ側認証
             cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
-                                                        cls.test_ini['password'])
+                                                        cls.test_ini[
+                                                            'password'])
             # edmanのDB接続オブジェクト作成
             cls.con = {
                 'host': cls.test_ini['host'],
@@ -62,7 +60,10 @@ class TestDB(TestCase):
                 'user': cls.test_ini['user'],
                 'password': cls.test_ini['password']
             }
-            cls.testdb = cls.db.connect(**cls.con)
+            cls.db = DB(cls.con)
+            cls.testdb = cls.db.get_db
+        else:
+            cls.db = DB()
 
     @classmethod
     def tearDownClass(cls):
@@ -747,4 +748,3 @@ class TestDB(TestCase):
     #     # setUpClassで使用。割愛
     #     pass
     #
-

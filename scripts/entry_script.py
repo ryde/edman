@@ -3,9 +3,7 @@ import signal
 import argparse
 import configparser
 from pathlib import Path
-from edman.db import DB
-from edman.json_manager import JsonManager
-from edman.convert import Convert
+from edman import DB, Convert, JsonManager
 from action import Action
 
 # Ctrl-Cを押下された時の対策
@@ -35,8 +33,7 @@ settings = configparser.ConfigParser()
 settings.read(Path.cwd() / 'ini' / 'db.ini')
 con = dict([i for i in settings['DB'].items()])
 
-db = DB()
-db.connect(**con)  # DB接続
+db = DB(con)
 jm = JsonManager()
 convert = Convert()
 json_files = Action.files_read(args.path, 'json')
