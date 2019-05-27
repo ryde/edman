@@ -3,9 +3,7 @@ import signal
 import configparser
 import argparse
 from pathlib import Path
-from edman.db import DB
-from edman.json_manager import JsonManager
-from edman.search import Search
+from edman import DB, JsonManager, Search
 from action import Action
 
 # Ctrl-Cを押下された時の対策

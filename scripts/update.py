@@ -4,7 +4,7 @@ import configparser
 import argparse
 import json
 from pathlib import Path
-from edman.db import DB
+from edman import DB
 
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))

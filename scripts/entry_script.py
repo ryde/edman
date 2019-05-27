@@ -3,9 +3,7 @@ import signal
 import argparse
 import configparser
 from pathlib import Path
-from edman.db import DB
-from edman.json_manager import JsonManager
-from edman.convert import Convert
+from edman import DB, Convert, JsonManager
 from action import Action
 
 # Ctrl-Cを押下された時の対策
