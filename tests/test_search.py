@@ -2,11 +2,9 @@ import configparser
 from pathlib import Path
 from datetime import datetime
 from unittest import TestCase
-import pymongo
-from pymongo import errors
 import dateutil.parser
-from bson import ObjectId, DBRef
-from bson.errors import InvalidId
+from pymongo import errors, MongoClient
+from bson import ObjectId, DBRef, errors
 from edman import Config, DB, Search
 
 
@@ -21,15 +19,14 @@ class TestSearch(TestCase):
         cls.test_ini['port'] = int(cls.test_ini['port'])
 
         # DB作成のため、pymongoから接続
-        cls.client = pymongo.MongoClient(cls.test_ini['host'],
-                                         cls.test_ini['port'])
+        cls.client = MongoClient(cls.test_ini['host'], cls.test_ini['port'])
 
         # 接続確認
         try:
             cls.client.admin.command('ismaster')
             cls.db_server_connect = True
             print('Use DB.')
-        except pymongo.errors.ConnectionFailure:
+        except errors.ConnectionFailure:
             cls.db_server_connect = False
             print('Do not use DB.')
 
@@ -163,7 +160,7 @@ class TestSearch(TestCase):
 
         # 異常系
         query = {'_id': 'dragon'}
-        with self.assertRaises((InvalidId, SystemExit)) as cm:
+        with self.assertRaises((errors.InvalidId, SystemExit)) as cm:
             _ = self.search._objectid_replacement(query)
 
     def test__get_self(self):

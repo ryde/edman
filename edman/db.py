@@ -3,13 +3,11 @@ import copy
 import re
 from typing import Union
 import jmespath
-import pymongo
-from pymongo.errors import ConnectionFailure, BulkWriteError, OperationFailure
+from pymongo import MongoClient, errors
 from bson import ObjectId
 from tqdm import tqdm
-from edman.convert import Convert
 from edman.utils import Utils
-from edman.config import Config
+from edman import Config, Convert
 
 
 class DB:
@@ -55,11 +53,11 @@ class DB:
         user = kwargs['user']
         password = kwargs['password']
         statement = f'mongodb://{user}:{password}@{host}:{port}/{database}'
-        client = pymongo.MongoClient(statement)
+        client = MongoClient(statement)
 
         try:  # サーバの接続確認
             client.admin.command('ismaster')
-        except ConnectionFailure:
+        except errors.ConnectionFailure:
             sys.exit('Server not available.')
 
         edman_db = client[database]
@@ -96,7 +94,7 @@ class DB:
                     collection_bar.set_description(f'Processing {collection}')
                     collection_bar.update(1)
 
-                except BulkWriteError as bwe:
+                except errors.BulkWriteError as bwe:
                     print('インサートに失敗しました:', bwe.details)
                     print('インサート結果:', results)
             doc_bar.close()
@@ -333,7 +331,7 @@ class DB:
         try:
             replace_result = self.db[collection].replace_one({'_id': oid},
                                                              amended)
-        except OperationFailure:
+        except errors.OperationFailure:
             sys.exit('アップデートに失敗しました')
 
         return True if replace_result.modified_count == 1 else False

@@ -4,10 +4,9 @@ import copy
 from datetime import datetime
 from collections import defaultdict
 from typing import Union
-from bson.objectid import ObjectId
-from bson.errors import InvalidId
+from bson import errors, ObjectId
 from edman.utils import Utils
-from edman.config import Config
+from edman import Config
 
 
 class Search:
@@ -146,7 +145,7 @@ class Search:
         if '_id' in query:
             try:
                 query['_id'] = ObjectId(query['_id'])
-            except InvalidId:
+            except errors.InvalidId:
                 sys.exit('ObjectIdが正しくありません')
         return query
 

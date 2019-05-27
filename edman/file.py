@@ -7,7 +7,7 @@ import gridfs
 import jmespath
 from bson import ObjectId
 from edman.utils import Utils
-from edman.config import Config
+from edman import Config
 
 
 class File:

@@ -5,7 +5,7 @@ from typing import Union
 from collections import defaultdict
 from bson import ObjectId, DBRef
 from edman.utils import Utils
-from edman.config import Config
+from edman import Config
 
 
 class Convert:
