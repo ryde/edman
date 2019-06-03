@@ -7,7 +7,7 @@ from pymongo import MongoClient, errors
 from bson import ObjectId
 from tqdm import tqdm
 from edman.utils import Utils
-from edman import Config, Convert
+from edman import Config, Convert, File
 
 
 class DB:
@@ -374,3 +374,38 @@ class DB:
             else:
                 result[item] = amend[item]
         return result
+
+    def delete(self, oid: Union[str, ObjectId], collection: str,
+               structure: str) -> bool:
+        """
+        ドキュメントを削除する
+        指定のoidを含む下位のドキュメントを全削除
+        refで親が存在する時は親のchildリストから指定のoidを取り除く
+
+        :param str or ObjectId oid:
+        :param str collection:
+        :param str structure:
+        :return bool:
+        """
+
+        oid = Utils.conv_objectid(oid)
+        db_result = self.db[collection].find_one({'_id': oid})
+        if db_result is None:
+            sys.exit('該当するドキュメントは存在しません')
+
+        if structure == 'emb':
+            try:
+                result = self.db[collection].delete_one({'_id': oid})
+                if result.deleted_count:
+                    # 添付データがあればgridfsから削除
+                    file = File(self.get_db)
+                    file.emb_fs_delete_all(db_result, self.file_ref)
+                    return True
+            except ValueError as e:
+                sys.exit(e)
+
+        elif structure == 'ref':
+            return True  # TODO 開発中
+
+        else:
+            sys.exit('structureはrefまたはembの指定が必要です')

@@ -1,5 +1,7 @@
 import configparser
 import copy
+import tempfile
+import gridfs
 from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
@@ -743,6 +745,88 @@ class TestDB(TestCase):
         for i in actual['date_list']:
             with self.subTest(i=i):
                 self.assertIsInstance(i, datetime)
+
+    def test_delete(self):
+        if not self.db_server_connect:
+            return
+
+        # emb削除テスト
+        collection = 'test_delete_test1'
+        emb_data = [{collection: {
+            "position": "top",
+            "username": "ryde",
+            "structure_list_2": [
+                {
+                    "maker": "Ferrari",
+                    "carname": "F355",
+                    "power": 380,
+                    "float_val": 4453.456
+                },
+                {
+                    "maker": "HONDA",
+                    "carname": "NSX",
+                    "power": 280,
+                    "float_val": 321.56,
+                    "list_data": [
+                        "Mario",
+                        "Sonic",
+                        "Ryu",
+                        "Link"
+                    ]
+                }
+            ]
+        }}]
+        result = self.db.insert(emb_data)
+        actual = self.db.delete(result[0][collection][0], collection, 'emb')
+        self.assertTrue(actual)
+        f_result = self.testdb[collection].find_one(
+            {'_id': result[0][collection][0]})
+        self.assertIsNone(f_result)
+
+        # emb file添付されていた場合
+
+        # ファイル作成
+        # dbにインサート
+        fs = gridfs.GridFS(self.testdb)
+        fs_inserted_oid = fs.put(b'hello, world', filename='sample.txt')
+
+        # テストデータ作成
+        collection = 'delete_emb_fs_sample'
+        data = {
+            'name': 'NSX',
+            'st2': [
+                {'name': 'Gt-R', 'power': '280'},
+                {'name': '180SX', 'power': '220', '_ed_file': [fs_inserted_oid]}
+            ],
+            'type': 'RX'
+        }
+        # dbにインサート
+        inserted = self.testdb[collection].insert_one(data)
+        # print(inserted.inserted_id)
+
+        # 削除テスト
+        actual = self.db.delete(inserted.inserted_id, collection, 'emb')
+        self.assertTrue(actual)
+
+        # ref 親と子の間削除テスト
+        # TODO refテストデータ入力
+        # TODO refデータ削除
+        # TODO 削除されたか確認、assert
+
+        # ref 親削除テスト
+        # TODO refテストデータ入力
+        # TODO refデータ削除
+        # TODO 削除されたか確認、assert
+
+        # ref 子削除テスト
+        # TODO refテストデータ入力
+        # TODO refデータ削除
+        # TODO 削除されたか確認、assert
+
+        # ref file添付されていた場合のテスト
+        # TODO refテストデータ入力
+        # TODO refデータ削除
+        # TODO 削除されたか確認、assert
 
     # def test_connect(self):
     #     # setUpClassで使用。割愛
