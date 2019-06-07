@@ -134,6 +134,7 @@ Scripts Usage
 |  find_script.py: データを検索し、jsonに保存 クエリ1を使用します
 |  item_delete.py: データ内の項目を消す embの時クエリ2を使用します
 |  update.py: データの更新(更新用jsonファイルを用意)
+|  delete.py: ドキュメントの削除(embは全削除、refは指定したobjectid以下を削除)
 |  file_add_script.py:  該当データにファイルを添付する embの時クエリ2を使用します
 |  file_dl_script.py: 添付ファイルをダウンロード embの時クエリ2を使用します
 |  file_delete_script.py: 添付ファイルを削除 embの時クエリ2を使用します
