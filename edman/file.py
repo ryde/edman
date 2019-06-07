@@ -18,7 +18,7 @@ class File:
     def __init__(self, db=None) -> None:
 
         if db is not None:
-            self.db = db.get_db
+            self.db = db
             self.fs = gridfs.GridFS(self.db)
         self.file_ref = Config.file
 
@@ -86,7 +86,7 @@ class File:
         if replace_result.modified_count == 1:
             return True
         else:  # 差し替えができなかった時は添付ファイルは削除
-            self._fs_delete(inserted_file_oids)
+            self.fs_delete(inserted_file_oids)
             return False
 
     def delete(self, delete_oid: ObjectId, collection: str,
@@ -140,7 +140,7 @@ class File:
 
         # fsから該当ファイルを削除
         if replace_result.modified_count:
-            self._fs_delete([delete_oid])
+            self.fs_delete([delete_oid])
 
         # ファイルが削除されたか検証
         if self.fs.exists(delete_oid):
@@ -148,16 +148,17 @@ class File:
         else:
             return True
 
-    def _fs_delete(self, oids: list) -> None:
+    def fs_delete(self, oids: list) -> None:
         """
         fsからファイル削除
 
         :param list oids:
         :return:
         """
-        for oid in oids:
-            if self.fs.exists(oid):
-                self.fs.delete(oid)
+        if len(oids):
+            for oid in oids:
+                if self.fs.exists(oid):
+                    self.fs.delete(oid)
 
     @staticmethod
     def _query_check(query: list, doc: dict) -> bool:

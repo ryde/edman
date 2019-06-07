@@ -50,7 +50,8 @@ class TestFile(TestCase):
             )
             # ユーザ側認証
             cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
-                                                        cls.test_ini['password'])
+                                                        cls.test_ini[
+                                                            'password'])
             # edmanのDB接続オブジェクト作成
             cls.con = {
                 'host': cls.test_ini['host'],
@@ -74,7 +75,7 @@ class TestFile(TestCase):
     def setUp(self):
 
         if self.db_server_connect:
-            self.file = File(self.db)
+            self.file = File(self.db.get_db)
         else:
             self.file = File()
         self.config = Config()
@@ -406,7 +407,7 @@ class TestFile(TestCase):
         self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
 
-    def test__fs_delete(self):
+    def test_fs_delete(self):
         if not self.db_server_connect:
             return
 
@@ -428,7 +429,7 @@ class TestFile(TestCase):
                     fs_oids.append(
                         self.fs.put(f.read(), filename=str(i.name)))
 
-            self.file._fs_delete(fs_oids)
+            self.file.fs_delete(fs_oids)
             for i in fs_oids:
                 with self.subTest(i=i):
                     self.assertFalse(self.fs.exists(i))
