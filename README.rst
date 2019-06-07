@@ -65,7 +65,11 @@ Modules Usage
 |  result = db.update(collection, objectid, modified_data, structure='ref')
 |
 |  ◯Delete
-|  TODO
+|  from edman import DB
+|
+|  # delete
+|  db = DB(con)
+|  result = db.delete(objectid, collection, structure='ref')
 
 Scripts Usage
 -------------
@@ -116,7 +120,7 @@ Scripts Usage
 |  ◯各スクリプトファイル
 |  entry_script.py: jsonファイルからMongoDBに投入
 |  find_script.py: データを検索し、jsonに保存 クエリ1を使用します
-|  delete.py: データ内の項目を消す embの時クエリ2を使用します
+|  item_delete.py: データ内の項目を消す embの時クエリ2を使用します
 |  update.py: データの更新(更新用jsonファイルを用意)
 |  file_add_script.py:  該当データにファイルを添付する embの時クエリ2を使用します
 |  file_dl_script.py: 添付ファイルをダウンロード embの時クエリ2を使用します
