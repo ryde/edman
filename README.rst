@@ -18,58 +18,70 @@ and MongoDB.
 Modules Usage
 -------------
 
-|  ◯Create
-|  import json
-|  from edman import DB, Convert
-|
-|  # Load json into a dictionary
-|  json_dict = json.load(json_file)
-|
-|  # json to json for edman
-|  convert = Convert()
-|  converted_edman = convert.dict_to_edman(json_dict)
-|
-|  # insert
-|  con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
-|  db = DB(con)
-|  result = db.insert(converted_edman)
-|
-|  ◯Read
-|  from path import Path
-|  from edman import DB, JsonManager, Search
-|
-|  db = DB(con)
-|  search = Search(db)
-|  collection = 'target_collection'
-|
-|  # Same syntax as pymongo's find query
-|  query = {'_id':'OBJECTID'}
-|
-|  # example, 2 top levels of parents and 3 lower levels of children (ref mode)
-|  search_result = search.find(collection, query, parent_depth=2, child_depth=3)
-|
-|  # Save search results
-|  dir = Path('path_to')
-|  jm = JsonManager()
-|  jm.save(search_result, dir, name='filename', date=True)
-|
-|  ◯Update
-|  import json
-|  from edman import DB
-|
-|  # Modified file based on the search result json
-|  modified_data = json.load(modified_json_file)
-|
-|  # update
-|  db = DB(con)
-|  result = db.update(collection, objectid, modified_data, structure='ref')
-|
-|  ◯Delete
-|  from edman import DB
-|
-|  # delete
-|  db = DB(con)
-|  result = db.delete(objectid, collection, structure='ref')
+◯Create
+
+::
+
+    import json
+    from edman import DB, Convert
+
+    # Load json into a dictionary
+    json_dict = json.load(json_file)
+
+    # json to json for edman
+    convert = Convert()
+    converted_edman = convert.dict_to_edman(json_dict)
+
+    # insert
+    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    db = DB(con)
+    result = db.insert(converted_edman)
+
+◯Read
+
+::
+
+    from path import Path
+    from edman import DB, JsonManager, Search
+
+    db = DB(con)
+    search = Search(db)
+    collection = 'target_collection'
+
+    # Same syntax as pymongo's find query
+    query = {'_id':'OBJECTID'}
+
+    # example, 2 top levels of parents and 3 lower levels of children (ref mode)
+    search_result = search.find(collection, query, parent_depth=2, child_depth=3)
+
+    # Save search results
+    dir = Path('path_to')
+    jm = JsonManager()
+    jm.save(search_result, dir, name='filename', date=True)
+
+◯Update
+
+::
+
+    import json
+    from edman import DB
+
+    # Modified file based on the search result json
+    modified_data = json.load(modified_json_file)
+
+    # update
+    db = DB(con)
+    result = db.update(collection, objectid, modified_data, structure='ref')
+
+◯Delete
+
+::
+
+    from edman import DB
+
+    # delete
+    db = DB(con)
+    result = db.delete(objectid, collection, structure='ref')
 
 Scripts Usage
 -------------
