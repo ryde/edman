@@ -1,13 +1,12 @@
 import configparser
 import copy
-import tempfile
 import gridfs
 from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
 from pymongo import errors, MongoClient
 from bson import ObjectId
-from edman import Config, DB
+from edman import Config, DB, Convert
 
 
 class TestDB(TestCase):
@@ -75,6 +74,16 @@ class TestDB(TestCase):
             cls.client.drop_database(cls.test_ini['db'])
             # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
             cls.testdb.command("dropUser", cls.test_ini['user'])
+
+    def tearDown(self) -> None:
+        if self.db_server_connect:
+            # システムログ以外のコレクションを削除
+            collections_all = self.testdb.list_collection_names()
+            log_coll = 'system.profile'
+            if log_coll in collections_all:
+                collections_all.remove(log_coll)
+            for collection in collections_all:
+                self.testdb.drop_collection(collection)
 
     def setUp(self):
         self.config = Config()
@@ -796,39 +805,341 @@ class TestDB(TestCase):
             'name': 'NSX',
             'st2': [
                 {'name': 'Gt-R', 'power': '280'},
-                {'name': '180SX', 'power': '220', '_ed_file': [fs_inserted_oid]}
+                {'name': '180SX', 'power': '220',
+                 '_ed_file': [fs_inserted_oid]}
             ],
             'type': 'RX'
         }
         # dbにインサート
         inserted = self.testdb[collection].insert_one(data)
-        # print(inserted.inserted_id)
 
         # 削除テスト
         actual = self.db.delete(inserted.inserted_id, collection, 'emb')
         self.assertTrue(actual)
 
         # ref 親と子の間削除テスト
-        # TODO refテストデータ入力
-        # TODO refデータ削除
-        # TODO 削除されたか確認、assert
+        data = {
+            'delete_ref_fs_sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        del_collection = 'st2'
+        children = []
+        for collections in inserted_report:
+            for collection, oids in collections.items():
+                if collection == del_collection:
+                    children.extend(oids)
+        del_oid = children[1]
+        self.db.delete(del_oid, del_collection, 'ref')
+        doc = self.testdb[del_collection].find_one({'_id': del_oid})
+        self.assertIsNone(doc)
 
-        # ref 親削除テスト
-        # TODO refテストデータ入力
-        # TODO refデータ削除
-        # TODO 削除されたか確認、assert
+        # ref 親(指定がトップ)削除テスト
+        data = {
+            'delete_ref_fs_sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        del_collection = 'delete_ref_fs_sample'
+        children = []
+        for collections in inserted_report:
+            for collection, oids in collections.items():
+                if collection == del_collection:
+                    children.extend(oids)
+        del_oid = children[0]
+        self.db.delete(del_oid, del_collection, 'ref')
+        doc = self.testdb[del_collection].find_one({'_id': del_oid})
+        self.assertIsNone(doc)
 
-        # ref 子削除テスト
-        # TODO refテストデータ入力
-        # TODO refデータ削除
-        # TODO 削除されたか確認、assert
+        # ref 子(指定が一番下のドキュメント)削除テスト
+        data = {
+            'delete_ref_fs_sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        del_collection = 'engine'
+        children = []
+        for collections in inserted_report:
+            for collection, oids in collections.items():
+                if collection == del_collection:
+                    children.extend(oids)
+        del_oid = children[0]
+        self.db.delete(del_oid, del_collection, 'ref')
+        doc = self.testdb[del_collection].find_one({'_id': del_oid})
+        self.assertIsNone(doc)
 
         # ref file添付されていた場合のテスト
-        # TODO refテストデータ入力
-        # TODO refデータ削除
-        # TODO 削除されたか確認、assert
+        fs_inserted_oid = fs.put(b'hello, world', filename='sample.txt')
+        fs_inserted_oid2 = fs.put(b'hello, world2', filename='sample2.txt')
+        fs_inserted_oid3 = fs.put(b'hello, world3', filename='sample3.txt')
 
-    # def test_connect(self):
-    #     # setUpClassで使用。割愛
-    #     pass
-    #
+        data = {
+            'delete_ref_fs_sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280', '_ed_file': [fs_inserted_oid]},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo', '_ed_file': [fs_inserted_oid2, fs_inserted_oid3]},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        del_collection = 'st2'
+        children = []
+        for collections in inserted_report:
+            for collection, oids in collections.items():
+                if collection == del_collection:
+                    children.extend(oids)
+        del_oid = children[1]
+        self.db.delete(del_oid, del_collection, 'ref')
+        doc = self.testdb[del_collection].find_one({'_id': del_oid})
+        self.assertIsNone(doc)
+
+        # gridfsのファイルが消えているか確認
+        expected = sorted([fs_inserted_oid2, fs_inserted_oid3])
+        for oid in expected:
+            with self.subTest(oid=oid):
+                self.assertFalse(fs.exists(oid))
+
+    def test__delete_documents(self):
+        if not self.db_server_connect:
+            return
+
+        fs = gridfs.GridFS(self.testdb)
+        fs_inserted_oid = fs.put(b'hello, world', filename='sample.txt')
+        fs_inserted_oid2 = fs.put(b'hello, world2', filename='sample2.txt')
+        collection = 'delete_ref_fs_sample'
+        data = {
+            collection: {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo', '_ed_file': [fs_inserted_oid2]},
+                            {'type': 'NA'}
+                        ],
+                     '_ed_file': [fs_inserted_oid]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        doc = self.testdb[collection].find_one(
+            {'_id': inserted_report[2][collection][0]})
+        elements = self.db._recursive_extract_elements_from_doc(doc,
+                                                                collection)
+
+        delete_doc_id_dict = {}
+        for element in elements:
+            doc_collection = list(element.keys())[0]
+            id_and_refs = list(element.values())[0]
+
+            for oid, refs in id_and_refs.items():
+                if delete_doc_id_dict.get(doc_collection):
+                    delete_doc_id_dict[doc_collection].append(oid)
+                else:
+                    delete_doc_id_dict.update({doc_collection: [oid]})
+
+        self.db._delete_documents(delete_doc_id_dict)
+        doc = self.testdb[collection].find_one({'_id': doc['_id']})
+        self.assertIsNone(doc)
+
+    def test__delete_reference_from_parent(self):
+        if not self.db_server_connect:
+            return
+        pass
+        collection = 'delete_ref_fs_sample'
+        data = {
+            collection: {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+
+        doc = self.testdb['st2'].find_one(
+            {'_id': inserted_report[1]['st2'][0]})
+        self.db._delete_reference_from_parent(doc[self.parent], doc['_id'])
+
+        parent_delete_after = self.testdb[collection].find_one(
+            {'_id': doc[self.parent].id})
+
+        expected = [i.id for i in parent_delete_after[self.child]]
+        self.assertFalse(True if doc['_id'] in expected else False)
+
+    def test__extract_elements_from_doc(self):
+        if not self.db_server_connect:
+            return
+
+        fs = gridfs.GridFS(self.testdb)
+        fs_inserted_oid = fs.put(b'hello, world', filename='sample.txt')
+        fs_inserted_oid2 = fs.put(b'hello, world2', filename='sample2.txt')
+
+        collection = 'delete_ref_fs_sample'
+        data = {
+            collection: {
+                'name': 'NSX',
+                '_ed_file': [fs_inserted_oid, fs_inserted_oid2],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        doc = self.testdb[collection].find_one(
+            {'_id': inserted_report[0][collection][0]})
+        actual = self.db._extract_elements_from_doc(doc, collection)
+
+        self.assertIsInstance(actual, list)
+        self.assertEqual(collection, list(actual[0].keys())[0])
+        self.assertEqual(doc['_id'], list(actual[0][collection].keys())[0])
+        self.assertListEqual(doc['_ed_file'],
+                             list(actual[0][collection].values())[0][
+                                 '_ed_file'])
+
+    def test__recursive_extract_elements_from_doc(self):
+        if not self.db_server_connect:
+            return
+
+        fs = gridfs.GridFS(self.testdb)
+        fs_inserted_oid = fs.put(b'hello, world', filename='sample.txt')
+        fs_inserted_oid2 = fs.put(b'hello, world2', filename='sample2.txt')
+        collection = 'delete_ref_fs_sample'
+        data = {
+            collection: {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo', '_ed_file': [fs_inserted_oid2]},
+                            {'type': 'NA'}
+                        ],
+                     '_ed_file': [fs_inserted_oid]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        # print(inserted_report)
+        doc = self.testdb[collection].find_one(
+            {'_id': inserted_report[2][collection][0]})
+        actual = self.db._recursive_extract_elements_from_doc(doc, collection)
+
+        expected_oid_list = []
+        for i in inserted_report:
+            for c, oids in i.items():
+                expected_oid_list.extend(oids)
+
+        actual_oid_list = []
+        actual_file_list = []
+        for i in actual:
+            for collection, ids in i.items():
+                for oid in ids:
+                    actual_oid_list.append(oid)
+                    if ids[oid].get('_ed_file'):
+                        actual_file_list.extend(ids[oid]['_ed_file'])
+
+        self.assertIsInstance(actual, list)
+        self.assertListEqual(sorted([fs_inserted_oid, fs_inserted_oid2]),
+                             sorted(actual_file_list))
+        self.assertListEqual(sorted(expected_oid_list),
+                             sorted(actual_oid_list))
+
+    def test__collect_emb_file_ref(self):
+
+        # 正常系
+        l1 = [ObjectId(), ObjectId(), ObjectId()]
+        l2 = [ObjectId(), ObjectId()]
+        l3 = [ObjectId()]
+        expected = l1 + l2 + l3
+        data = {
+            '_id': ObjectId(),
+            'name': 'NSX',
+            'st2': [
+                {'name': 'Gt-R', 'power': '280',
+                 '_ed_file': l1},
+                {'name': '180SX', 'power': '220',
+                 '_ed_file': l2}
+            ],
+            '_ed_file': l3
+        }
+        actual = self.db._collect_emb_file_ref(data, '_ed_file')
+        self.assertListEqual(actual, expected)
+
+        # ファイルリファレンスが含まれていなかった場合
+        data = {
+            '_id': ObjectId(),
+            'name': 'NSX',
+            'st2': [
+                {'name': 'Gt-R', 'power': '280'},
+                {'name': '180SX', 'power': '220'}
+            ],
+            'type': 'RX'
+        }
+        actual = self.db._collect_emb_file_ref(data, '_ed_file')
+        self.assertEqual(len(actual), 0)

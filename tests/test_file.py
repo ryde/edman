@@ -407,7 +407,7 @@ class TestFile(TestCase):
         self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
 
-    def test__fs_delete(self):
+    def test_fs_delete(self):
         if not self.db_server_connect:
             return
 
@@ -429,7 +429,7 @@ class TestFile(TestCase):
                     fs_oids.append(
                         self.fs.put(f.read(), filename=str(i.name)))
 
-            self.file._fs_delete(fs_oids)
+            self.file.fs_delete(fs_oids)
             for i in fs_oids:
                 with self.subTest(i=i):
                     self.assertFalse(self.fs.exists(i))
@@ -716,37 +716,3 @@ class TestFile(TestCase):
 
         expected = file_list
         self.assertEqual(expected, actual)
-
-    def test__collect_emb_file_ref(self):
-
-        # 正常系
-        l1 = [ObjectId(), ObjectId(), ObjectId()]
-        l2 = [ObjectId(), ObjectId()]
-        l3 = [ObjectId()]
-        expected = l1 + l2 + l3
-        data = {
-            '_id': ObjectId(),
-            'name': 'NSX',
-            'st2': [
-                {'name': 'Gt-R', 'power': '280',
-                 '_ed_file': l1},
-                {'name': '180SX', 'power': '220',
-                 '_ed_file': l2}
-            ],
-            '_ed_file': l3
-        }
-        actual = self.file._collect_emb_file_ref(data, '_ed_file')
-        self.assertListEqual(actual, expected)
-
-        # ファイルリファレンスが含まれていなかった場合
-        data = {
-            '_id': ObjectId(),
-            'name': 'NSX',
-            'st2': [
-                {'name': 'Gt-R', 'power': '280'},
-                {'name': '180SX', 'power': '220'}
-            ],
-            'type': 'RX'
-        }
-        actual = self.file._collect_emb_file_ref(data, '_ed_file')
-        self.assertEqual(len(actual), 0)

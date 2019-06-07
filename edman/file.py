@@ -18,7 +18,6 @@ class File:
     def __init__(self, db=None) -> None:
 
         if db is not None:
-            # self.db = db.get_db
             self.db = db
             self.fs = gridfs.GridFS(self.db)
         self.file_ref = Config.file
@@ -87,7 +86,7 @@ class File:
         if replace_result.modified_count == 1:
             return True
         else:  # 差し替えができなかった時は添付ファイルは削除
-            self._fs_delete(inserted_file_oids)
+            self.fs_delete(inserted_file_oids)
             return False
 
     def delete(self, delete_oid: ObjectId, collection: str,
@@ -141,7 +140,7 @@ class File:
 
         # fsから該当ファイルを削除
         if replace_result.modified_count:
-            self._fs_delete([delete_oid])
+            self.fs_delete([delete_oid])
 
         # ファイルが削除されたか検証
         if self.fs.exists(delete_oid):
@@ -149,16 +148,17 @@ class File:
         else:
             return True
 
-    def _fs_delete(self, oids: list) -> None:
+    def fs_delete(self, oids: list) -> None:
         """
         fsからファイル削除
 
         :param list oids:
         :return:
         """
-        for oid in oids:
-            if self.fs.exists(oid):
-                self.fs.delete(oid)
+        if len(oids):
+            for oid in oids:
+                if self.fs.exists(oid):
+                    self.fs.delete(oid)
 
     @staticmethod
     def _query_check(query: list, doc: dict) -> bool:
@@ -348,49 +348,3 @@ class File:
         s += '.' + self.file_ref + '[]'
 
         return jmespath.search(s, doc)
-
-    @staticmethod
-    def _collect_emb_file_ref(emb_data: dict, request_key: str) -> list:
-        """
-        emb構造のデータからファイルリファレンスだけをまとめて取り出す
-
-        :param dict emb_data:
-        :param str request_key:
-        :return list result:
-        """
-
-        def rec(doc):
-            for key, value in doc.items():
-                if isinstance(value, dict):
-                    rec(value)
-
-                elif isinstance(value, list) and Utils.item_literal_check(
-                        value):
-                    if key == request_key:
-                        result.extend(value)
-                    continue
-
-                elif isinstance(value, list):
-                    if key == request_key:
-                        result.extend(value)
-                    else:
-                        for i in value:
-                            rec(i)
-                else:
-                    continue
-
-        result = []
-        rec(emb_data)
-        return result
-
-    def emb_fs_delete_all(self, emb_data: dict, request_key: str) -> None:
-        """
-        指定のデータからgridfsのデータを削除する
-
-        :param dict emb_data:
-        :param str request_key:
-        :return:
-        """
-        file_ref = self._collect_emb_file_ref(emb_data, request_key)
-        if len(file_ref):
-            self._fs_delete(file_ref)

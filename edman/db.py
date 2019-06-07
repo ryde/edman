@@ -4,7 +4,7 @@ import re
 from typing import Union
 import jmespath
 from pymongo import MongoClient, errors
-from bson import ObjectId
+from bson import ObjectId, DBRef
 from tqdm import tqdm
 from edman.utils import Utils
 from edman import Config, Convert, File
@@ -387,7 +387,6 @@ class DB:
         :param str structure:
         :return bool:
         """
-
         oid = Utils.conv_objectid(oid)
         db_result = self.db[collection].find_one({'_id': oid})
         if db_result is None:
@@ -398,14 +397,181 @@ class DB:
                 result = self.db[collection].delete_one({'_id': oid})
                 if result.deleted_count:
                     # 添付データがあればgridfsから削除
+                    file_ref = self._collect_emb_file_ref(db_result, self.file_ref)
                     file = File(self.get_db)
-                    file.emb_fs_delete_all(db_result, self.file_ref)
+                    # file.emb_fs_delete_all(db_result, self.file_ref)
+                    file.fs_delete(file_ref)
                     return True
+                else:
+                    sys.exit('指定のドキュメントは削除できませんでした' + str(oid))
             except ValueError as e:
                 sys.exit(e)
 
         elif structure == 'ref':
-            return True  # TODO 開発中
 
+            try:
+                # 親ドキュメントがあれば子要素リストから削除する
+                if db_result.get(self.parent):
+                    self._delete_reference_from_parent(db_result[self.parent],
+                                                       db_result['_id'])
+
+                # 対象のドキュメント以下のドキュメントと関連ファイルを削除する
+                self._delete_documents_and_files(db_result, collection)
+                return True
+            except ValueError as e:
+                sys.exit(e)
         else:
             sys.exit('structureはrefまたはembの指定が必要です')
+
+    def _delete_documents_and_files(self, db_result: dict,
+                                    collection: str) -> None:
+        """
+        指定のドキュメント以下の子ドキュメントと関連ファイルを削除する
+
+        :param dict db_result:
+        :param str collection:
+        :return:
+        """
+        elements = (
+            self._extract_elements_from_doc(db_result, collection)
+            if db_result.get(self.child) is None
+            else self._recursive_extract_elements_from_doc(db_result,
+                                                           collection))
+        delete_doc_id_dict = {}
+        delete_file_ref_list = []
+        for element in elements:
+            doc_collection = list(element.keys())[0]
+            id_and_refs = list(element.values())[0]
+
+            for oid, refs in id_and_refs.items():
+                if delete_doc_id_dict.get(doc_collection):
+                    delete_doc_id_dict[doc_collection].append(oid)
+                else:
+                    delete_doc_id_dict.update({doc_collection: [oid]})
+
+                if refs.get(self.file_ref):
+                    delete_file_ref_list.extend(refs[self.file_ref])
+
+        self._delete_documents(delete_doc_id_dict)
+        # gridfsからファイルを消す
+        file = File(self.get_db)
+        file.fs_delete(delete_file_ref_list)
+
+    def _delete_documents(self, delete_doc_id_dict: dict) -> None:
+        """
+        繰り返し指定のドキュメントを削除する
+
+        :param dict delete_doc_id_dict:
+        :return:
+        """
+        del_doc_count = 0
+        deleted_doc_count = 0
+        for collection, del_list in delete_doc_id_dict.items():
+            del_doc_count += len(del_list)
+            for oid in del_list:
+                del_doc_result = self.db[collection].delete_one({'_id': oid})
+                deleted_doc_count += del_doc_result.deleted_count
+        if del_doc_count != deleted_doc_count:
+            raise ValueError('削除対象と削除済みドキュメント数が一致しません')
+
+    def _delete_reference_from_parent(self, ref: DBRef,
+                                      del_oid: ObjectId) -> None:
+        """
+        親ドキュメントのリファレンスリストから指定のoidのリファレンスを取り除く
+
+        :param DBRef ref:
+        :param ObjectId del_oid:
+        :return:
+        """
+        parent_doc = self.db[ref.collection].find_one({'_id': ref.id})
+        children = parent_doc[self.child]
+
+        target = None
+        for child in children:
+            if child.id == del_oid:
+                target = child
+                break
+        if target is None:
+            raise ValueError(
+                '親となる' + parent_doc['id'] + 'に' + str(del_oid) + 'が登録されていません')
+        else:
+            children.remove(target)
+            result = self.db[ref.collection].update_one(
+                {'_id': ref.id},
+                {'$set': {self.child: children}})
+
+        if not result.modified_count:
+            raise ValueError('親となる' + parent_doc['id'] + 'は変更できませんでした')
+
+    def _extract_elements_from_doc(self, doc: dict, collection: str) -> list:
+        """
+        oidとファイルリファレンスリストを取り出す
+
+        :param dict doc:
+        :param str collection:
+        :return:
+        """
+        file_ref_buff = {}
+        if doc.get(self.file_ref) is not None:
+            file_ref_buff = {self.file_ref: doc[self.file_ref]}
+
+        return [{collection: {doc['_id']: file_ref_buff}}]
+
+    def _recursive_extract_elements_from_doc(self, doc: dict,
+                                             collection: str) -> list:
+        """
+        再帰処理でoidとファイルリファレンスリストを取り出す
+
+        :param dict doc:
+        :param str collection:
+        :return:
+        """
+
+        def recursive(doc, collection):
+            file_ref_buff = {}
+            if doc.get(self.file_ref) is not None:
+                file_ref_buff = {self.file_ref: doc[self.file_ref]}
+
+            result.append({collection: {doc['_id']: file_ref_buff}})
+
+            if doc.get(self.child):
+                for child_ref in doc[self.child]:
+                    db_result = self.db.dereference(child_ref)
+                    recursive(db_result, child_ref.collection)
+
+        result = []
+        recursive(doc, collection)
+        return result
+
+    @staticmethod
+    def _collect_emb_file_ref(emb_data: dict, request_key: str) -> list:
+        """
+        emb構造のデータからファイルリファレンスだけをまとめて取り出す
+
+        :param dict emb_data:
+        :param str request_key:
+        :return list result:
+        """
+        def rec(doc):
+            for key, value in doc.items():
+                if isinstance(value, dict):
+                    rec(value)
+
+                elif isinstance(value, list) and Utils.item_literal_check(
+                        value):
+                    if key == request_key:
+                        result.extend(value)
+                    continue
+
+                elif isinstance(value, list):
+                    if key == request_key:
+                        result.extend(value)
+                    else:
+                        for i in value:
+                            rec(i)
+                else:
+                    continue
+
+        result = []
+        rec(emb_data)
+        return result
