@@ -245,7 +245,7 @@ class DB:
             if key in doc:
                 del doc[key]
 
-    def _convert_datetime(self, amend: dict) -> dict:
+    def _convert_datetime_dict(self, amend: dict) -> dict:
         """
         辞書内辞書になっている文字列日付時間データを、辞書内日付時間に変換
 
@@ -309,7 +309,7 @@ class DB:
                 sys.exit(e)
         elif structure == 'ref':
             # 日付データを日付オブジェクトに変換
-            converted_amend_data = self._convert_datetime(amend_data)
+            converted_amend_data = self._convert_datetime_dict(amend_data)
             amended = {**db_result, **converted_amend_data}
         else:
             sys.exit('structureはrefまたはembの指定が必要です')
