@@ -419,26 +419,24 @@ class Search:
                 # リストデータは中身を型変換する
                 elif isinstance(data[key], list) and Utils.item_literal_check(
                         data[key]):
-                    data[key] = [self._format_type(i) for i in data[key]]
+                    data[key] = [self._format_datetime(i) for i in data[key]]
                 elif isinstance(data[key], list):
                     for item in data[key]:
                         recursive(item_delete(item))
                 else:
                     try:  # 型変換
-                        data[key] = self._format_type(data[key])
+                        data[key] = self._format_datetime(data[key])
                     except Exception as e:
                         sys.exit(e)
 
         recursive(result_dict)
         return result_dict
 
-    def _format_type(self, item: Union[str, int, float, bool, datetime]) -> \
-            Union[dict, str, int, float, bool, datetime]:
+    def _format_datetime(self, item: Union[str, int, float, bool, datetime]
+                         ) -> Union[dict, str, int, float, bool, datetime]:
         """
-        | データ型を表現する辞書に変換する
-        |
-        | 現在は日付の変換にしか利用していない
-        | 日付に変換する場合は辞書を返し、それ以外の時は入ってきた値をそのまま返す
+        datetime型なら書式変更して辞書に入れる
+        その場合は辞書を返し、それ以外の時は入ってきた値をそのまま返す
 
         :param item: Union[str, int, float, bool, datetime]
         :return:result Union[dict, str, int, float, bool, datetime]

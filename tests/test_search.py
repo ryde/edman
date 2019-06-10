@@ -512,13 +512,13 @@ class TestSearch(TestCase):
         self.assertIsInstance(actual, dict)
         self.assertIsNone(rec(actual))
 
-    def test__format_type(self):
+    def test__format_datetime(self):
         # 正常系
         data = ['2018/11/22', '2018/11/22 11:45:23', '2019-01-01 00:00:00']
         for i in map(dateutil.parser.parse, data):
             # 入力値と出力値がdatetime形式として一致しているか確認
             with self.subTest(i=i):
-                actual = self.search._format_type(i)
+                actual = self.search._format_datetime(i)
                 self.assertEqual(i, dateutil.parser.parse(actual[self.date]))
 
             # 構造のテスト
