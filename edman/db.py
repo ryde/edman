@@ -101,20 +101,6 @@ class DB:
             collection_bar.close()
         return results
 
-    def collections(self, include_system_collections=False) -> tuple:
-        """
-        検索対象コレクション取得
-        collection_names()が廃止予定なので同等の機能を持たせた
-
-        :param include_system_collections: default False
-        :return:
-        """
-        collections = self.db.list_collection_names()
-        if not include_system_collections:
-            collections = tuple(
-                [s for s in collections if not re.match(r'system\.', s)])
-        return tuple(set(collections))
-
     def find_collection_from_objectid(self,
                                       oid: Union[str,
                                                  ObjectId]) -> Union[str,
@@ -128,7 +114,8 @@ class DB:
         """
         oid = Utils.conv_objectid(oid)
         result = None
-        for collection in self.collections():
+        coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
+        for collection in self.db.list_collection_names(filter=coll_filter):
             find_oid = self.db[collection].find_one({'_id': oid})
             if find_oid is not None and '_id' in find_oid:
                 result = collection

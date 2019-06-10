@@ -660,26 +660,6 @@ class TestDB(TestCase):
         expected = ['1', '2', {'A': '4'}, '3', '4']
         self.assertListEqual(expected, actual)
 
-    def test_collections(self):
-        if not self.db_server_connect:
-            return
-
-        # 正常系
-        collections = ['test_collections_A', 'test_collections_B',
-                       'test_collections_C', 'test_collections_D',
-                       'test_collections_E']
-        insert_data = {'test_data': 'test'}
-
-        for collection in collections:
-            self.testdb[collection].insert_one(insert_data)
-
-        result = self.db.collections()
-        self.assertIsInstance(result, tuple)
-
-        actual = sorted(list(result))
-        expected = sorted(collections)
-        self.assertListEqual(actual, expected)
-
     def test_find_collection_from_objectid(self):
         if not self.db_server_connect:
             return

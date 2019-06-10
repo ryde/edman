@@ -526,11 +526,6 @@ class TestSearch(TestCase):
             self.assertIsInstance(actual[self.date], str)
             self.assertEqual(self.date, list(actual.keys())[0])
 
-    # def test_get_collections(self):
-    #     # 中身はlist_collection_names()に、
-    #     # system関連のコレクション有無の処理を加えただけなのでテストは割愛
-    #     pass
-    #
     # def test_find(self):
     #     # 中身は別のメソッドが中心なのでテストは割愛
     #     pass
