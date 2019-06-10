@@ -375,38 +375,6 @@ class TestFile(TestCase):
         with self.assertRaises(ValueError):
             _ = self.file._file_list_replace(doc, rep_files_oid)
 
-    def test__query_check(self):
-
-        # 正常系
-        query = ['bbb', '2', 'eee', '0', 'fff']
-        doc = {
-            'aaa': '123',
-            'bbb': [
-                {'ccc': '456'}, {'ddd': '789'},
-                {'eee': [
-                    {'fff': {'ans': 'OK'}}, {'ggg': '1'}
-                ]}
-            ]
-        }
-        actual = self.file._query_check(query, doc)
-        self.assertIsInstance(actual, bool)
-        self.assertTrue(actual)
-
-        # 異常系 間違ったクエリ
-        query = ['bbb', '2', 'eee', '1', 'fff']  # インデックスの指定ミスを想定
-        doc = {
-            'aaa': '123',
-            'bbb': [
-                {'ccc': '456'}, {'ddd': '789'},
-                {'eee': [
-                    {'fff': {'ans': 'OK'}}, {'ggg': '1'}
-                ]}
-            ]
-        }
-        actual = self.file._query_check(query, doc)
-        self.assertIsInstance(actual, bool)
-        self.assertFalse(actual)
-
     def test_fs_delete(self):
         if not self.db_server_connect:
             return

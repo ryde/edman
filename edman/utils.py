@@ -159,3 +159,26 @@ class Utils:
             return dateutil.parser.parse(s)
         except ValueError:
             return str(s)
+
+    @staticmethod
+    def query_check(query: list, doc: dict) -> bool:
+        """
+        クエリーが正しいか評価
+
+        :param list query:
+        :param dict doc:
+        :return bool result:
+        """
+        result = False
+        for key in query:
+            if key.isdecimal():
+                key = int(key)
+            try:
+                doc = doc[key]
+            except (KeyError, IndexError):  # インデクスの指定ミスは即時終了
+                result = False
+                break
+        else:  # for~elseを利用していることに注意
+            if isinstance(doc, dict):
+                result = True
+        return result

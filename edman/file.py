@@ -61,7 +61,7 @@ class File:
 
         if structure == 'emb':
             # クエリーがドキュメントのキーとして存在するかチェック
-            if not self._query_check(query, doc):
+            if not Utils.query_check(query, doc):
                 sys.exit('対象のドキュメントに対してクエリーが一致しません.')
 
         # ファイルのインサート
@@ -160,29 +160,6 @@ class File:
                 if self.fs.exists(oid):
                     self.fs.delete(oid)
 
-    @staticmethod
-    def _query_check(query: list, doc: dict) -> bool:
-        """
-        クエリーが正しいか評価
-
-        :param list query:
-        :param dict doc:
-        :return bool result:
-        """
-        result = False
-        for key in query:
-            if key.isdecimal():
-                key = int(key)
-            try:
-                doc = doc[key]
-            except (KeyError, IndexError):  # インデクスの指定ミスは即時終了
-                result = False
-                break
-        else:  # for~elseを利用していることに注意
-            if isinstance(doc, dict):
-                result = True
-        return result
-
     def get_file_ref(self, doc: dict, structure: str, query=None) -> list:
         """
         ファイルリファレンス情報を取得
@@ -202,7 +179,7 @@ class File:
             if self.file_ref in doc:
                 files_list = doc[self.file_ref]
         else:
-            if not self._query_check(query, doc):
+            if not Utils.query_check(query, doc):
                 sys.exit('対象のドキュメントに対してクエリーが一致しません.')
             # docから対象クエリを利用してファイルのリストを取得
             # deepcopyを使用しないとなぜか子のスコープのqueryがクリヤーされる

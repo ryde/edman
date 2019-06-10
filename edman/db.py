@@ -1,6 +1,5 @@
 import sys
 import copy
-import re
 from typing import Union
 import jmespath
 from pymongo import MongoClient, errors
@@ -101,20 +100,6 @@ class DB:
             collection_bar.close()
         return results
 
-    def collections(self, include_system_collections=False) -> tuple:
-        """
-        検索対象コレクション取得
-        collection_names()が廃止予定なので同等の機能を持たせた
-
-        :param include_system_collections: default False
-        :return:
-        """
-        collections = self.db.list_collection_names()
-        if not include_system_collections:
-            collections = tuple(
-                [s for s in collections if not re.match(r'system\.', s)])
-        return tuple(set(collections))
-
     def find_collection_from_objectid(self,
                                       oid: Union[str,
                                                  ObjectId]) -> Union[str,
@@ -128,7 +113,8 @@ class DB:
         """
         oid = Utils.conv_objectid(oid)
         result = None
-        for collection in self.collections():
+        coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
+        for collection in self.db.list_collection_names(filter=coll_filter):
             find_oid = self.db[collection].find_one({'_id': oid})
             if find_oid is not None and '_id' in find_oid:
                 result = collection
@@ -259,7 +245,7 @@ class DB:
             if key in doc:
                 del doc[key]
 
-    def _convert_datetime(self, amend: dict) -> dict:
+    def _convert_datetime_dict(self, amend: dict) -> dict:
         """
         辞書内辞書になっている文字列日付時間データを、辞書内日付時間に変換
 
@@ -323,7 +309,7 @@ class DB:
                 sys.exit(e)
         elif structure == 'ref':
             # 日付データを日付オブジェクトに変換
-            converted_amend_data = self._convert_datetime(amend_data)
+            converted_amend_data = self._convert_datetime_dict(amend_data)
             amended = {**db_result, **converted_amend_data}
         else:
             sys.exit('structureはrefまたはembの指定が必要です')

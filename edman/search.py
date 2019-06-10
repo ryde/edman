@@ -1,5 +1,4 @@
 import sys
-import re
 import copy
 from datetime import datetime
 from collections import defaultdict
@@ -22,26 +21,6 @@ class Search:
         self.file = config.file
         if db is not None:
             self.db = db.get_db
-            self.collections = self.get_collections()
-
-    def get_collections(self, include_system_collections=False) -> tuple:
-        """
-        | DB内のコレクションを取得
-        | collection_names()が廃止予定なので同等の機能を持たせた
-        |
-        | ただし、include_system_collectionsはデフォルトでFalseにしてある
-        | system.コレクションを取得する必要性があるか疑問なのでこのパラメータは廃止予定
-
-        :param bool include_system_collections: システム関連コレクションの取得フラグ
-        :return: tuple DB内のコレクション
-        """
-        collections = tuple(self.db.list_collection_names())
-
-        if not include_system_collections:
-            collections = tuple(
-                [s for s in collections if not re.match(r'system\.', s)])
-
-        return collections
 
     def _search_necessity_judge(self, self_result: dict) -> dict:
         """
@@ -73,7 +52,8 @@ class Search:
         :return: dict result 親 + 自分 + 子の階層構造となった辞書データ
         """
 
-        if collection not in self.collections:
+        coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
+        if collection not in self.db.list_collection_names(filter=coll_filter):
             sys.exit('コレクションが存在しません')
 
         query = self._objectid_replacement(query)
@@ -419,26 +399,24 @@ class Search:
                 # リストデータは中身を型変換する
                 elif isinstance(data[key], list) and Utils.item_literal_check(
                         data[key]):
-                    data[key] = [self._format_type(i) for i in data[key]]
+                    data[key] = [self._format_datetime(i) for i in data[key]]
                 elif isinstance(data[key], list):
                     for item in data[key]:
                         recursive(item_delete(item))
                 else:
                     try:  # 型変換
-                        data[key] = self._format_type(data[key])
+                        data[key] = self._format_datetime(data[key])
                     except Exception as e:
                         sys.exit(e)
 
         recursive(result_dict)
         return result_dict
 
-    def _format_type(self, item: Union[str, int, float, bool, datetime]) -> \
-            Union[dict, str, int, float, bool, datetime]:
+    def _format_datetime(self, item: Union[str, int, float, bool, datetime]
+                         ) -> Union[dict, str, int, float, bool, datetime]:
         """
-        | データ型を表現する辞書に変換する
-        |
-        | 現在は日付の変換にしか利用していない
-        | 日付に変換する場合は辞書を返し、それ以外の時は入ってきた値をそのまま返す
+        datetime型なら書式変更して辞書に入れる
+        その場合は辞書を返し、それ以外の時は入ってきた値をそのまま返す
 
         :param item: Union[str, int, float, bool, datetime]
         :return:result Union[dict, str, int, float, bool, datetime]

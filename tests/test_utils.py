@@ -132,3 +132,35 @@ class TestConvert(TestCase):
             with self.subTest(s=s):
                 actual = Utils.to_datetime(s)
                 self.assertIsInstance(actual, str)
+
+    def test__query_check(self):
+
+        # 正常系
+        query = ['bbb', '2', 'eee', '0', 'fff']
+        doc = {
+            'aaa': '123',
+            'bbb': [
+                {'ccc': '456'}, {'ddd': '789'},
+                {'eee': [
+                    {'fff': {'ans': 'OK'}}, {'ggg': '1'}
+                ]}
+            ]
+        }
+        actual = Utils.query_check(query, doc)
+        self.assertIsInstance(actual, bool)
+        self.assertTrue(actual)
+
+        # 異常系 間違ったクエリ
+        query = ['bbb', '2', 'eee', '1', 'fff']  # インデックスの指定ミスを想定
+        doc = {
+            'aaa': '123',
+            'bbb': [
+                {'ccc': '456'}, {'ddd': '789'},
+                {'eee': [
+                    {'fff': {'ans': 'OK'}}, {'ggg': '1'}
+                ]}
+            ]
+        }
+        actual = Utils.query_check(query, doc)
+        self.assertIsInstance(actual, bool)
+        self.assertFalse(actual)

@@ -660,26 +660,6 @@ class TestDB(TestCase):
         expected = ['1', '2', {'A': '4'}, '3', '4']
         self.assertListEqual(expected, actual)
 
-    def test_collections(self):
-        if not self.db_server_connect:
-            return
-
-        # 正常系
-        collections = ['test_collections_A', 'test_collections_B',
-                       'test_collections_C', 'test_collections_D',
-                       'test_collections_E']
-        insert_data = {'test_data': 'test'}
-
-        for collection in collections:
-            self.testdb[collection].insert_one(insert_data)
-
-        result = self.db.collections()
-        self.assertIsInstance(result, tuple)
-
-        actual = sorted(list(result))
-        expected = sorted(collections)
-        self.assertListEqual(actual, expected)
-
     def test_find_collection_from_objectid(self):
         if not self.db_server_connect:
             return
@@ -716,28 +696,28 @@ class TestDB(TestCase):
         self.db._delete_execute(doc, keys)
         self.assertDictEqual(doc, expected)
 
-    def test__convert_datetime(self):
+    def test__convert_datetime_dict(self):
 
         # 正常系
         test_date = '1997-04-01'
         data = {'name': 'KEK', 'value': 20, 'since': {self.date: test_date}}
-        actual = self.db._convert_datetime(data)
+        actual = self.db._convert_datetime_dict(data)
         self.assertIsInstance(actual['since'], datetime)
         self.assertIsInstance(actual, dict)
 
         test_date = '1997/04/01'
         data = {'since': {self.date: test_date}}
-        actual = self.db._convert_datetime(data)
+        actual = self.db._convert_datetime_dict(data)
         self.assertIsInstance(actual['since'], datetime)
 
         # 正常系 日付をテキストで入力された場合
         data = {'since': test_date}
-        actual = self.db._convert_datetime(data)
+        actual = self.db._convert_datetime_dict(data)
         self.assertIsInstance(actual['since'], str)
 
         # 正常系 #dateを利用しているが、変換対象でない場合
         data = {'since': {self.date: '1997年4月1日'}}
-        actual = self.db._convert_datetime(data)
+        actual = self.db._convert_datetime_dict(data)
         self.assertIsInstance(actual['since'], str)
 
         # 正常系 リストデータを含む
@@ -749,7 +729,7 @@ class TestDB(TestCase):
                     {self.date: test_date[1]}
                 ]
         }
-        actual = self.db._convert_datetime(data)
+        actual = self.db._convert_datetime_dict(data)
         self.assertIsInstance(actual['date_list'], list)
         for i in actual['date_list']:
             with self.subTest(i=i):
