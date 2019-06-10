@@ -1,6 +1,5 @@
 import sys
 import copy
-import re
 from typing import Union
 import jmespath
 from pymongo import MongoClient, errors
