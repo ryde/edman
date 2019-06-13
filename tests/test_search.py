@@ -306,7 +306,7 @@ class TestSearch(TestCase):
                 {'collection_B': {'power': 280}}
             ]
         ]
-        actual = self.search._child_combine_list(test_data)
+        actual = [i for i in self.search._child_combine_list(test_data)]
         self.assertIsInstance(actual, list)
         self.assertEqual(2, len(actual[0]['collection_A']))
 

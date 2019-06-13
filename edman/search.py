@@ -244,28 +244,23 @@ class Search:
         return children
 
     @staticmethod
-    def _child_combine_list(rec_result: list) -> list:
+    def _child_combine_list(rec_result: list) -> dict:
         """
-        | 同じコレクションのデータをリストでまとめる
+        | 同じコレクションのデータをリストでまとめるジェネレータ
         |
         | コレクション:ドキュメントのリストを作成
-        | [collection:[{key:value},{key:value}...]]
+        | [{collection:[{key:value},{key:value}...]},]
 
         :param list rec_result:
-        :return: list result
+        :return: dict
         """
-        result = []
         for bros in rec_result:
             tmp_bros = defaultdict(list)
 
             for docs in bros:
                 for collection, doc in docs.items():
                     tmp_bros[collection].append(doc)
-
-            result.append(dict(tmp_bros))
-            del tmp_bros
-
-        return result
+            yield dict(tmp_bros)
 
     def _get_child(self, self_doc: dict, depth: int) -> dict:
         """
@@ -348,7 +343,7 @@ class Search:
         :param list find_result:
         :return: dict
         """
-        find_result = self._child_combine_list(find_result)
+        find_result = [i for i in self._child_combine_list(find_result)]
         parent_id_dict = self._generate_parent_id_dict(find_result)
         find_result_cp = copy.deepcopy(list(reversed(find_result)))
 
