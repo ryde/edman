@@ -187,3 +187,21 @@ class TestConvert(TestCase):
             doc, ('_id', self.parent, self.child, self.file))
         expected = {'param': 'OK'}
         self.assertDictEqual(actual, expected)
+
+    def test_child_combine(self):
+        # データ構造のテスト
+        test_data = [
+            [
+                {'collection_A': {'name': 'NSX'}},
+                {'collection_A': {'name': 'F355'}},
+                {'collection_B': {'power': 280}}
+            ]
+        ]
+        # # test_data = [
+        #         {'collection_A': {'name': 'NSX'}},
+        #         {'collection_A': {'name': 'F355'}},
+        #         {'collection_B': {'power': 280}}
+        #     ]
+        actual = [i for i in Utils.child_combine(test_data)]
+        self.assertIsInstance(actual, list)
+        self.assertEqual(2, len(actual[0]['collection_A']))

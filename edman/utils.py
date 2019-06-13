@@ -1,4 +1,5 @@
 import sys
+from collections import defaultdict
 from typing import Union, Callable
 from datetime import datetime
 import dateutil.parser
@@ -196,3 +197,22 @@ class Utils:
             if key in doc:
                 del doc[key]
         return doc
+
+    @staticmethod
+    def child_combine(rec_result: list) -> dict:
+        """
+        | 同じコレクションのデータをリストでまとめるジェネレータ
+        |
+        | コレクション:ドキュメントのリストを作成
+        | {collection:[{key:value},{key:value}...]}
+
+        :param list rec_result:
+        :return: dict
+        """
+        for bros in rec_result:
+            tmp_bros = defaultdict(list)
+
+            for docs in bros:
+                for collection, doc in docs.items():
+                    tmp_bros[collection].append(doc)
+            yield dict(tmp_bros)

@@ -243,25 +243,6 @@ class Search:
 
         return children
 
-    @staticmethod
-    def _child_combine_list(rec_result: list) -> dict:
-        """
-        | 同じコレクションのデータをリストでまとめるジェネレータ
-        |
-        | コレクション:ドキュメントのリストを作成
-        | [{collection:[{key:value},{key:value}...]},]
-
-        :param list rec_result:
-        :return: dict
-        """
-        for bros in rec_result:
-            tmp_bros = defaultdict(list)
-
-            for docs in bros:
-                for collection, doc in docs.items():
-                    tmp_bros[collection].append(doc)
-            yield dict(tmp_bros)
-
     def _get_child(self, self_doc: dict, depth: int) -> dict:
         """
         | 子のドキュメントを取得
@@ -294,6 +275,7 @@ class Search:
 
         if depth >= 1:  # depthが効くのは必ず1以上
             recursive([self_doc], depth)  # 再帰関数をシンプルにするため、初期データをリストで囲む
+            # TODO result.appendではなくextendにしてみるとlistのカッコがとれるかもしれない
             result = self._build_to_doc_child(result)  # 親子構造に組み立て
         return result
 
@@ -343,7 +325,8 @@ class Search:
         :param list find_result:
         :return: dict
         """
-        find_result = [i for i in self._child_combine_list(find_result)]
+        # find_result = [i for i in self._child_combine_list(find_result)]
+        find_result = [i for i in Utils.child_combine(find_result)]
         parent_id_dict = self._generate_parent_id_dict(find_result)
         find_result_cp = copy.deepcopy(list(reversed(find_result)))
 
