@@ -383,10 +383,10 @@ class DB:
                 result = self.db[collection].delete_one({'_id': oid})
                 if result.deleted_count:
                     # 添付データがあればgridfsから削除
-                    file_ref = self._collect_emb_file_ref(db_result, self.file_ref)
                     file = File(self.get_db)
-                    # file.emb_fs_delete_all(db_result, self.file_ref)
-                    file.fs_delete(file_ref)
+                    file.fs_delete(
+                        sum([i for i in self._collect_emb_file_ref(
+                            db_result, self.file_ref)], []))
                     return True
                 else:
                     sys.exit('指定のドキュメントは削除できませんでした' + str(oid))
@@ -418,14 +418,11 @@ class DB:
         :param str collection:
         :return:
         """
-        elements = (
-            self._extract_elements_from_doc(db_result, collection)
-            if db_result.get(self.child) is None
-            else self._recursive_extract_elements_from_doc(db_result,
-                                                           collection))
         delete_doc_id_dict = {}
         delete_file_ref_list = []
-        for element in elements:
+        for element in [i for i in
+                        self._recursive_extract_elements_from_doc(db_result,
+                                                                  collection)]:
             doc_collection = list(element.keys())[0]
             id_and_refs = list(element.values())[0]
 
@@ -489,9 +486,9 @@ class DB:
         if not result.modified_count:
             raise ValueError('親となる' + parent_doc['id'] + 'は変更できませんでした')
 
-    def _extract_elements_from_doc(self, doc: dict, collection: str) -> list:
+    def _extract_elements_from_doc(self, doc: dict, collection: str) -> dict:
         """
-        oidとファイルリファレンスリストを取り出す
+        コレクション別の、oidとファイルリファレンスリストを取り出す
 
         :param dict doc:
         :param str collection:
@@ -501,63 +498,48 @@ class DB:
         if doc.get(self.file_ref) is not None:
             file_ref_buff = {self.file_ref: doc[self.file_ref]}
 
-        return [{collection: {doc['_id']: file_ref_buff}}]
+        return {collection: {doc['_id']: file_ref_buff}}
 
     def _recursive_extract_elements_from_doc(self, doc: dict,
-                                             collection: str) -> list:
+                                             collection: str) -> dict:
         """
-        再帰処理でoidとファイルリファレンスリストを取り出す
+        再帰処理で
+        コレクション別の、oidとファイルリファレンスの辞書を取り出すジェネレータ
 
         :param dict doc:
         :param str collection:
         :return:
         """
+        yield self._extract_elements_from_doc(doc, collection)
 
-        def recursive(doc, collection):
-            file_ref_buff = {}
-            if doc.get(self.file_ref) is not None:
-                file_ref_buff = {self.file_ref: doc[self.file_ref]}
+        if doc.get(self.child):
+            for child_ref in doc[self.child]:
+                yield from self._recursive_extract_elements_from_doc(
+                    self.db.dereference(child_ref), child_ref.collection)
 
-            result.append({collection: {doc['_id']: file_ref_buff}})
-
-            if doc.get(self.child):
-                for child_ref in doc[self.child]:
-                    db_result = self.db.dereference(child_ref)
-                    recursive(db_result, child_ref.collection)
-
-        result = []
-        recursive(doc, collection)
-        return result
-
-    @staticmethod
-    def _collect_emb_file_ref(emb_data: dict, request_key: str) -> list:
+    def _collect_emb_file_ref(self, doc: dict, request_key: str) -> list:
         """
-        emb構造のデータからファイルリファレンスだけをまとめて取り出す
+        emb構造のデータからファイルリファレンスのリストだけを取り出すジェネレータ
 
-        :param dict emb_data:
+        :param dict doc:
         :param str request_key:
-        :return list result:
+        :return list value:
         """
-        def rec(doc):
-            for key, value in doc.items():
-                if isinstance(value, dict):
-                    rec(value)
 
-                elif isinstance(value, list) and Utils.item_literal_check(
-                        value):
-                    if key == request_key:
-                        result.extend(value)
-                    continue
+        for key, value in doc.items():
+            if isinstance(value, dict):
+                yield from self._collect_emb_file_ref(value, request_key)
 
-                elif isinstance(value, list):
-                    if key == request_key:
-                        result.extend(value)
-                    else:
-                        for i in value:
-                            rec(i)
+            elif isinstance(value, list) and Utils.item_literal_check(value):
+                if key == request_key:
+                    yield value
+                continue
+
+            elif isinstance(value, list):
+                if key == request_key:
+                    yield value
                 else:
-                    continue
-
-        result = []
-        rec(emb_data)
-        return result
+                    for i in value:
+                        yield from self._collect_emb_file_ref(i, request_key)
+            else:
+                continue

@@ -896,10 +896,12 @@ class TestDB(TestCase):
             'delete_ref_fs_sample': {
                 'name': 'NSX',
                 'st2': [
-                    {'name': 'GT-R', 'power': '280', '_ed_file': [fs_inserted_oid]},
+                    {'name': 'GT-R', 'power': '280',
+                     '_ed_file': [fs_inserted_oid]},
                     {'name': '180SX', 'power': '220', 'engine':
                         [
-                            {'type': 'turbo', '_ed_file': [fs_inserted_oid2, fs_inserted_oid3]},
+                            {'type': 'turbo',
+                             '_ed_file': [fs_inserted_oid2, fs_inserted_oid3]},
                             {'type': 'NA'}
                         ]
                      }
@@ -1029,7 +1031,8 @@ class TestDB(TestCase):
         inserted_report = self.db.insert(converted_edman)
         doc = self.testdb[collection].find_one(
             {'_id': inserted_report[0][collection][0]})
-        actual = self.db._extract_elements_from_doc(doc, collection)
+        # actual = [i for i in self.db._extract_elements_from_doc(doc, collection)]
+        actual = [self.db._extract_elements_from_doc(doc, collection)]
 
         self.assertIsInstance(actual, list)
         self.assertEqual(collection, list(actual[0].keys())[0])
@@ -1068,7 +1071,9 @@ class TestDB(TestCase):
         # print(inserted_report)
         doc = self.testdb[collection].find_one(
             {'_id': inserted_report[2][collection][0]})
-        actual = self.db._recursive_extract_elements_from_doc(doc, collection)
+        # actual = self.db._recursive_extract_elements_from_doc(doc, collection)
+        actual = [i for i in self.db._recursive_extract_elements_from_doc(
+            doc, collection)]
 
         expected_oid_list = []
         for i in inserted_report:
@@ -1108,7 +1113,8 @@ class TestDB(TestCase):
             ],
             '_ed_file': l3
         }
-        actual = self.db._collect_emb_file_ref(data, '_ed_file')
+        actual = sum(
+            [i for i in self.db._collect_emb_file_ref(data, '_ed_file')], [])
         self.assertListEqual(actual, expected)
 
         # ファイルリファレンスが含まれていなかった場合
@@ -1121,5 +1127,6 @@ class TestDB(TestCase):
             ],
             'type': 'RX'
         }
-        actual = self.db._collect_emb_file_ref(data, '_ed_file')
+        actual = sum(
+            [i for i in self.db._collect_emb_file_ref(data, '_ed_file')], [])
         self.assertEqual(len(actual), 0)
