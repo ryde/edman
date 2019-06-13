@@ -121,24 +121,6 @@ class DB:
                 break
         return result
 
-    def _reference_item_delete(self, doc: dict) -> dict:
-        """
-        _id、親と子のリファレンス、ファイルリファレンスなどを削除
-
-        :param dict doc:
-        :return: dict item
-        """
-
-        if '_id' in doc:
-            del doc['_id']
-        if self.child in doc:
-            del doc[self.child]
-        if self.parent in doc:
-            del doc[self.parent]
-        if self.file_ref in doc:
-            del doc[self.file_ref]
-        return doc
-
     def doc(self, collection: str, oid: Union[ObjectId, str],
             query: Union[list, None], reference_delete=True) -> dict:
         """
@@ -166,8 +148,9 @@ class DB:
         if not isinstance(doc_result, dict):
             sys.exit(f'指定されたクエリはドキュメントではありません {query}')
 
-        result = self._reference_item_delete(
-            doc_result) if reference_delete else doc_result
+        result = Utils.reference_item_delete(
+            doc_result, ('_id', self.parent, self.child,self.file_ref)
+        ) if reference_delete else doc_result
 
         return result
 

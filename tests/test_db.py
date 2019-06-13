@@ -129,18 +129,6 @@ class TestDB(TestCase):
             with self.subTest(i=i, idx=idx):
                 self.assertDictEqual(i, actual[idx])
 
-    def test__reference_item_delete(self):
-        # 正常系
-        doc = {
-            self.parent: ObjectId(),
-            self.child: [ObjectId(), ObjectId()],
-            self.file: [ObjectId(), ObjectId()],
-            'param': 'OK'
-        }
-        actual = self.db._reference_item_delete(doc)
-        expected = {'param': 'OK'}
-        self.assertDictEqual(actual, expected)
-
     def test_doc(self):
         if not self.db_server_connect:
             return
@@ -1031,7 +1019,6 @@ class TestDB(TestCase):
         inserted_report = self.db.insert(converted_edman)
         doc = self.testdb[collection].find_one(
             {'_id': inserted_report[0][collection][0]})
-        # actual = [i for i in self.db._extract_elements_from_doc(doc, collection)]
         actual = [self.db._extract_elements_from_doc(doc, collection)]
 
         self.assertIsInstance(actual, list)
@@ -1071,7 +1058,6 @@ class TestDB(TestCase):
         # print(inserted_report)
         doc = self.testdb[collection].find_one(
             {'_id': inserted_report[2][collection][0]})
-        # actual = self.db._recursive_extract_elements_from_doc(doc, collection)
         actual = [i for i in self.db._recursive_extract_elements_from_doc(
             doc, collection)]
 

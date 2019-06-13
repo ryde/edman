@@ -1,10 +1,20 @@
 from unittest import TestCase
 from datetime import datetime
 from bson import ObjectId, errors
+from edman import Config
 from edman.utils import Utils
 
 
 class TestConvert(TestCase):
+
+    def setUp(self):
+        self.config = Config()
+        self.parent = self.config.parent
+        self.child = self.config.child
+        self.date = self.config.date
+        self.file = self.config.file
+
+
     def test__item_literal_check(self):
         # 正常系 リスト内が全てリテラルデータ
         data = [1, 2, 3]
@@ -164,3 +174,16 @@ class TestConvert(TestCase):
         actual = Utils.query_check(query, doc)
         self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
+
+    def test__reference_item_delete(self):
+        # 正常系
+        doc = {
+            self.parent: ObjectId(),
+            self.child: [ObjectId(), ObjectId()],
+            self.file: [ObjectId(), ObjectId()],
+            'param': 'OK'
+        }
+        actual = Utils.reference_item_delete(
+            doc, ('_id', self.parent, self.child, self.file))
+        expected = {'param': 'OK'}
+        self.assertDictEqual(actual, expected)

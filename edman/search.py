@@ -368,36 +368,20 @@ class Search:
         :param dict result_dict:
         :return: dict result_dict
         """
-
-        def item_delete(item: dict) -> dict:
-            """
-            _id、親と子のリファレンス項目を削除
-
-            :param dict item:
-            :return: dict item
-            """
-            if '_id' in item:
-                del item['_id']
-            if self.child in item:
-                del item[self.child]
-            if self.parent in item:
-                del item[self.parent]
-            if self.file in item:
-                del item[self.file]
-            return item
+        refs = ('_id', self.parent, self.child, self.file)
 
         def recursive(data: dict):
             # idとrefの削除
             for key, val in data.items():
                 if isinstance(data[key], dict):
-                    recursive(item_delete(data[key]))
+                    recursive(Utils.reference_item_delete(data[key], refs))
                 # リストデータは中身を型変換する
                 elif isinstance(data[key], list) and Utils.item_literal_check(
                         data[key]):
                     data[key] = [self._format_datetime(i) for i in data[key]]
                 elif isinstance(data[key], list):
                     for item in data[key]:
-                        recursive(item_delete(item))
+                        recursive(Utils.reference_item_delete(item, refs))
                 else:
                     try:  # 型変換
                         data[key] = self._format_datetime(data[key])

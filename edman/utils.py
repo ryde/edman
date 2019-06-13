@@ -182,3 +182,17 @@ class Utils:
             if isinstance(doc, dict):
                 result = True
         return result
+
+    @staticmethod
+    def reference_item_delete(doc: dict, del_keys: tuple) -> dict:
+        """
+        _id、親と子のリファレンス、ファイルリファレンスなどを削除
+
+        :param dict doc:
+        :param tuple del_keys:
+        :return: dict item
+        """
+        for key in del_keys:
+            if key in doc:
+                del doc[key]
+        return doc
