@@ -149,7 +149,7 @@ class DB:
             sys.exit(f'指定されたクエリはドキュメントではありません {query}')
 
         result = Utils.reference_item_delete(
-            doc_result, ('_id', self.parent, self.child,self.file_ref)
+            doc_result, ('_id', self.parent, self.child, self.file_ref)
         ) if reference_delete else doc_result
 
         return result
