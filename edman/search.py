@@ -243,30 +243,6 @@ class Search:
 
         return children
 
-    @staticmethod
-    def _child_combine_list(rec_result: list) -> list:
-        """
-        | 同じコレクションのデータをリストでまとめる
-        |
-        | コレクション:ドキュメントのリストを作成
-        | [collection:[{key:value},{key:value}...]]
-
-        :param list rec_result:
-        :return: list result
-        """
-        result = []
-        for bros in rec_result:
-            tmp_bros = defaultdict(list)
-
-            for docs in bros:
-                for collection, doc in docs.items():
-                    tmp_bros[collection].append(doc)
-
-            result.append(dict(tmp_bros))
-            del tmp_bros
-
-        return result
-
     def _get_child(self, self_doc: dict, depth: int) -> dict:
         """
         | 子のドキュメントを取得
@@ -348,7 +324,8 @@ class Search:
         :param list find_result:
         :return: dict
         """
-        find_result = self._child_combine_list(find_result)
+        # find_result = [i for i in self._child_combine_list(find_result)]
+        find_result = [i for i in Utils.child_combine(find_result)]
         parent_id_dict = self._generate_parent_id_dict(find_result)
         find_result_cp = copy.deepcopy(list(reversed(find_result)))
 
@@ -373,36 +350,20 @@ class Search:
         :param dict result_dict:
         :return: dict result_dict
         """
-
-        def item_delete(item: dict) -> dict:
-            """
-            _id、親と子のリファレンス項目を削除
-
-            :param dict item:
-            :return: dict item
-            """
-            if '_id' in item:
-                del item['_id']
-            if self.child in item:
-                del item[self.child]
-            if self.parent in item:
-                del item[self.parent]
-            if self.file in item:
-                del item[self.file]
-            return item
+        refs = ('_id', self.parent, self.child, self.file)
 
         def recursive(data: dict):
             # idとrefの削除
             for key, val in data.items():
                 if isinstance(data[key], dict):
-                    recursive(item_delete(data[key]))
+                    recursive(Utils.reference_item_delete(data[key], refs))
                 # リストデータは中身を型変換する
                 elif isinstance(data[key], list) and Utils.item_literal_check(
                         data[key]):
                     data[key] = [self._format_datetime(i) for i in data[key]]
                 elif isinstance(data[key], list):
                     for item in data[key]:
-                        recursive(item_delete(item))
+                        recursive(Utils.reference_item_delete(item, refs))
                 else:
                     try:  # 型変換
                         data[key] = self._format_datetime(data[key])

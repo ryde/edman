@@ -297,19 +297,6 @@ class TestSearch(TestCase):
             with self.subTest(a=a, t=t):
                 self.assertEqual(a, t)
 
-    def test__child_combine_list(self):
-        # データ構造のテスト
-        test_data = [
-            [
-                {'collection_A': {'name': 'NSX'}},
-                {'collection_A': {'name': 'F355'}},
-                {'collection_B': {'power': 280}}
-            ]
-        ]
-        actual = self.search._child_combine_list(test_data)
-        self.assertIsInstance(actual, list)
-        self.assertEqual(2, len(actual[0]['collection_A']))
-
     def test__get_child(self):
         if not self.db_server_connect:
             return
