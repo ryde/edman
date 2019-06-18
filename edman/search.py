@@ -275,7 +275,6 @@ class Search:
 
         if depth >= 1:  # depthが効くのは必ず1以上
             recursive([self_doc], depth)  # 再帰関数をシンプルにするため、初期データをリストで囲む
-            # TODO result.appendではなくextendにしてみるとlistのカッコがとれるかもしれない
             result = self._build_to_doc_child(result)  # 親子構造に組み立て
         return result
 
