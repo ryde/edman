@@ -1117,6 +1117,31 @@ class TestDB(TestCase):
             [i for i in self.db._collect_emb_file_ref(data, '_ed_file')], [])
         self.assertEqual(len(actual), 0)
 
+    def test_get_reference_point(self):
+        # データ構造及び、値のテスト
+        collection = 'collection_name'
+        data = {
+            collection: {
+                '_id': 'aa', self.parent: 'bb'
+            }
+        }
+        actual = self.db.get_reference_point(data[collection])
+
+        self.assertIsInstance(actual, dict)
+        self.assertTrue(actual[self.parent])
+        self.assertFalse(actual[self.child])
+
+        # データ構造及び、値のテスト　その2
+        data = {
+            collection: {
+                '_id': 'aa',
+                self.parent: 'bb',
+                self.child: 'cc'
+            }
+        }
+        actual = self.db.get_reference_point(data[collection])
+        self.assertTrue(actual[self.child])
+
     def test_get_structure(self):
 
         # emb モードのテスト

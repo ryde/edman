@@ -21,21 +21,6 @@ class Search:
         if db is not None:
             self.db = db.get_db
 
-    def get_reference_point(self, self_result: dict) -> dict:
-        """
-
-        ドキュメントに親や子のリファレンス項目名が含まれているか調べる
-
-        片方しかない場合は末端(親、または一番下の子)となる
-        両方含まれていればこのドキュメントには親と子が存在する
-        両方含まれていなければ、単独のドキュメント
-
-        :param dict self_result:
-        :return: dict result
-        """
-        return {key: True if self_result.get(key) else False for key in
-                (self.parent, self.child)}
-
     def find(self, collection: str, query: dict, parent_depth: int,
              child_depth: int) -> dict:
         """
@@ -54,7 +39,7 @@ class Search:
 
         query = self._objectid_replacement(query)
         self_result = self._get_self(query, collection)
-        reference_point_result = self.get_reference_point(self_result[collection])
+        reference_point_result = self.db.get_reference_point(self_result[collection])
 
         parent_result = None
         if reference_point_result[self.parent]:

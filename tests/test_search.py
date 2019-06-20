@@ -91,31 +91,6 @@ class TestSearch(TestCase):
             for collection in collections_all:
                 self.testdb.drop_collection(collection)
 
-    def test_get_reference_point(self):
-        # データ構造及び、値のテスト
-        collection = 'collection_name'
-        data = {
-            collection: {
-                '_id': 'aa', self.parent: 'bb'
-            }
-        }
-        actual = self.search.get_reference_point(data[collection])
-
-        self.assertIsInstance(actual, dict)
-        self.assertTrue(actual[self.parent])
-        self.assertFalse(actual[self.child])
-
-        # データ構造及び、値のテスト　その2
-        data = {
-            collection: {
-                '_id': 'aa',
-                self.parent: 'bb',
-                self.child: 'cc'
-            }
-        }
-        actual = self.search.get_reference_point(data[collection])
-        self.assertTrue(actual[self.child])
-
     def test__merge_parent(self):
 
         # データ構造のテスト

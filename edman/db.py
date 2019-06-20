@@ -527,6 +527,21 @@ class DB:
             else:
                 continue
 
+    def get_reference_point(self, self_result: dict) -> dict:
+        """
+
+        ドキュメントに親や子のリファレンス項目名が含まれているか調べる
+
+        片方しかない場合は末端(親、または一番下の子)となる
+        両方含まれていればこのドキュメントには親と子が存在する
+        両方含まれていなければ、単独のドキュメント
+
+        :param dict self_result:
+        :return: dict
+        """
+        return {key: True if self_result.get(key) else False for key in
+                (self.parent, self.child)}
+
     def get_structure(self, collection: str, oid: ObjectId) -> str:
         doc = self.db[collection].find_one({'_id': Utils.conv_objectid(oid)})
         if doc is None:
