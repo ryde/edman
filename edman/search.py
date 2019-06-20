@@ -1,7 +1,6 @@
 import sys
 import copy
 from datetime import datetime
-from collections import defaultdict
 from typing import Union
 from bson import errors, ObjectId
 from edman.utils import Utils
@@ -22,23 +21,20 @@ class Search:
         if db is not None:
             self.db = db.get_db
 
-    def _search_necessity_judge(self, self_result: dict) -> dict:
+    def get_reference_point(self, self_result: dict) -> dict:
         """
-        データに親や子のリファレンス項目名が含まれているか判断
+
+        ドキュメントに親や子のリファレンス項目名が含まれているか調べる
+
+        片方しかない場合は末端(親、または一番下の子)となる
+        両方含まれていればこのドキュメントには親と子が存在する
+        両方含まれていなければ、単独のドキュメント
 
         :param dict self_result:
         :return: dict result
         """
-        result = {}
-        if self_result:
-            for k, v in self_result.items():
-                keys = list(v.keys())
-                parent_exist = True if self.parent in keys else False
-                result.update({self.parent: parent_exist})
-                child_exist = True if self.child in keys else False
-                result.update({self.child: child_exist})
-
-        return result
+        return {key: True if self_result.get(key) else False for key in
+                (self.parent, self.child)}
 
     def find(self, collection: str, query: dict, parent_depth: int,
              child_depth: int) -> dict:
@@ -58,14 +54,14 @@ class Search:
 
         query = self._objectid_replacement(query)
         self_result = self._get_self(query, collection)
-        search_necessity = self._search_necessity_judge(self_result)
+        reference_point_result = self.get_reference_point(self_result[collection])
 
         parent_result = None
-        if search_necessity[self.parent]:
+        if reference_point_result[self.parent]:
             parent_result = self._get_parent(self_result, parent_depth)
 
         children_result = None
-        if search_necessity[self.child]:
+        if reference_point_result[self.child]:
             children_result = self._get_child(self_result, child_depth)
 
         # 親も子も存在しない時はselfのみ
