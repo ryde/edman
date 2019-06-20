@@ -1116,3 +1116,87 @@ class TestDB(TestCase):
         actual = sum(
             [i for i in self.db._collect_emb_file_ref(data, '_ed_file')], [])
         self.assertEqual(len(actual), 0)
+
+    def test_get_structure(self):
+
+        # emb モードのテスト
+        collection = 'test_get_structure_emb'
+        emb_data = [{collection: {
+            "position": "top",
+            "username": "ryde",
+            "structure_list_2": [
+                {
+                    "maker": "Ferrari",
+                    "carname": "F355",
+                    "power": 380,
+                    "float_val": 4453.456
+                },
+                {
+                    "maker": "HONDA",
+                    "carname": "NSX",
+                    "power": 280,
+                    "float_val": 321.56,
+                    "list_data": [
+                        "Mario",
+                        "Sonic",
+                        "Ryu",
+                        "Link"
+                    ]
+                }
+            ]
+        }}]
+        result = self.db.insert(emb_data)
+        oid = result[0][collection][0]
+        actual = self.db.get_structure(collection, oid)
+        # print('actual', actual)
+        self.assertEqual(actual, 'emb')
+
+        # ref モードのテスト
+        data = {
+            'sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        target_collection = 'st2'
+        oid = inserted_report[1][target_collection][1]
+        actual = self.db.get_structure(target_collection, oid)
+        self.assertEqual(actual, 'ref')
+
+    def test_structure(self):
+
+        data = {
+            'sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+
+        target_collection = 'st2'
+        oid = inserted_report[1][target_collection][1]
+        # print(target_collection, oid)
+        actual = self.db.structure(target_collection, oid, structure_mode='emb')

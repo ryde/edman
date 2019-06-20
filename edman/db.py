@@ -526,3 +526,42 @@ class DB:
                         yield from self._collect_emb_file_ref(i, request_key)
             else:
                 continue
+
+    def get_structure(self, collection: str, oid: ObjectId) -> str:
+        doc = self.db[collection].find_one({'_id': Utils.conv_objectid(oid)})
+        if doc is None:
+            sys.exit('指定のドキュメントがありません')
+
+        if any(key in doc for key in (self.parent, self.child)):
+            return 'ref'
+        else:
+            return 'emb'
+
+    def structure(self, collection: str, oid: ObjectId,
+                  structure_mode: str) -> bool:
+
+        # refデータをembに変換する
+        if structure_mode == 'emb':
+            # 自分データ取り出し
+            ref_result = self.doc(collection, oid, query=None,
+                                  reference_delete=False)
+            # print(ref_result)
+            # TODO 子データを取り出し
+
+            # TODO 自分と子データをマージ
+            # TODO _ed_parentと_ed_childと_idを消す(_ed_fileだけ残す)
+            # TODO この時点で新規入力のjson+ファイルリファレンスの状態になる
+            # TODO 取り出しデータを dict_to_edmanに入れる(_ed_fileが削除されそうな件は修正、もしくは新規メソッドで対応)
+
+            # embデータをrefに変換する
+        elif structure_mode == 'ref':
+            # emb_result = self.db[collection].find({'_id': oid})
+            # TODO トップの_id削除
+            # TODO _ed_fileを保ったままコンバート
+            # TODO コンバートしたデータを_ed_fileを保ったままinsert
+            pass
+
+        else:
+            sys.exit('構造はrefかembを指定してください')
+
+        return True
