@@ -49,7 +49,8 @@ class TestSearch(TestCase):
             )
             # ユーザ側認証
             cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
-                                                        cls.test_ini['password'])
+                                                        cls.test_ini[
+                                                            'password'])
 
             # edmanのDB接続オブジェクト作成
             con = {
@@ -318,6 +319,93 @@ class TestSearch(TestCase):
         # -1は指定不可能
         actual = self.search._get_child({parent_col: parent_data}, -1)
         self.assertEqual(0, len(actual))
+
+    def test_get_child_all(self):
+        if not self.db_server_connect:
+            return
+
+        db = self.client[self.test_ini['db']]
+        parent_id = ObjectId()
+        child1_id = ObjectId()
+        child2_id = ObjectId()
+        child3_id = ObjectId()
+        child4_id = ObjectId()
+        parent_col = 'parent_col'
+        child1_col = 'child1'
+        child2_col = 'child2'
+        child3_col = 'child3'
+        child4_col = 'child4'
+        parent_dbref = DBRef(parent_col, parent_id)
+        child1_dbref = DBRef(child1_col, child1_id)
+        child2_dbref = DBRef(child2_col, child2_id)
+        child3_dbref = DBRef(child3_col, child3_id)
+        child4_dbref = DBRef(child4_col, child4_id)
+        parent_data = {
+            '_id': parent_id,
+            'data': 'test',
+            self.parent: DBRef('storaged_test_parent', ObjectId()),
+            self.child: [child1_dbref, child2_dbref]
+        }
+        _ = db[parent_col].insert_one(parent_data)
+        child1_data = {
+            '_id': child1_id,
+            'data2': 'test2',
+            self.parent: parent_dbref
+        }
+        _ = db[child1_col].insert_one(child1_data)
+        child2_data = {
+            '_id': child2_id,
+            'data3': 'test3',
+            self.parent: parent_dbref,
+            self.child: [child3_dbref]
+        }
+        _ = db[child2_col].insert_one(child2_data)
+        child3_data = {
+            '_id': child3_id,
+            'data4': 'test4',
+            self.parent: child2_dbref,
+            self.child: [child4_dbref]
+        }
+        _ = db[child3_col].insert_one(child3_data)
+        child4_data = {
+            '_id': child4_id,
+            'data5': 'test5',
+            self.parent: child3_dbref
+        }
+        _ = db[child4_col].insert_one(child4_data)
+
+        expected = {
+            child1_col: [
+                {
+                    '_id': child1_id, 'data2': 'test2',
+                    '_ed_parent': parent_dbref
+                }
+            ],
+            child2_col: [
+                {
+                    '_id': child2_id, 'data3': 'test3',
+                    '_ed_parent': parent_dbref,
+                    '_ed_child': [child3_dbref],
+                    child3_col: [
+                        {
+                            '_id': child3_id, 'data4': 'test4',
+                            '_ed_parent': child2_dbref,
+                            '_ed_child': [child4_dbref],
+                            child4_col: [
+                                {
+                                    '_id': child4_id,
+                                    'data5': 'test5',
+                                    '_ed_parent': child3_dbref
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+        actual = self.search.get_child_all({parent_col: parent_data})
+        # print(actual)
+        self.assertDictEqual(expected, actual)
 
     def test__get_uni_parent(self):
         # 正常系 構造と値のテスト

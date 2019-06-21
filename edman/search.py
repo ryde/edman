@@ -259,6 +259,32 @@ class Search:
             result = self._build_to_doc_child(result)  # 親子構造に組み立て
         return result
 
+    def get_child_all(self, self_doc: dict) -> dict:
+        """
+        | 子のドキュメントを再帰で全部取得
+
+        :param dict self_doc:
+        :return: dict
+        """
+
+        def recursive(doc_list):
+
+            tmp = []
+            # ここでデータを取得する
+            for doc in doc_list:
+                tmp = self._child_storaged(doc)
+                if tmp:
+                    result.append(tmp)
+
+            # 子データがある時は繰り返す
+            if tmp:
+                recursive(tmp)
+
+        result = []  # recによって書き換えられる
+
+        recursive([self_doc])  # 再帰関数をシンプルにするため、初期データをリストで囲む
+        return self._build_to_doc_child(result)  # 親子構造に組み立て
+
     def _get_uni_parent(self, bros: dict) -> ObjectId:
         """
         | 兄弟データ内の親のIDを取得
