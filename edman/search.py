@@ -1,5 +1,4 @@
 import sys
-import copy
 from datetime import datetime
 from typing import Union
 from bson import errors, ObjectId
@@ -47,7 +46,7 @@ class Search:
 
         children_result = None
         if reference_point_result[self.child]:
-            children_result = self._get_child(self_result, child_depth)
+            children_result = self.db.get_child(self_result, child_depth)
 
         # 親も子も存在しない時はselfのみ
         result = self_result
@@ -204,149 +203,6 @@ class Search:
             else:
                 result = read_data
         return result
-
-    def _child_storaged(self, doc: dict) -> list:
-        """
-        | リファレンスで子データを取得する
-        |
-        | 同じコレクションの場合は子データをリストで囲む
-
-        :param dict doc:
-        :return: list children
-        """
-        doc = list(doc.values())[0]
-        children = []
-        # 単純にリスト内に辞書データを入れたい場合
-        if self.child in doc:
-            children = [
-                {child_ref.collection: self.db.dereference(child_ref)}
-                for child_ref in doc[self.child]]
-
-        return children
-
-    def _get_child(self, self_doc: dict, depth: int) -> dict:
-        """
-        | 子のドキュメントを取得
-        |
-        | depthで深度を設定し、階層分取得する
-
-        :param dict self_doc:
-        :param int depth:
-        :return: dict
-        """
-
-        def recursive(doc_list: list, depth: int):
-            """
-            再帰で結果リスト組み立て
-            """
-            if depth > 0:
-                tmp = []
-                # ここでデータを取得する
-                for doc in doc_list:
-                    tmp = self._child_storaged(doc)
-                    if tmp:
-                        result.append(tmp)
-                depth -= 1
-
-                # 子データがある時は繰り返す
-                if tmp:
-                    recursive(tmp, depth)
-
-        result = []  # recによって書き換えられる
-
-        if depth >= 1:  # depthが効くのは必ず1以上
-            recursive([self_doc], depth)  # 再帰関数をシンプルにするため、初期データをリストで囲む
-            result = self._build_to_doc_child(result)  # 親子構造に組み立て
-        return result
-
-    def get_child_all(self, self_doc: dict) -> dict:
-        """
-        | 子のドキュメントを再帰で全部取得
-
-        :param dict self_doc:
-        :return: dict
-        """
-
-        def recursive(doc_list):
-
-            tmp = []
-            # ここでデータを取得する
-            for doc in doc_list:
-                tmp = self._child_storaged(doc)
-                if tmp:
-                    result.append(tmp)
-
-            # 子データがある時は繰り返す
-            if tmp:
-                recursive(tmp)
-
-        result = []  # recによって書き換えられる
-
-        recursive([self_doc])  # 再帰関数をシンプルにするため、初期データをリストで囲む
-        return self._build_to_doc_child(result)  # 親子構造に組み立て
-
-    def _get_uni_parent(self, bros: dict) -> ObjectId:
-        """
-        | 兄弟データ内の親のIDを取得
-        |
-        | エラーがなければ通常は親は唯一なので一つのOidを返す
-
-        :param bros:
-        :return: ObjectId
-        """
-        parent_list = []
-        for collection, doc in bros.items():
-            if isinstance(doc, dict):
-                parent_list.append(doc[self.parent].id)
-            else:
-                parent_list.extend(
-                    [doc_dict[self.parent].id for doc_dict in doc])
-
-        if len(set(parent_list)) == 1:
-            return list(parent_list)[0]
-        else:
-            raise ValueError(f'兄弟で親のObjectIDが異なっています\n{parent_list}')
-
-    def _generate_parent_id_dict(self, find_result: list) -> dict:
-        """
-        親IDをキーとする辞書を生成する
-
-        :param list find_result:
-        :return: dict
-        """
-        result = {}
-        for bros in find_result:
-            try:
-                parent_id = self._get_uni_parent(bros)
-            except ValueError as e:
-                sys.exit(e)
-            result.update({parent_id: bros})
-
-        return result
-
-    def _build_to_doc_child(self, find_result: list) -> dict:
-        """
-        子の検索結果（リスト）を入れ子辞書に組み立てる
-
-        :param list find_result:
-        :return: dict
-        """
-        # find_result = [i for i in self._child_combine_list(find_result)]
-        find_result = [i for i in Utils.child_combine(find_result)]
-        parent_id_dict = self._generate_parent_id_dict(find_result)
-        find_result_cp = copy.deepcopy(list(reversed(find_result)))
-
-        for bros_idx, bros in enumerate(reversed(find_result)):
-            for collection, docs in bros.items():
-                for doc_idx, doc in enumerate(docs):
-                    # 子データが存在する場合はマージする
-                    if doc['_id'] in parent_id_dict:
-                        tmp = find_result_cp[bros_idx][collection][doc_idx]
-                        tmp.update(parent_id_dict[doc['_id']])
-                        doc.update(tmp)
-                        del parent_id_dict[doc['_id']]
-
-        return find_result[0]
 
     def _process_data_derived_from_mongodb(self, result_dict: dict) -> dict:
         """
