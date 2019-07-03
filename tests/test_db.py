@@ -1,12 +1,13 @@
 import configparser
 import copy
+import tempfile
 import gridfs
 from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
 from pymongo import errors, MongoClient
 from bson import ObjectId, DBRef
-from edman import Config, DB, Convert
+from edman import Config, DB, Convert, File
 
 
 class TestDB(TestCase):
@@ -1143,6 +1144,8 @@ class TestDB(TestCase):
         self.assertTrue(actual[self.child])
 
     def test_get_structure(self):
+        if not self.db_server_connect:
+            return
 
         # emb モードのテスト
         collection = 'test_get_structure_emb'
@@ -1200,32 +1203,135 @@ class TestDB(TestCase):
         actual = self.db.get_structure(target_collection, oid)
         self.assertEqual(actual, 'ref')
 
-    def test_structure(self):
-
-        data = {
-            'sample': {
-                'name': 'NSX',
-                'st2': [
-                    {'name': 'GT-R', 'power': '280'},
-                    {'name': '180SX', 'power': '220', 'engine':
-                        [
-                            {'type': 'turbo'},
-                            {'type': 'NA'}
-                        ]
-                     }
-                ],
-                'type': 'R'
-            }
-        }
-        convert = Convert()
-        converted_edman = convert.dict_to_edman(data, mode='ref')
-        inserted_report = self.db.insert(converted_edman)
-
-        target_collection = 'st2'
-        oid = inserted_report[1][target_collection][1]
-        # print(target_collection, oid)
-        actual = self.db.structure(target_collection, oid, structure_mode='emb')
-        # TODO assert
+    # def test_structure(self):
+    #     if not self.db_server_connect:
+    #         return
+    #
+    #     # refからembへコンバート
+    #     data = {
+    #         'sample': {
+    #             'name': 'NSX',
+    #             'st2': [
+    #                 {'name': 'GT-R', 'power': '280'},
+    #                 {'name': '180SX', 'power': '220', 'engine':
+    #                     [
+    #                         {'type': 'turbo'},
+    #                         {'type': 'NA'}
+    #                     ]
+    #                  }
+    #             ],
+    #             'type': 'R'
+    #         }
+    #     }
+    #     convert = Convert()
+    #     converted_edman = convert.dict_to_edman(data, mode='ref')
+    #     inserted_report = self.db.insert(converted_edman)
+    #     # print('inserted_report', inserted_report)
+    #
+    #     target_collection = 'st2'
+    #     # ファイルリファレンスをアタッチ
+    #     file = File(self.testdb)
+    #     attached_file_oid = inserted_report[0]['engine'][0]
+    #     # print('file_oid', file_oid)
+    #
+    #     with tempfile.TemporaryDirectory() as tmp_dir:
+    #         p = Path(tmp_dir)
+    #         filename_list = []
+    #         name = 'file_ref.txt'
+    #         filename_list.append(name)
+    #         save_path = p / name
+    #         with save_path.open('w') as f:
+    #             test_var = 'test ref'
+    #             f.write(test_var)
+    #             # ここはfileクラスのメソッドは利用せずにgridfsでインサートしたほうが良いかも？
+    #             file.add_file_reference('engine', attached_file_oid,
+    #                                     (save_path,),
+    #                                     'ref')
+    #
+    #     oid = inserted_report[1][target_collection][1]
+    #     # print(target_collection, oid)
+    #     new_collection = 'new_collection'
+    #     actual = self.db.structure(target_collection, oid,
+    #                                structure_mode='emb',
+    #                                new_collection=new_collection)
+    #     # print('actual', actual)
+    #     find_result = self.testdb[new_collection].find_one(
+    #         {'_id': actual[0][new_collection][0]})
+    #     # print('find_result', find_result['engine'][0])
+    #
+    #     self.assertTrue(
+    #         True if self.file in find_result['engine'][0] else False)
+    #
+    #     # _ed_fileとidを除いたデータが入力値と一致するか
+    #     del find_result['engine'][0][self.file]
+    #     del find_result['_id']
+    #     self.assertEqual(data['sample']['st2'][1], find_result)
+    #
+    #     # ドキュメントが一つの場合
+    #     data = {
+    #         'sample': {
+    #             'name': 'NSX',
+    #             'power': 280
+    #         }
+    #     }
+    #     convert = Convert()
+    #     converted_edman = convert.dict_to_edman(data, mode='ref')
+    #     inserted_report = self.db.insert(converted_edman)
+    #     # print(inserted_report)
+    #     oid = inserted_report[0]['sample'][0]
+    #     new_collection = 'new_collection'
+    #     actual = self.db.structure('sample', oid,
+    #                                structure_mode='emb',
+    #                                new_collection=new_collection)
+    #     # print(actual)
+    #     find_result = self.testdb[new_collection].find_one(
+    #         {'_id': actual[0][new_collection][0]})
+    #     del find_result['_id']
+    #     self.assertDictEqual(data['sample'], find_result)
+    #
+    #     # embからrefへの変換
+    #     data = {
+    #         'sample2': {
+    #             'game list': [
+    #                 {
+    #                     'product': 'super mario land'
+    #                 },
+    #                 {
+    #                     'product:': 'metal gear solid'
+    #                 },
+    #                 {
+    #                     'data': 'value',
+    #                     'Machine product': [
+    #                      {
+    #                          'hard': 'SNES',
+    #                          'Developer': 'Nintendo'
+    #                      }
+    #                     ]
+    #                  }
+    #             ]
+    #         }
+    #     }
+    #     convert = Convert()
+    #     converted_edman = convert.dict_to_edman(data, mode='emb')
+    #     inserted_report = self.db.insert(converted_edman)
+    #     oid = inserted_report[0]['sample2'][0]
+    #     new_collection = 'new_collection'
+    #     actual = self.db.structure('sample2', oid,
+    #                                structure_mode='ref',
+    #                                new_collection=new_collection)
+    #     # print('actual', actual)
+    #     actual2 = self.db.structure('new_collection',
+    #                                 actual[2]['new_collection'][0],
+    #                                 structure_mode='emb',
+    #                                 new_collection='new_collection2')
+    #     # print('actual2', actual2)
+    #
+    #     result = self.testdb['new_collection2'].find_one(
+    #         {'_id': actual2[0]['new_collection2'][0]})
+    #     del result['_id']
+    #     self.assertDictEqual(result, data['sample2'])
+    #     # print(result)
+    #     # print(data['sample2'])
 
     def test_get_child_all(self):
         if not self.db_server_connect:
@@ -1484,6 +1590,123 @@ class TestDB(TestCase):
         }
         with self.assertRaises(ValueError) as e:
             _ = self.db._get_uni_parent(data)
+
+    def test_delete_reference(self):
+
+        parent_coll = 'parent'
+        parent_id = ObjectId()
+        parent_dbref = DBRef(parent_coll, parent_id)
+        child1_coll = 'child1'
+        child1_id = ObjectId()
+        child1_dbref = DBRef(child1_coll, child1_id)
+        child2_id = ObjectId()
+        child2_coll = 'child2'
+        child2_dbref = DBRef(child2_coll, child2_id)
+        child3_id = ObjectId()
+        child3_coll = 'child3'
+        child3_dbref = DBRef(child3_coll, child3_id)
+        child4_id = ObjectId()
+        child4_coll = 'child4'
+        child4_dbref = DBRef(child4_coll, child4_id)
+        child5_id = ObjectId()
+        child5_coll = 'child5'
+        child5a_dbref = DBRef(child5_coll, child5_id)
+        child6_id = ObjectId()
+        child6_coll = 'child6'
+        child6_dbref = DBRef(child6_coll, child6_id)
+        child7_id = ObjectId()
+        child5b_dbref = DBRef(child5_coll, child7_id)
+        file_ref1 = ObjectId()
+        file_ref2 = ObjectId()
+        file_ref3 = ObjectId()
+
+        data = {
+            '_id': parent_id,
+            'name': 'Ryu',
+            self.parent: DBRef('aaa', ObjectId()),
+            self.child: [child1_dbref, child2_dbref],
+            child1_coll:
+                {
+                    '_id': child1_coll,
+                    'name': 'Ken',
+                    self.parent: parent_dbref,
+                    self.child: [child3_dbref, child4_dbref],
+                    child3_coll: {
+                        '_id': child3_id,
+                        'name': 'E.Honda',
+                        self.parent: child1_dbref
+                    },
+                    child4_coll: {
+                        '_id': child4_id,
+                        'name': 'Chun-Li',
+                        self.parent: child1_dbref,
+                        self.child: [child6_dbref],
+                        child6_coll: {
+                            '_id': child6_id,
+                            'name': 'Dhalshim',
+                            self.parent: child4_dbref,
+                            self.file: [file_ref1, file_ref2]
+                        }
+                    }
+                },
+            child2_coll:
+                {
+                    '_id': child2_coll,
+                    'name': 'Guile',
+                    self.parent: parent_dbref,
+                    self.child: [child5a_dbref, child5b_dbref],
+                    child5_coll: [
+                        {
+                            '_id': child5_id,
+                            'name': 'Blanka',
+                            self.parent: child2_dbref,
+                            self.file: [file_ref3]
+                        },
+                        {
+                            '_id': child7_id,
+                            'name': 'Zangief',
+                            self.parent: child2_dbref
+                        },
+                    ]
+                }
+
+        }
+
+        actual = self.db.delete_reference(data,
+                                          (self.parent, self.child, '_id'))
+        # print('delete_reference actual', actual)
+
+        expect = {
+            'name': 'Ryu',
+            child1_coll:
+                {
+                    'name': 'Ken',
+                    child3_coll: {
+                        'name': 'E.Honda',
+                    },
+                    child4_coll: {
+                        'name': 'Chun-Li',
+                        child6_coll: {
+                            'name': 'Dhalshim',
+                            self.file: [file_ref1, file_ref2]
+                        }
+                    }
+                },
+            child2_coll:
+                {
+                    'name': 'Guile',
+                    child5_coll: [
+                        {
+                            'name': 'Blanka',
+                            self.file: [file_ref3]
+                        },
+                        {
+                            'name': 'Zangief',
+                        },
+                    ]
+                }
+        }
+        self.assertDictEqual(expect, actual)
 
     # def test__generate_parent_id_dict(self):
     #     pass
