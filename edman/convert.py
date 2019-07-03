@@ -295,6 +295,10 @@ class Convert:
                     if list(child_ref.values())[0]:  # 子データがない場合もある
                         tmp.update(child_ref)
 
+                    # rootにoidを追加する
+                    if self.parent not in tmp:
+                        tmp.update({'_id': oid_list[0]})
+
                     del oid_list[my]
 
                     # バルクインサート用のリストを作成
