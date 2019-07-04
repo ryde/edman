@@ -503,7 +503,6 @@ class DB:
     def _collect_emb_file_ref(self, doc: dict, request_key: str) -> list:
         """
         emb構造のデータからファイルリファレンスのリストだけを取り出すジェネレータ
-        # TODO メソッド名が正しくない もっと汎用的に使用できる
 
         :param dict doc:
         :param str request_key:
