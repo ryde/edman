@@ -17,8 +17,10 @@ class Search:
         self.child = config.child
         self.date = config.date
         self.file = config.file
+        self.db = db
+
         if db is not None:
-            self.db = db.get_db
+            self.connected_db = db.get_db
 
     def find(self, collection: str, query: dict, parent_depth: int,
              child_depth: int) -> dict:
@@ -33,7 +35,7 @@ class Search:
         """
 
         coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
-        if collection not in self.db.list_collection_names(filter=coll_filter):
+        if collection not in self.connected_db.list_collection_names(filter=coll_filter):
             sys.exit('コレクションが存在しません')
 
         query = self._objectid_replacement(query)
@@ -117,7 +119,7 @@ class Search:
         :param str collection:
         :return: dict
         """
-        docs = list(self.db[collection].find(query))
+        docs = list(self.connected_db[collection].find(query))
 
         if not len(docs):
             sys.exit('ドキュメントが見つかりませんでした')
@@ -165,7 +167,7 @@ class Search:
             DBReferenceを利用し、設定されている深度を減らしながら再帰
             """
             if self.parent in doc:
-                parent = self.db.dereference(doc[self.parent])
+                parent = self.connected_db.dereference(doc[self.parent])
                 parent_collection = doc[self.parent].collection
                 result.append({parent_collection: parent})
                 nonlocal depth
