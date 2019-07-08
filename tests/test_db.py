@@ -1203,135 +1203,135 @@ class TestDB(TestCase):
         actual = self.db.get_structure(target_collection, oid)
         self.assertEqual(actual, 'ref')
 
-    # def test_structure(self):
-    #     if not self.db_server_connect:
-    #         return
-    #
-    #     # refからembへコンバート
-    #     data = {
-    #         'sample': {
-    #             'name': 'NSX',
-    #             'st2': [
-    #                 {'name': 'GT-R', 'power': '280'},
-    #                 {'name': '180SX', 'power': '220', 'engine':
-    #                     [
-    #                         {'type': 'turbo'},
-    #                         {'type': 'NA'}
-    #                     ]
-    #                  }
-    #             ],
-    #             'type': 'R'
-    #         }
-    #     }
-    #     convert = Convert()
-    #     converted_edman = convert.dict_to_edman(data, mode='ref')
-    #     inserted_report = self.db.insert(converted_edman)
-    #     # print('inserted_report', inserted_report)
-    #
-    #     target_collection = 'st2'
-    #     # ファイルリファレンスをアタッチ
-    #     file = File(self.testdb)
-    #     attached_file_oid = inserted_report[0]['engine'][0]
-    #     # print('file_oid', file_oid)
-    #
-    #     with tempfile.TemporaryDirectory() as tmp_dir:
-    #         p = Path(tmp_dir)
-    #         filename_list = []
-    #         name = 'file_ref.txt'
-    #         filename_list.append(name)
-    #         save_path = p / name
-    #         with save_path.open('w') as f:
-    #             test_var = 'test ref'
-    #             f.write(test_var)
-    #             # ここはfileクラスのメソッドは利用せずにgridfsでインサートしたほうが良いかも？
-    #             file.add_file_reference('engine', attached_file_oid,
-    #                                     (save_path,),
-    #                                     'ref')
-    #
-    #     oid = inserted_report[1][target_collection][1]
-    #     # print(target_collection, oid)
-    #     new_collection = 'new_collection'
-    #     actual = self.db.structure(target_collection, oid,
-    #                                structure_mode='emb',
-    #                                new_collection=new_collection)
-    #     # print('actual', actual)
-    #     find_result = self.testdb[new_collection].find_one(
-    #         {'_id': actual[0][new_collection][0]})
-    #     # print('find_result', find_result['engine'][0])
-    #
-    #     self.assertTrue(
-    #         True if self.file in find_result['engine'][0] else False)
-    #
-    #     # _ed_fileとidを除いたデータが入力値と一致するか
-    #     del find_result['engine'][0][self.file]
-    #     del find_result['_id']
-    #     self.assertEqual(data['sample']['st2'][1], find_result)
-    #
-    #     # ドキュメントが一つの場合
-    #     data = {
-    #         'sample': {
-    #             'name': 'NSX',
-    #             'power': 280
-    #         }
-    #     }
-    #     convert = Convert()
-    #     converted_edman = convert.dict_to_edman(data, mode='ref')
-    #     inserted_report = self.db.insert(converted_edman)
-    #     # print(inserted_report)
-    #     oid = inserted_report[0]['sample'][0]
-    #     new_collection = 'new_collection'
-    #     actual = self.db.structure('sample', oid,
-    #                                structure_mode='emb',
-    #                                new_collection=new_collection)
-    #     # print(actual)
-    #     find_result = self.testdb[new_collection].find_one(
-    #         {'_id': actual[0][new_collection][0]})
-    #     del find_result['_id']
-    #     self.assertDictEqual(data['sample'], find_result)
-    #
-    #     # embからrefへの変換
-    #     data = {
-    #         'sample2': {
-    #             'game list': [
-    #                 {
-    #                     'product': 'super mario land'
-    #                 },
-    #                 {
-    #                     'product:': 'metal gear solid'
-    #                 },
-    #                 {
-    #                     'data': 'value',
-    #                     'Machine product': [
-    #                      {
-    #                          'hard': 'SNES',
-    #                          'Developer': 'Nintendo'
-    #                      }
-    #                     ]
-    #                  }
-    #             ]
-    #         }
-    #     }
-    #     convert = Convert()
-    #     converted_edman = convert.dict_to_edman(data, mode='emb')
-    #     inserted_report = self.db.insert(converted_edman)
-    #     oid = inserted_report[0]['sample2'][0]
-    #     new_collection = 'new_collection'
-    #     actual = self.db.structure('sample2', oid,
-    #                                structure_mode='ref',
-    #                                new_collection=new_collection)
-    #     # print('actual', actual)
-    #     actual2 = self.db.structure('new_collection',
-    #                                 actual[2]['new_collection'][0],
-    #                                 structure_mode='emb',
-    #                                 new_collection='new_collection2')
-    #     # print('actual2', actual2)
-    #
-    #     result = self.testdb['new_collection2'].find_one(
-    #         {'_id': actual2[0]['new_collection2'][0]})
-    #     del result['_id']
-    #     self.assertDictEqual(result, data['sample2'])
-    #     # print(result)
-    #     # print(data['sample2'])
+    def test_structure(self):
+        if not self.db_server_connect:
+            return
+
+        # refからembへコンバート
+        data = {
+            'sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        # print('inserted_report', inserted_report)
+
+        target_collection = 'st2'
+        # ファイルリファレンスをアタッチ
+        file = File(self.testdb)
+        attached_file_oid = inserted_report[0]['engine'][0]
+        # print('file_oid', file_oid)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
+            filename_list = []
+            name = 'file_ref.txt'
+            filename_list.append(name)
+            save_path = p / name
+            with save_path.open('w') as f:
+                test_var = 'test ref'
+                f.write(test_var)
+                # ここはfileクラスのメソッドは利用せずにgridfsでインサートしたほうが良いかも？
+                file.add_file_reference('engine', attached_file_oid,
+                                        (save_path,),
+                                        'ref')
+
+        oid = inserted_report[1][target_collection][1]
+        # print(target_collection, oid)
+        new_collection = 'new_collection'
+        actual = self.db.structure(target_collection, oid,
+                                   structure_mode='emb',
+                                   new_collection=new_collection)
+        # print('actual', actual)
+        find_result = self.testdb[new_collection].find_one(
+            {'_id': actual[0][new_collection][0]})
+        # print('find_result', find_result['engine'][0])
+
+        self.assertTrue(
+            True if self.file in find_result['engine'][0] else False)
+
+        # _ed_fileとidを除いたデータが入力値と一致するか
+        del find_result['engine'][0][self.file]
+        del find_result['_id']
+        self.assertEqual(data['sample']['st2'][1], find_result)
+
+        # ドキュメントが一つの場合
+        data = {
+            'sample': {
+                'name': 'NSX',
+                'power': 280
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        # print(inserted_report)
+        oid = inserted_report[0]['sample'][0]
+        new_collection = 'new_collection'
+        actual = self.db.structure('sample', oid,
+                                   structure_mode='emb',
+                                   new_collection=new_collection)
+        # print(actual)
+        find_result = self.testdb[new_collection].find_one(
+            {'_id': actual[0][new_collection][0]})
+        del find_result['_id']
+        self.assertDictEqual(data['sample'], find_result)
+
+        # embからrefへの変換
+        data = {
+            'sample2': {
+                'game list': [
+                    {
+                        'product': 'super mario land'
+                    },
+                    {
+                        'product:': 'metal gear solid'
+                    },
+                    {
+                        'data': 'value',
+                        'Machine product': [
+                         {
+                             'hard': 'SNES',
+                             'Developer': 'Nintendo'
+                         }
+                        ]
+                     }
+                ]
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='emb')
+        inserted_report = self.db.insert(converted_edman)
+        oid = inserted_report[0]['sample2'][0]
+        new_collection = 'new_collection'
+        actual = self.db.structure('sample2', oid,
+                                   structure_mode='ref',
+                                   new_collection=new_collection)
+        # print('actual', actual)
+        actual2 = self.db.structure('new_collection',
+                                    actual[0]['new_collection'][0],
+                                    structure_mode='emb',
+                                    new_collection='new_collection2')
+        # print('actual2', actual2)
+
+        result = self.testdb['new_collection2'].find_one(
+            {'_id': actual2[0]['new_collection2'][0]})
+        del result['_id']
+        self.assertDictEqual(result, data['sample2'])
+        # print(result)
+        # print(data['sample2'])
 
     def test_get_child_all(self):
         if not self.db_server_connect:

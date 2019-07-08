@@ -552,62 +552,72 @@ class DB:
         else:
             return 'emb'
 
-    # def structure(self, collection: str, oid: ObjectId,
-    #               structure_mode: str, new_collection: str):
-    #
-    #     oid = Utils.conv_objectid(oid)
-    #
-    #     # refデータをembに変換する
-    #     if structure_mode == 'emb':
-    #         # 自分データ取り出し
-    #         ref_result = self.doc(collection, oid, query=None,
-    #                               reference_delete=False)
-    #         reference_point_result = self.get_reference_point(
-    #             ref_result)
-    #         if reference_point_result[self.child]:
-    #             # 子データを取り出し
-    #             children = self.get_child_all({collection: ref_result})
-    #
-    #             # 自分のリファレンスデータとidを削除
-    #             for del_key in (self.parent, self.child, '_id'):
-    #                 if del_key in ref_result:
-    #                     del ref_result[del_key]
-    #
-    #             # 子のリファレンスデータ削除
-    #             non_ref_children = self.delete_reference(children,
-    #                                                      ('_id', self.parent,
-    #                                                       self.child))
-    #             # 自分と子要素をマージする
-    #             ref_result.update(non_ref_children)
-    #
-    #             convert = Convert()
-    #             converted_edman = convert.dict_to_edman({new_collection: ref_result}, mode='emb')
-    #             structured_result = self.insert(converted_edman)
-    #         # 子が存在しないドキュメントの場合(新たなコレクションとして切り出す)
-    #         else:
-    #             # 自分のリファレンスデータとidを削除
-    #             for del_key in (self.parent, '_id'):
-    #                 if del_key in ref_result:
-    #                     del ref_result[del_key]
-    #             convert = Convert()
-    #             converted_edman = convert.dict_to_edman({new_collection: ref_result}, mode='emb')
-    #             structured_result = self.insert(converted_edman)
-    #
-    #     # embからrefに変換
-    #     elif structure_mode == 'ref':
-    #         emb_result = self.db[collection].find_one({'_id': oid})
-    #         print('emb_result', emb_result)  # debug
-    #         del emb_result['_id']
-    #         print('emb_result after ', emb_result)  # debug
-    #         convert = Convert()
-    #         converted_edman = convert.dict_to_edman(
-    #             {new_collection: emb_result}, mode='ref')
-    #         structured_result = self.insert(converted_edman)
-    #
-    #     else:
-    #         sys.exit('構造はrefかembを指定してください')
-    #
-    #     return structured_result
+    def structure(self, collection: str, oid: ObjectId,
+                  structure_mode: str, new_collection: str) -> list:
+        """
+        構造をrefからembへ、またはembからrefへ変更する
+
+        :param str collection:
+        :param ObjectId oid:
+        :param str structure_mode:
+        :param str new_collection:
+        :return:
+        """
+
+        oid = Utils.conv_objectid(oid)
+
+        # refデータをembに変換する
+        if structure_mode == 'emb':
+            # 自分データ取り出し
+            ref_result = self.doc(collection, oid, query=None,
+                                  reference_delete=False)
+            reference_point_result = self.get_reference_point(
+                ref_result)
+            if reference_point_result[self.child]:
+                # 子データを取り出し
+                children = self.get_child_all({collection: ref_result})
+
+                # 自分のリファレンスデータとidを削除
+                for del_key in (self.parent, self.child, '_id'):
+                    if del_key in ref_result:
+                        del ref_result[del_key]
+
+                # 子のリファレンスデータ削除
+                non_ref_children = self.delete_reference(children,
+                                                         ('_id', self.parent,
+                                                          self.child))
+                # 自分と子要素をマージする
+                ref_result.update(non_ref_children)
+
+                convert = Convert()
+                converted_edman = convert.dict_to_edman(
+                    {new_collection: ref_result}, mode='emb')
+                structured_result = self.insert(converted_edman)
+            # 子が存在しないドキュメントの場合(新たなコレクションとして切り出す)
+            else:
+                # 自分のリファレンスデータとidを削除
+                for del_key in (self.parent, '_id'):
+                    if del_key in ref_result:
+                        del ref_result[del_key]
+                convert = Convert()
+                converted_edman = convert.dict_to_edman(
+                    {new_collection: ref_result}, mode='emb')
+                structured_result = self.insert(converted_edman)
+
+        # embからrefに変換
+        elif structure_mode == 'ref':
+            emb_result = self.db[collection].find_one({'_id': oid})
+            del emb_result['_id']
+            convert = Convert()
+            converted_edman = convert.dict_to_edman(
+                {new_collection: emb_result}, mode='ref')
+            structured_result = self.insert(converted_edman)
+            structured_result.reverse()
+
+        else:
+            sys.exit('構造はrefかembを指定してください')
+
+        return structured_result
 
     def get_child_all(self, self_doc: dict) -> dict:
         """
@@ -618,17 +628,15 @@ class DB:
         """
 
         def recursive(doc_list):
-
-            tmp = []
             # ここでデータを取得する
             for doc in doc_list:
                 tmp = self._child_storaged(doc)
                 if tmp:
                     result.append(tmp)
 
-            # 子データがある時は繰り返す
-            if tmp:
-                recursive(tmp)
+                # 子データがある時は繰り返す
+                if tmp:
+                    recursive(tmp)
 
         result = []  # recによって書き換えられる
 
