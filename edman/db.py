@@ -526,3 +526,272 @@ class DB:
                         yield from self._collect_emb_file_ref(i, request_key)
             else:
                 continue
+
+    def get_reference_point(self, self_result: dict) -> dict:
+        """
+
+        ドキュメントに親や子のリファレンス項目名が含まれているか調べる
+
+        片方しかない場合は末端(親、または一番下の子)となる
+        両方含まれていればこのドキュメントには親と子が存在する
+        両方含まれていなければ、単独のドキュメント
+
+        :param dict self_result:
+        :return: dict
+        """
+        return {key: True if self_result.get(key) else False for key in
+                (self.parent, self.child)}
+
+    def get_structure(self, collection: str, oid: ObjectId) -> str:
+        doc = self.db[collection].find_one({'_id': Utils.conv_objectid(oid)})
+        if doc is None:
+            sys.exit('指定のドキュメントがありません')
+
+        if any(key in doc for key in (self.parent, self.child)):
+            return 'ref'
+        else:
+            return 'emb'
+
+    def structure(self, collection: str, oid: ObjectId,
+                  structure_mode: str, new_collection: str) -> list:
+        """
+        構造をrefからembへ、またはembからrefへ変更する
+
+        :param str collection:
+        :param ObjectId oid:
+        :param str structure_mode:
+        :param str new_collection:
+        :return:
+        """
+
+        oid = Utils.conv_objectid(oid)
+
+        # refデータをembに変換する
+        if structure_mode == 'emb':
+            # 自分データ取り出し
+            ref_result = self.doc(collection, oid, query=None,
+                                  reference_delete=False)
+            reference_point_result = self.get_reference_point(
+                ref_result)
+            if reference_point_result[self.child]:
+                # 子データを取り出し
+                children = self.get_child_all({collection: ref_result})
+
+                # 自分のリファレンスデータとidを削除
+                for del_key in (self.parent, self.child, '_id'):
+                    if del_key in ref_result:
+                        del ref_result[del_key]
+
+                # 子のリファレンスデータ削除
+                non_ref_children = self.delete_reference(children,
+                                                         ('_id', self.parent,
+                                                          self.child))
+                # 自分と子要素をマージする
+                ref_result.update(non_ref_children)
+
+                convert = Convert()
+                converted_edman = convert.dict_to_edman(
+                    {new_collection: ref_result}, mode='emb')
+                structured_result = self.insert(converted_edman)
+            # 子が存在しないドキュメントの場合(新たなコレクションとして切り出す)
+            else:
+                # 自分のリファレンスデータとidを削除
+                for del_key in (self.parent, '_id'):
+                    if del_key in ref_result:
+                        del ref_result[del_key]
+                convert = Convert()
+                converted_edman = convert.dict_to_edman(
+                    {new_collection: ref_result}, mode='emb')
+                structured_result = self.insert(converted_edman)
+
+        # embからrefに変換
+        elif structure_mode == 'ref':
+            emb_result = self.db[collection].find_one({'_id': oid})
+            del emb_result['_id']
+            convert = Convert()
+            converted_edman = convert.dict_to_edman(
+                {new_collection: emb_result}, mode='ref')
+            structured_result = self.insert(converted_edman)
+            structured_result.reverse()
+
+        else:
+            sys.exit('構造はrefかembを指定してください')
+
+        return structured_result
+
+    def get_child_all(self, self_doc: dict) -> dict:
+        """
+        | 子のドキュメントを再帰で全部取得
+
+        :param dict self_doc:
+        :return: dict
+        """
+
+        def recursive(doc_list):
+            # ここでデータを取得する
+            for doc in doc_list:
+                tmp = self._child_storaged(doc)
+                if tmp:
+                    result.append(tmp)
+
+                # 子データがある時は繰り返す
+                if tmp:
+                    recursive(tmp)
+
+        result = []  # recによって書き換えられる
+
+        recursive([self_doc])  # 再帰関数をシンプルにするため、初期データをリストで囲む
+        return self._build_to_doc_child(result)  # 親子構造に組み立て
+
+    def get_child(self, self_doc: dict, depth: int) -> dict:
+        """
+        | 子のドキュメントを取得
+        |
+        | depthで深度を設定し、階層分取得する
+
+        :param dict self_doc:
+        :param int depth:
+        :return: dict
+        """
+
+        def recursive(doc_list: list, depth: int):
+            """
+            再帰で結果リスト組み立て
+            """
+            if depth > 0:
+                tmp = []
+                # ここでデータを取得する
+                for doc in doc_list:
+                    tmp = self._child_storaged(doc)
+                    if tmp:
+                        result.append(tmp)
+                depth -= 1
+
+                # 子データがある時は繰り返す
+                if tmp:
+                    recursive(tmp, depth)
+
+        result = []  # recによって書き換えられる
+
+        if depth >= 1:  # depthが効くのは必ず1以上
+            recursive([self_doc], depth)  # 再帰関数をシンプルにするため、初期データをリストで囲む
+            result = self._build_to_doc_child(result)  # 親子構造に組み立て
+        return result
+
+    def _child_storaged(self, doc: dict) -> list:
+        """
+        | リファレンスで子データを取得する
+        |
+        | 同じコレクションの場合は子データをリストで囲む
+
+        :param dict doc:
+        :return: list children
+        """
+        doc = list(doc.values())[0]
+        children = []
+        # 単純にリスト内に辞書データを入れたい場合
+        if self.child in doc:
+            children = [
+                {child_ref.collection: self.db.dereference(child_ref)}
+                for child_ref in doc[self.child]]
+
+        return children
+
+    def _build_to_doc_child(self, find_result: list) -> dict:
+        """
+        子の検索結果（リスト）を入れ子辞書に組み立てる
+
+        :param list find_result:
+        :return: dict
+        """
+        find_result = [i for i in Utils.child_combine(find_result)]
+        parent_id_dict = self._generate_parent_id_dict(find_result)
+        find_result_cp = copy.deepcopy(list(reversed(find_result)))
+
+        for bros_idx, bros in enumerate(reversed(find_result)):
+            for collection, docs in bros.items():
+                for doc_idx, doc in enumerate(docs):
+                    # 子データが存在する場合はマージする
+                    if doc['_id'] in parent_id_dict:
+                        tmp = find_result_cp[bros_idx][collection][doc_idx]
+                        tmp.update(parent_id_dict[doc['_id']])
+                        doc.update(tmp)
+                        del parent_id_dict[doc['_id']]
+
+        return find_result[0]
+
+    def _generate_parent_id_dict(self, find_result: list) -> dict:
+        """
+        親IDをキーとする辞書を生成する
+
+        :param list find_result:
+        :return: dict
+        """
+        result = {}
+        for bros in find_result:
+            try:
+                parent_id = self._get_uni_parent(bros)
+            except ValueError as e:
+                sys.exit(e)
+            result.update({parent_id: bros})
+
+        return result
+
+    def _get_uni_parent(self, bros: dict) -> ObjectId:
+        """
+        | 兄弟データ内の親のIDを取得
+        |
+        | エラーがなければ通常は親は唯一なので一つのOidを返す
+
+        :param bros:
+        :return: ObjectId
+        """
+        parent_list = []
+        for collection, doc in bros.items():
+            if isinstance(doc, dict):
+                parent_list.append(doc[self.parent].id)
+            else:
+                parent_list.extend(
+                    [doc_dict[self.parent].id for doc_dict in doc])
+
+        if len(set(parent_list)) == 1:
+            return list(parent_list)[0]
+        else:
+            raise ValueError(f'兄弟で親のObjectIDが異なっています\n{parent_list}')
+
+    @staticmethod
+    def delete_reference(emb_data: dict, reference: tuple) -> dict:
+        """
+        ドキュメント内の特定の項目(リファレンスも)を削除する
+
+        :param dict emb_data:
+        :param tuple reference:
+        :return: dict
+        """
+
+        def recursive(data):
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    for del_key in reference:
+                        if del_key in value:
+                            del value[del_key]
+                    recursive(value)
+                elif isinstance(value, list) and Utils.item_literal_check(
+                        value):
+                    continue
+                elif isinstance(value, list):
+                    for i in value:
+                        for del_key in reference:
+                            if del_key in i:
+                                del i[del_key]
+                        recursive(i)
+                else:
+                    pass
+
+        # 入ってくるデータのトップにコレクションが入っていないのでうまく扱えない？応急処置
+        for del_key in reference:
+            if del_key in emb_data:
+                del emb_data[del_key]
+
+        recursive(emb_data)
+        return emb_data

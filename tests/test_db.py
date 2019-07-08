@@ -1,12 +1,13 @@
 import configparser
 import copy
+import tempfile
 import gridfs
 from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
 from pymongo import errors, MongoClient
-from bson import ObjectId
-from edman import Config, DB, Convert
+from bson import ObjectId, DBRef
+from edman import Config, DB, Convert, File
 
 
 class TestDB(TestCase):
@@ -1116,3 +1117,596 @@ class TestDB(TestCase):
         actual = sum(
             [i for i in self.db._collect_emb_file_ref(data, '_ed_file')], [])
         self.assertEqual(len(actual), 0)
+
+    def test_get_reference_point(self):
+        # データ構造及び、値のテスト
+        collection = 'collection_name'
+        data = {
+            collection: {
+                '_id': 'aa', self.parent: 'bb'
+            }
+        }
+        actual = self.db.get_reference_point(data[collection])
+
+        self.assertIsInstance(actual, dict)
+        self.assertTrue(actual[self.parent])
+        self.assertFalse(actual[self.child])
+
+        # データ構造及び、値のテスト　その2
+        data = {
+            collection: {
+                '_id': 'aa',
+                self.parent: 'bb',
+                self.child: 'cc'
+            }
+        }
+        actual = self.db.get_reference_point(data[collection])
+        self.assertTrue(actual[self.child])
+
+    def test_get_structure(self):
+        if not self.db_server_connect:
+            return
+
+        # emb モードのテスト
+        collection = 'test_get_structure_emb'
+        emb_data = [{collection: {
+            "position": "top",
+            "username": "ryde",
+            "structure_list_2": [
+                {
+                    "maker": "Ferrari",
+                    "carname": "F355",
+                    "power": 380,
+                    "float_val": 4453.456
+                },
+                {
+                    "maker": "HONDA",
+                    "carname": "NSX",
+                    "power": 280,
+                    "float_val": 321.56,
+                    "list_data": [
+                        "Mario",
+                        "Sonic",
+                        "Ryu",
+                        "Link"
+                    ]
+                }
+            ]
+        }}]
+        result = self.db.insert(emb_data)
+        oid = result[0][collection][0]
+        actual = self.db.get_structure(collection, oid)
+        # print('actual', actual)
+        self.assertEqual(actual, 'emb')
+
+        # ref モードのテスト
+        data = {
+            'sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        target_collection = 'st2'
+        oid = inserted_report[1][target_collection][1]
+        actual = self.db.get_structure(target_collection, oid)
+        self.assertEqual(actual, 'ref')
+
+    def test_structure(self):
+        if not self.db_server_connect:
+            return
+
+        # refからembへコンバート
+        data = {
+            'sample': {
+                'name': 'NSX',
+                'st2': [
+                    {'name': 'GT-R', 'power': '280'},
+                    {'name': '180SX', 'power': '220', 'engine':
+                        [
+                            {'type': 'turbo'},
+                            {'type': 'NA'}
+                        ]
+                     }
+                ],
+                'type': 'R'
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        # print('inserted_report', inserted_report)
+
+        target_collection = 'st2'
+        # ファイルリファレンスをアタッチ
+        file = File(self.testdb)
+        attached_file_oid = inserted_report[0]['engine'][0]
+        # print('file_oid', file_oid)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
+            filename_list = []
+            name = 'file_ref.txt'
+            filename_list.append(name)
+            save_path = p / name
+            with save_path.open('w') as f:
+                test_var = 'test ref'
+                f.write(test_var)
+                # ここはfileクラスのメソッドは利用せずにgridfsでインサートしたほうが良いかも？
+                file.add_file_reference('engine', attached_file_oid,
+                                        (save_path,),
+                                        'ref')
+
+        oid = inserted_report[1][target_collection][1]
+        # print(target_collection, oid)
+        new_collection = 'new_collection'
+        actual = self.db.structure(target_collection, oid,
+                                   structure_mode='emb',
+                                   new_collection=new_collection)
+        # print('actual', actual)
+        find_result = self.testdb[new_collection].find_one(
+            {'_id': actual[0][new_collection][0]})
+        # print('find_result', find_result['engine'][0])
+
+        self.assertTrue(
+            True if self.file in find_result['engine'][0] else False)
+
+        # _ed_fileとidを除いたデータが入力値と一致するか
+        del find_result['engine'][0][self.file]
+        del find_result['_id']
+        self.assertEqual(data['sample']['st2'][1], find_result)
+
+        # ドキュメントが一つの場合
+        data = {
+            'sample': {
+                'name': 'NSX',
+                'power': 280
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='ref')
+        inserted_report = self.db.insert(converted_edman)
+        # print(inserted_report)
+        oid = inserted_report[0]['sample'][0]
+        new_collection = 'new_collection'
+        actual = self.db.structure('sample', oid,
+                                   structure_mode='emb',
+                                   new_collection=new_collection)
+        # print(actual)
+        find_result = self.testdb[new_collection].find_one(
+            {'_id': actual[0][new_collection][0]})
+        del find_result['_id']
+        self.assertDictEqual(data['sample'], find_result)
+
+        # embからrefへの変換
+        data = {
+            'sample2': {
+                'game list': [
+                    {
+                        'product': 'super mario land'
+                    },
+                    {
+                        'product:': 'metal gear solid'
+                    },
+                    {
+                        'data': 'value',
+                        'Machine product': [
+                         {
+                             'hard': 'SNES',
+                             'Developer': 'Nintendo'
+                         }
+                        ]
+                     }
+                ]
+            }
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(data, mode='emb')
+        inserted_report = self.db.insert(converted_edman)
+        oid = inserted_report[0]['sample2'][0]
+        new_collection = 'new_collection'
+        actual = self.db.structure('sample2', oid,
+                                   structure_mode='ref',
+                                   new_collection=new_collection)
+        # print('actual', actual)
+        actual2 = self.db.structure('new_collection',
+                                    actual[0]['new_collection'][0],
+                                    structure_mode='emb',
+                                    new_collection='new_collection2')
+        # print('actual2', actual2)
+
+        result = self.testdb['new_collection2'].find_one(
+            {'_id': actual2[0]['new_collection2'][0]})
+        del result['_id']
+        self.assertDictEqual(result, data['sample2'])
+        # print(result)
+        # print(data['sample2'])
+
+    def test_get_child_all(self):
+        if not self.db_server_connect:
+            return
+
+        db = self.client[self.test_ini['db']]
+        parent_id = ObjectId()
+        child1_id = ObjectId()
+        child2_id = ObjectId()
+        child3_id = ObjectId()
+        child4_id = ObjectId()
+        parent_col = 'parent_col'
+        child1_col = 'child1'
+        child2_col = 'child2'
+        child3_col = 'child3'
+        child4_col = 'child4'
+        parent_dbref = DBRef(parent_col, parent_id)
+        child1_dbref = DBRef(child1_col, child1_id)
+        child2_dbref = DBRef(child2_col, child2_id)
+        child3_dbref = DBRef(child3_col, child3_id)
+        child4_dbref = DBRef(child4_col, child4_id)
+        parent_data = {
+            '_id': parent_id,
+            'data': 'test',
+            self.parent: DBRef('storaged_test_parent', ObjectId()),
+            self.child: [child1_dbref, child2_dbref]
+        }
+        _ = db[parent_col].insert_one(parent_data)
+        child1_data = {
+            '_id': child1_id,
+            'data2': 'test2',
+            self.parent: parent_dbref
+        }
+        _ = db[child1_col].insert_one(child1_data)
+        child2_data = {
+            '_id': child2_id,
+            'data3': 'test3',
+            self.parent: parent_dbref,
+            self.child: [child3_dbref]
+        }
+        _ = db[child2_col].insert_one(child2_data)
+        child3_data = {
+            '_id': child3_id,
+            'data4': 'test4',
+            self.parent: child2_dbref,
+            self.child: [child4_dbref]
+        }
+        _ = db[child3_col].insert_one(child3_data)
+        child4_data = {
+            '_id': child4_id,
+            'data5': 'test5',
+            self.parent: child3_dbref
+        }
+        _ = db[child4_col].insert_one(child4_data)
+
+        expected = {
+            child1_col: [
+                {
+                    '_id': child1_id, 'data2': 'test2',
+                    '_ed_parent': parent_dbref
+                }
+            ],
+            child2_col: [
+                {
+                    '_id': child2_id, 'data3': 'test3',
+                    '_ed_parent': parent_dbref,
+                    '_ed_child': [child3_dbref],
+                    child3_col: [
+                        {
+                            '_id': child3_id, 'data4': 'test4',
+                            '_ed_parent': child2_dbref,
+                            '_ed_child': [child4_dbref],
+                            child4_col: [
+                                {
+                                    '_id': child4_id,
+                                    'data5': 'test5',
+                                    '_ed_parent': child3_dbref
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+        actual = self.db.get_child_all({parent_col: parent_data})
+        # print(actual)
+        self.assertDictEqual(expected, actual)
+
+    def test_get_child(self):
+        if not self.db_server_connect:
+            return
+
+        db = self.client[self.test_ini['db']]
+        parent_id = ObjectId()
+        child1_id = ObjectId()
+        child2_id = ObjectId()
+        parent_col = 'parent_col'
+        child1_col = 'child1'
+        child2_col = 'child2'
+        parent_data = {
+            '_id': parent_id,
+            'data': 'test',
+            self.parent: DBRef('storaged_test_parent', ObjectId()),
+            self.child: [DBRef(child1_col, child1_id),
+                         DBRef(child2_col, child2_id)]
+        }
+        _ = db[parent_col].insert_one(parent_data)
+        child1_data = {
+            '_id': child1_id,
+            'data2': 'test2',
+            self.parent: DBRef(parent_col, parent_id)
+        }
+        _ = db[child1_col].insert_one(child1_data)
+        child2_data = {
+            '_id': child2_id,
+            'data3': 'test3',
+            self.parent: DBRef(parent_col, parent_id)
+        }
+        _ = db[child2_col].insert_one(child2_data)
+
+        # depth関連テストのみ 他のテストは内部で実行されるメソッドにおまかせ
+        # 通常取得
+        actual = self.db.get_child({parent_col: parent_data}, 2)
+        self.assertEqual(2, len(actual))
+        # 境界 childデータより多い指定
+        actual = self.db.get_child({parent_col: parent_data}, 3)
+        self.assertEqual(2, len(actual))
+        # 0は子供データは取得できない
+        actual = self.db.get_child({parent_col: parent_data}, 0)
+        self.assertEqual(0, len(actual))
+        # -1は指定不可能
+        actual = self.db.get_child({parent_col: parent_data}, -1)
+        self.assertEqual(0, len(actual))
+
+    def test__child_storaged(self):
+        if not self.db_server_connect:
+            return
+
+        # テストデータ入力
+        db = self.client[self.test_ini['db']]
+        parent_id = ObjectId()
+        child1_id = ObjectId()
+        child2_id = ObjectId()
+        parent_col = 'parent_col'
+        child1_col = 'child1'
+        child2_col = 'child2'
+        parent_dbref = DBRef(parent_col, parent_id)
+        parent_data = {
+            '_id': parent_id,
+            'data': 'test',
+            self.parent: DBRef('storaged_test_parent', ObjectId()),
+            self.child: [DBRef(child1_col, child1_id),
+                         DBRef(child2_col, child2_id)]
+        }
+        _ = db[parent_col].insert_one(parent_data)
+        child1_data = {
+            '_id': child1_id,
+            'data2': 'test2',
+            self.parent: parent_dbref,
+            self.child: [DBRef('aaa', ObjectId())]
+        }
+        _ = db[child1_col].insert_one(child1_data)
+        child2_data = {
+            '_id': child2_id,
+            'data3': 'test3',
+            self.parent: parent_dbref,
+            self.child: [DBRef('aaa', ObjectId())]
+        }
+        _ = db[child2_col].insert_one(child2_data)
+
+        actual = self.db._child_storaged({parent_col: parent_data})
+        # print('storaged', actual)
+        self.assertIsInstance(actual, list)
+
+        # テストデータと出力が同一かテスト
+        test_cols = [{child1_col: child1_data}, {child2_col: child2_data}]
+        for a, t in zip(actual, test_cols):
+            with self.subTest(a=a, t=t):
+                self.assertEqual(a, t)
+
+    def test__build_to_doc_child(self):
+        # データ構造のテスト
+        parent_id = ObjectId()
+        parent_collection = 'parent_col'
+        parent_obj = DBRef(parent_collection, parent_id)
+        fam_id = ObjectId()
+        child3_id = ObjectId()
+        data = [
+            [
+                {
+                    'child1': {
+                        '_id': ObjectId('5bfca6709663380f2c35012f'),
+                        'data2': 'test2',
+                        self.parent: parent_obj,
+                        self.child: [
+                            DBRef('aaa', ObjectId('5bfca6709663380f2c350132'))]
+                    }
+                },
+                {
+                    'child2': {
+                        '_id': fam_id,
+                        'data3': 'test3',
+                        self.parent: parent_obj,
+                        self.child: [DBRef('child3', child3_id)]
+                    }
+                }
+            ],
+            [
+                {
+                    'child3': {
+                        '_id': child3_id,
+                        'data2': 'test4',
+                        self.parent: DBRef('child2', fam_id)
+                    }
+
+                }
+            ]
+        ]
+        actual = self.db._build_to_doc_child(data)
+        self.assertIsInstance(actual, dict)
+        # 親子構造になっているか(child2の中のchild3が入力値と同じか)
+        self.assertEqual(actual['child2'][0]['child3'][0],
+                         data[1][0]['child3'])
+
+    def test__get_uni_parent(self):
+        # 正常系 構造と値のテスト
+        parent_id = ObjectId()
+        data = {
+            'collection': [
+                {
+                    'name': 'Abarth 124 spider',
+                    self.parent: DBRef('parent_collection', parent_id)
+                },
+                {
+                    'name': 'MR2',
+                    self.parent: DBRef('parent_collection', parent_id)
+                },
+            ]
+        }
+        actual = self.db._get_uni_parent(data)
+        self.assertIsInstance(actual, ObjectId)
+        self.assertEqual(parent_id, actual)
+
+        # 異常系 兄弟間で親が違う場合(構造上ありえないが、念の為、例外のテスト)
+        data = {
+            'collection': [
+                {
+                    'name': 'Abarth 124 spider',
+                    self.parent: DBRef('parent_collection', ObjectId())
+                },
+                {
+                    'name': 'MR2',
+                    self.parent: DBRef('parent_collection', ObjectId())
+                },
+            ]
+        }
+        with self.assertRaises(ValueError) as e:
+            _ = self.db._get_uni_parent(data)
+
+    def test_delete_reference(self):
+
+        parent_coll = 'parent'
+        parent_id = ObjectId()
+        parent_dbref = DBRef(parent_coll, parent_id)
+        child1_coll = 'child1'
+        child1_id = ObjectId()
+        child1_dbref = DBRef(child1_coll, child1_id)
+        child2_id = ObjectId()
+        child2_coll = 'child2'
+        child2_dbref = DBRef(child2_coll, child2_id)
+        child3_id = ObjectId()
+        child3_coll = 'child3'
+        child3_dbref = DBRef(child3_coll, child3_id)
+        child4_id = ObjectId()
+        child4_coll = 'child4'
+        child4_dbref = DBRef(child4_coll, child4_id)
+        child5_id = ObjectId()
+        child5_coll = 'child5'
+        child5a_dbref = DBRef(child5_coll, child5_id)
+        child6_id = ObjectId()
+        child6_coll = 'child6'
+        child6_dbref = DBRef(child6_coll, child6_id)
+        child7_id = ObjectId()
+        child5b_dbref = DBRef(child5_coll, child7_id)
+        file_ref1 = ObjectId()
+        file_ref2 = ObjectId()
+        file_ref3 = ObjectId()
+
+        data = {
+            '_id': parent_id,
+            'name': 'Ryu',
+            self.parent: DBRef('aaa', ObjectId()),
+            self.child: [child1_dbref, child2_dbref],
+            child1_coll:
+                {
+                    '_id': child1_coll,
+                    'name': 'Ken',
+                    self.parent: parent_dbref,
+                    self.child: [child3_dbref, child4_dbref],
+                    child3_coll: {
+                        '_id': child3_id,
+                        'name': 'E.Honda',
+                        self.parent: child1_dbref
+                    },
+                    child4_coll: {
+                        '_id': child4_id,
+                        'name': 'Chun-Li',
+                        self.parent: child1_dbref,
+                        self.child: [child6_dbref],
+                        child6_coll: {
+                            '_id': child6_id,
+                            'name': 'Dhalshim',
+                            self.parent: child4_dbref,
+                            self.file: [file_ref1, file_ref2]
+                        }
+                    }
+                },
+            child2_coll:
+                {
+                    '_id': child2_coll,
+                    'name': 'Guile',
+                    self.parent: parent_dbref,
+                    self.child: [child5a_dbref, child5b_dbref],
+                    child5_coll: [
+                        {
+                            '_id': child5_id,
+                            'name': 'Blanka',
+                            self.parent: child2_dbref,
+                            self.file: [file_ref3]
+                        },
+                        {
+                            '_id': child7_id,
+                            'name': 'Zangief',
+                            self.parent: child2_dbref
+                        },
+                    ]
+                }
+
+        }
+
+        actual = self.db.delete_reference(data,
+                                          (self.parent, self.child, '_id'))
+        # print('delete_reference actual', actual)
+
+        expect = {
+            'name': 'Ryu',
+            child1_coll:
+                {
+                    'name': 'Ken',
+                    child3_coll: {
+                        'name': 'E.Honda',
+                    },
+                    child4_coll: {
+                        'name': 'Chun-Li',
+                        child6_coll: {
+                            'name': 'Dhalshim',
+                            self.file: [file_ref1, file_ref2]
+                        }
+                    }
+                },
+            child2_coll:
+                {
+                    'name': 'Guile',
+                    child5_coll: [
+                        {
+                            'name': 'Blanka',
+                            self.file: [file_ref3]
+                        },
+                        {
+                            'name': 'Zangief',
+                        },
+                    ]
+                }
+        }
+        self.assertDictEqual(expect, actual)
+
+    # def test__generate_parent_id_dict(self):
+    #     pass

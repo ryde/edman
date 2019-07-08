@@ -1,7 +1,5 @@
 import sys
-import copy
 from datetime import datetime
-from collections import defaultdict
 from typing import Union
 from bson import errors, ObjectId
 from edman.utils import Utils
@@ -19,26 +17,10 @@ class Search:
         self.child = config.child
         self.date = config.date
         self.file = config.file
+        self.db = db
+
         if db is not None:
-            self.db = db.get_db
-
-    def _search_necessity_judge(self, self_result: dict) -> dict:
-        """
-        データに親や子のリファレンス項目名が含まれているか判断
-
-        :param dict self_result:
-        :return: dict result
-        """
-        result = {}
-        if self_result:
-            for k, v in self_result.items():
-                keys = list(v.keys())
-                parent_exist = True if self.parent in keys else False
-                result.update({self.parent: parent_exist})
-                child_exist = True if self.child in keys else False
-                result.update({self.child: child_exist})
-
-        return result
+            self.connected_db = db.get_db
 
     def find(self, collection: str, query: dict, parent_depth: int,
              child_depth: int) -> dict:
@@ -53,20 +35,20 @@ class Search:
         """
 
         coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
-        if collection not in self.db.list_collection_names(filter=coll_filter):
+        if collection not in self.connected_db.list_collection_names(filter=coll_filter):
             sys.exit('コレクションが存在しません')
 
         query = self._objectid_replacement(query)
         self_result = self._get_self(query, collection)
-        search_necessity = self._search_necessity_judge(self_result)
+        reference_point_result = self.db.get_reference_point(self_result[collection])
 
         parent_result = None
-        if search_necessity[self.parent]:
+        if reference_point_result[self.parent]:
             parent_result = self._get_parent(self_result, parent_depth)
 
         children_result = None
-        if search_necessity[self.child]:
-            children_result = self._get_child(self_result, child_depth)
+        if reference_point_result[self.child]:
+            children_result = self.db.get_child(self_result, child_depth)
 
         # 親も子も存在しない時はselfのみ
         result = self_result
@@ -137,7 +119,7 @@ class Search:
         :param str collection:
         :return: dict
         """
-        docs = list(self.db[collection].find(query))
+        docs = list(self.connected_db[collection].find(query))
 
         if not len(docs):
             sys.exit('ドキュメントが見つかりませんでした')
@@ -185,7 +167,7 @@ class Search:
             DBReferenceを利用し、設定されている深度を減らしながら再帰
             """
             if self.parent in doc:
-                parent = self.db.dereference(doc[self.parent])
+                parent = self.connected_db.dereference(doc[self.parent])
                 parent_collection = doc[self.parent].collection
                 result.append({parent_collection: parent})
                 nonlocal depth
@@ -223,123 +205,6 @@ class Search:
             else:
                 result = read_data
         return result
-
-    def _child_storaged(self, doc: dict) -> list:
-        """
-        | リファレンスで子データを取得する
-        |
-        | 同じコレクションの場合は子データをリストで囲む
-
-        :param dict doc:
-        :return: list children
-        """
-        doc = list(doc.values())[0]
-        children = []
-        # 単純にリスト内に辞書データを入れたい場合
-        if self.child in doc:
-            children = [
-                {child_ref.collection: self.db.dereference(child_ref)}
-                for child_ref in doc[self.child]]
-
-        return children
-
-    def _get_child(self, self_doc: dict, depth: int) -> dict:
-        """
-        | 子のドキュメントを取得
-        |
-        | depthで深度を設定し、階層分取得する
-
-        :param dict self_doc:
-        :param int depth:
-        :return: dict
-        """
-
-        def recursive(doc_list: list, depth: int):
-            """
-            再帰で結果リスト組み立て
-            """
-            if depth > 0:
-                tmp = []
-                # ここでデータを取得する
-                for doc in doc_list:
-                    tmp = self._child_storaged(doc)
-                    if tmp:
-                        result.append(tmp)
-                depth -= 1
-
-                # 子データがある時は繰り返す
-                if tmp:
-                    recursive(tmp, depth)
-
-        result = []  # recによって書き換えられる
-
-        if depth >= 1:  # depthが効くのは必ず1以上
-            recursive([self_doc], depth)  # 再帰関数をシンプルにするため、初期データをリストで囲む
-            result = self._build_to_doc_child(result)  # 親子構造に組み立て
-        return result
-
-    def _get_uni_parent(self, bros: dict) -> ObjectId:
-        """
-        | 兄弟データ内の親のIDを取得
-        |
-        | エラーがなければ通常は親は唯一なので一つのOidを返す
-
-        :param bros:
-        :return: ObjectId
-        """
-        parent_list = []
-        for collection, doc in bros.items():
-            if isinstance(doc, dict):
-                parent_list.append(doc[self.parent].id)
-            else:
-                parent_list.extend(
-                    [doc_dict[self.parent].id for doc_dict in doc])
-
-        if len(set(parent_list)) == 1:
-            return list(parent_list)[0]
-        else:
-            raise ValueError(f'兄弟で親のObjectIDが異なっています\n{parent_list}')
-
-    def _generate_parent_id_dict(self, find_result: list) -> dict:
-        """
-        親IDをキーとする辞書を生成する
-
-        :param list find_result:
-        :return: dict
-        """
-        result = {}
-        for bros in find_result:
-            try:
-                parent_id = self._get_uni_parent(bros)
-            except ValueError as e:
-                sys.exit(e)
-            result.update({parent_id: bros})
-
-        return result
-
-    def _build_to_doc_child(self, find_result: list) -> dict:
-        """
-        子の検索結果（リスト）を入れ子辞書に組み立てる
-
-        :param list find_result:
-        :return: dict
-        """
-        # find_result = [i for i in self._child_combine_list(find_result)]
-        find_result = [i for i in Utils.child_combine(find_result)]
-        parent_id_dict = self._generate_parent_id_dict(find_result)
-        find_result_cp = copy.deepcopy(list(reversed(find_result)))
-
-        for bros_idx, bros in enumerate(reversed(find_result)):
-            for collection, docs in bros.items():
-                for doc_idx, doc in enumerate(docs):
-                    # 子データが存在する場合はマージする
-                    if doc['_id'] in parent_id_dict:
-                        tmp = find_result_cp[bros_idx][collection][doc_idx]
-                        tmp.update(parent_id_dict[doc['_id']])
-                        doc.update(tmp)
-                        del parent_id_dict[doc['_id']]
-
-        return find_result[0]
 
     def _process_data_derived_from_mongodb(self, result_dict: dict) -> dict:
         """

@@ -235,26 +235,8 @@ class Convert:
         :param dict raw_data:
         :return: list
         """
-        parent_collections = []
-        oid_list = []
         list_output = []
-
-        def _parent_ref_add(parent_collections: list, parent: int,
-                            tmp: dict) -> dict:
-            """
-            # 親のリファレンス(コレクション)を追加
-            # rootは追加されない(rootは1にあたる)
-
-            :param list parent_collections:
-            :param dict tmp:
-            :param int parent:
-            :return: dict tmp
-            """
-            if len(parent_collections) > 1:
-                if self.parent in tmp:
-                    tmp[self.parent] = DBRef(parent_collections[parent],
-                                             tmp[self.parent]['_id'])
-            return tmp
+        ref_list = []
 
         def recursive(reading_dict_data: dict) -> dict:
             """
@@ -276,119 +258,90 @@ class Convert:
                     if not self._collection_name_check(key):
                         sys.exit(f'この名前はコレクション名にできません {key}')
 
-                    oid_list.append(ObjectId())
-
-                    # コレクションを親リストに登録
-                    parent_collections.append(key)
-
-                    converted_value = self._convert_datetime(value)
+                    # リファレンス作成
+                    ref_list.append(DBRef(key, ObjectId()))
 
                     # tmpから子データが返ってくる
-                    tmp = recursive(converted_value)
+                    tmp = recursive(self._convert_datetime(value))
 
                     # 親のリファレンス(コレクション)を追加
                     # rootの場合は追加されない
-                    tmp = _parent_ref_add(parent_collections, parent, tmp)
+                    if len(ref_list) > 1:
+                        tmp.update({self.parent: ref_list[parent]})
 
                     # 子データのリファレンスを取得して親のデータに入れる
                     child_ref = self._get_child_reference(tmp)
                     if list(child_ref.values())[0]:  # 子データがない場合もある
                         tmp.update(child_ref)
 
-                    del oid_list[my]
+                    # self.parentがない場合(=root)の場合にoidを追加する
+                    if self.parent not in tmp:
+                        tmp.update({'_id': ref_list[0].id})
+
+                    del ref_list[my]
 
                     # バルクインサート用のリストを作成
                     list_output.append(self._list_intercept_hook(key, tmp))
 
                     output.update({key: tmp})
-                    del parent_collections[my]
+
+                elif isinstance(value, list) and Utils.item_literal_check(
+                        value):
+                    if not self._field_name_check(key):
+                        sys.exit(f'フィールド名に不備があります {key}')
+
+                    # 日付データが含まれていたらdatetimeオブジェクトに変換
+                    output.update({key: self._date_replace(value)})
 
                 elif isinstance(value, list):
 
-                    # 日付データが含まれていたらdatetimeオブジェクトに変換
-                    value = self._date_replace(value)
+                    if not self._collection_name_check(key):
+                        sys.exit(f'この名前はコレクション名にできません {key}')
 
-                    # 通常のリストデータの場合
-                    if Utils.item_literal_check(value):
-                        if not self._field_name_check(key):
-                            sys.exit(f'フィールド名に不備があります {key}')
+                    tmp_list = []
+                    for i in value:
+                        # リファレンス作成
+                        ref_list.append(DBRef(key, ObjectId()))
 
-                            # oidを取得して追加
-                        if '_id' not in output:
-                            output.update({'_id': oid_list[my]})
+                        # tmpから子データが返ってくる
+                        tmp = recursive(self._convert_datetime(i))
 
-                            # 親のリファレンス(oid)を追加
-                            # この時点ではまだDBRefオブジェクトにはしていない
-                        if len(oid_list) > 1:
-                            if self.parent not in output:
-                                output.update(
-                                    {
-                                        self.parent: {'_id': oid_list[parent]}
-                                    }
-                                )
-                        output.update({key: value})
+                        # 親のリファレンス(コレクション)を追加
+                        # rootの場合は追加されない
+                        if len(ref_list) > 1:
+                            tmp.update({
+                                self.parent: ref_list[parent]
+                            })
 
-                    # 子要素としてのリストデータの場合
-                    else:
-                        parent_collections.append(key)
-                        tmp_list = []
+                        # 子要素だけのデータの場合else区へ飛ばないのでここでoidを作成する
+                        if '_id' not in tmp:
+                            tmp.update({'_id': ref_list[my].id})
 
-                        if not self._collection_name_check(key):
-                            sys.exit(f'この名前はコレクション名にできません {key}')
+                        # 子データのリファレンスを取得して親のデータに入れる
+                        child_ref = self._get_child_reference(tmp)
+                        if list(child_ref.values())[0]:  # 子データがない場合もある
+                            tmp.update(child_ref)
 
-                        for i in value:
-                            oid_list.append(ObjectId())
-                            converted_value = self._convert_datetime(i)
+                        del ref_list[my]
+                        tmp_list.append(tmp)
 
-                            # tmpから子データが返ってくる
-                            tmp = recursive(converted_value)
+                    # バルクインサート用のリストを作成
+                    list_output.append(
+                        self._list_intercept_hook(key, tmp_list))
 
-                            # 親のリファレンス(コレクション)を追加
-                            # rootの場合は追加されない
-                            tmp = _parent_ref_add(parent_collections, parent,
-                                                  tmp)
-
-                            # 子データのリファレンスを取得して親のデータに入れる
-                            child_ref = self._get_child_reference(tmp)
-                            if list(child_ref.values())[0]:  # 子データがない場合もある
-                                tmp.update(child_ref)
-
-                            del oid_list[my]
-                            tmp_list.append(tmp)
-
-                        # バルクインサート用のリストを作成
-                        list_output.append(
-                            self._list_intercept_hook(key, tmp_list))
-
-                        output.update({key: tmp_list})
-                        del parent_collections[my]
+                    output.update({key: tmp_list})
 
                 else:
                     if not self._field_name_check(key):
                         sys.exit(f'フィールド名に不備があります {key}')
-
-                    tmp = {key: value}
-
-                    # oidを取得して追加
+                    # oidを取得して追加(rootの場合、すでに作成されている場合がある？)
                     if '_id' not in output:
-                        output.update({'_id': oid_list[my]})
-
-                    # 親のリファレンス(oid)を追加
-                    # この時点ではまだDBRefオブジェクトにはしていない
-                    if len(oid_list) > 1:
-                        if self.parent not in output:
-                            output.update(
-                                {
-                                    self.parent: {'_id': oid_list[parent]}
-                                }
-                            )
-                    output.update(tmp)
+                        output.update({'_id': ref_list[my].id})
+                    output.update({key: value})
 
             return output
 
-        """
-        list_outputを書き換えているため、extract()の返り値(output)は利用していない
-        """
+        # list_outputを書き換えているため、extract()の返り値(output)は利用していない
         _ = recursive(raw_data)
         return self._list_organize(list_output)
 

@@ -49,7 +49,8 @@ class TestSearch(TestCase):
             )
             # ユーザ側認証
             cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
-                                                        cls.test_ini['password'])
+                                                        cls.test_ini[
+                                                            'password'])
 
             # edmanのDB接続オブジェクト作成
             con = {
@@ -90,30 +91,6 @@ class TestSearch(TestCase):
                 collections_all.remove(log_coll)
             for collection in collections_all:
                 self.testdb.drop_collection(collection)
-
-    def test__search_necessity_judge(self):
-        # データ構造及び、値のテスト
-        data = {
-            'collection': {
-                '_id': 'aa', self.parent: 'bb'
-            }
-        }
-        actual = self.search._search_necessity_judge(data)
-
-        self.assertIsInstance(actual, dict)
-        self.assertTrue(actual[self.parent])
-        self.assertFalse(actual[self.child])
-
-        # データ構造及び、値のテスト　その2
-        data = {
-            'collection': {
-                '_id': 'aa',
-                self.parent: 'bb',
-                self.child: 'cc'
-            }
-        }
-        actual = self.search._search_necessity_judge(data)
-        self.assertTrue(actual[self.child])
 
     def test__merge_parent(self):
 
@@ -252,176 +229,6 @@ class TestSearch(TestCase):
         expected = actual['parent_1']['parent_2']['car_name']
         self.assertEqual('STORATOS', expected)
 
-    def test__child_storaged(self):
-        if not self.db_server_connect:
-            return
-
-        # テストデータ入力
-        db = self.client[self.test_ini['db']]
-        parent_id = ObjectId()
-        child1_id = ObjectId()
-        child2_id = ObjectId()
-        parent_col = 'parent_col'
-        child1_col = 'child1'
-        child2_col = 'child2'
-        parent_data = {
-            '_id': parent_id,
-            'data': 'test',
-            self.parent: DBRef('storaged_test_parent', ObjectId()),
-            self.child: [DBRef(child1_col, child1_id),
-                         DBRef(child2_col, child2_id)]
-        }
-        _ = db[parent_col].insert_one(parent_data)
-        child1_data = {
-            '_id': child1_id,
-            'data2': 'test2',
-            self.parent: DBRef(parent_col, parent_id),
-            self.child: [DBRef('aaa', ObjectId())]
-        }
-        _ = db[child1_col].insert_one(child1_data)
-        child2_data = {
-            '_id': child2_id,
-            'data3': 'test3',
-            self.parent: DBRef(parent_col, parent_id),
-            self.child: [DBRef('aaa', ObjectId())]
-        }
-        _ = db[child2_col].insert_one(child2_data)
-
-        actual = self.search._child_storaged({parent_col: parent_data})
-        # print('storaged', actual)
-        self.assertIsInstance(actual, list)
-
-        # テストデータと出力が同一かテスト
-        test_cols = [{child1_col: child1_data}, {child2_col: child2_data}]
-        for a, t in zip(actual, test_cols):
-            with self.subTest(a=a, t=t):
-                self.assertEqual(a, t)
-
-    def test__get_child(self):
-        if not self.db_server_connect:
-            return
-
-        db = self.client[self.test_ini['db']]
-        parent_id = ObjectId()
-        child1_id = ObjectId()
-        child2_id = ObjectId()
-        parent_col = 'parent_col'
-        child1_col = 'child1'
-        child2_col = 'child2'
-        parent_data = {
-            '_id': parent_id,
-            'data': 'test',
-            self.parent: DBRef('storaged_test_parent', ObjectId()),
-            self.child: [DBRef(child1_col, child1_id),
-                         DBRef(child2_col, child2_id)]
-        }
-        _ = db[parent_col].insert_one(parent_data)
-        child1_data = {
-            '_id': child1_id,
-            'data2': 'test2',
-            self.parent: DBRef(parent_col, parent_id)
-        }
-        _ = db[child1_col].insert_one(child1_data)
-        child2_data = {
-            '_id': child2_id,
-            'data3': 'test3',
-            self.parent: DBRef(parent_col, parent_id)
-        }
-        _ = db[child2_col].insert_one(child2_data)
-
-        # depth関連テストのみ 他のテストは内部で実行されるメソッドにおまかせ
-        # 通常取得
-        actual = self.search._get_child({parent_col: parent_data}, 2)
-        self.assertEqual(2, len(actual))
-        # 境界 childデータより多い指定
-        actual = self.search._get_child({parent_col: parent_data}, 3)
-        self.assertEqual(2, len(actual))
-        # 0は子供データは取得できない
-        actual = self.search._get_child({parent_col: parent_data}, 0)
-        self.assertEqual(0, len(actual))
-        # -1は指定不可能
-        actual = self.search._get_child({parent_col: parent_data}, -1)
-        self.assertEqual(0, len(actual))
-
-    def test__get_uni_parent(self):
-        # 正常系 構造と値のテスト
-        parent_id = ObjectId()
-        data = {
-            'collection': [
-                {
-                    'name': 'Abarth 124 spider',
-                    self.parent: DBRef('parent_collection', parent_id)
-                },
-                {
-                    'name': 'MR2',
-                    self.parent: DBRef('parent_collection', parent_id)
-                },
-            ]
-        }
-        actual = self.search._get_uni_parent(data)
-        self.assertIsInstance(actual, ObjectId)
-        self.assertEqual(parent_id, actual)
-
-        # 異常系 兄弟間で親が違う場合(構造上ありえないが、念の為、例外のテスト)
-        data = {
-            'collection': [
-                {
-                    'name': 'Abarth 124 spider',
-                    self.parent: DBRef('parent_collection', ObjectId())
-                },
-                {
-                    'name': 'MR2',
-                    self.parent: DBRef('parent_collection', ObjectId())
-                },
-            ]
-        }
-        with self.assertRaises(ValueError) as e:
-            _ = self.search._get_uni_parent(data)
-
-    def test__build_to_doc_child(self):
-        # データ構造のテスト
-        parent_id = ObjectId()
-        parent_collection = 'parent_col'
-        parent_obj = DBRef(parent_collection, parent_id)
-        fam_id = ObjectId()
-        child3_id = ObjectId()
-        data = [
-            [
-                {
-                    'child1': {
-                        '_id': ObjectId('5bfca6709663380f2c35012f'),
-                        'data2': 'test2',
-                        self.parent: parent_obj,
-                        self.child: [
-                            DBRef('aaa', ObjectId('5bfca6709663380f2c350132'))]
-                    }
-                },
-                {
-                    'child2': {
-                        '_id': fam_id,
-                        'data3': 'test3',
-                        self.parent: parent_obj,
-                        self.child: [DBRef('child3', child3_id)]
-                    }
-                }
-            ],
-            [
-                {
-                    'child3': {
-                        '_id': child3_id,
-                        'data2': 'test4',
-                        self.parent: DBRef('child2', fam_id)
-                    }
-
-                }
-            ]
-        ]
-        actual = self.search._build_to_doc_child(data)
-        self.assertIsInstance(actual, dict)
-        # 親子構造になっているか(child2の中のchild3が入力値と同じか)
-        self.assertEqual(actual['child2'][0]['child3'][0],
-                         data[1][0]['child3'])
-
     def test__process_data_derived_from_mongodb(self):
 
         # 正常系
@@ -521,6 +328,3 @@ class TestSearch(TestCase):
     #     # 画面上の選択処理なので、テストは割愛
     #     pass
     #
-    # def test__generate_parent_id_dict(self):
-    #     # 中身は_get_uni_parent()なのでテストは割愛
-    #     pass
