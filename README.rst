@@ -69,7 +69,6 @@ Modules Usage
     # Modified file based on the search result json
     modified_data = json.load(modified_json_file)
 
-    # update
     db = DB(con)
     result = db.update(collection, objectid, modified_data, structure='ref')
 
@@ -79,7 +78,6 @@ Modules Usage
 
     from edman import DB
 
-    # delete
     db = DB(con)
     result = db.delete(objectid, collection, structure='ref')
 
@@ -151,7 +149,7 @@ Install
 
 pip install::
 
- pip install EDMAN
+ pip install edman
 
 Licence
 -------
