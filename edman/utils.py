@@ -8,8 +8,8 @@ from bson import ObjectId, errors
 
 class Utils:
     """
-    各クラス共通の静的メソッド
-    インスタンス化禁止
+    | 各クラス共通の静的メソッド
+    | インスタンス化禁止
     """
 
     def __init__(self):
@@ -18,20 +18,22 @@ class Utils:
     @staticmethod
     def item_literal_check(list_child: Union[dict, list]) -> bool:
         """
-        リストデータ内にリテラルやオブジェクトのデータだけあればTrue
-        それ以外はFalse
+        | リストデータ内にリテラルやオブジェクトのデータだけあればTrue
+        | それ以外はFalse
+        |
+        | OKパターン
+        | list_child = [1,2,3]
+        | list_child = [1,2,objectId()]
+        |
+        | NGパターン
+        | list_child = {'A':'B'}
+        | list_child = ['A':[1,2,3]]
+        | list_child = [1,2,{'A':'B'}]
 
-        OKパターン
-        list_child = [1,2,3]
-        list_child = [1,2,objectId()]
-
-        NGパターン
-        list_child = {'A':'B'}
-        list_child = ['A':[1,2,3]]
-        list_child = [1,2,{'A':'B'}]
-
-        :param dict or list list_child:
-        :return bool:
+        :param list_child:
+        :type list_child: dict or list
+        :return:
+        :rtype: bool
         """
         result = True
         if isinstance(list_child, dict):
@@ -47,14 +49,15 @@ class Utils:
     def doc_traverse(doc: dict, target_keys: list, query: list,
                      f: Callable) -> dict:
         """
-        ドキュメントを走査し、クエリで指定した階層に指定の関数オブジェクトを適応
-        関数適応後のドキュメントを返す
+        | ドキュメントを走査し、クエリで指定した階層に指定の関数オブジェクトを適応
+        | 関数適応後のドキュメントを返す
 
         :param dict doc:
         :param list target_keys: コールバック関数の適応対象の辞書のキーのリスト
         :param list query:
         :param Callable f: コールバック関数
-        :return dict doc:
+        :return: doc
+        :rtype: dict
         """
         query.reverse()  # リストの削除処理速度向上のため、逆リストにする
 
@@ -129,11 +132,13 @@ class Utils:
     @staticmethod
     def conv_objectid(oid: Union[str, ObjectId]) -> ObjectId:
         """
-        文字列だった場合ObjectIdを変換する
-        元々ObjectIdならそのまま
+        | 文字列だった場合ObjectIdを変換する
+        | 元々ObjectIdならそのまま
 
-        :param ObjectId or str oid:
-        :return ObjectId result:
+        :param oid:
+        :type oid: ObjectId or str
+        :return: result
+        :rtype: ObjectId
         """
 
         if isinstance(oid, str):
@@ -148,11 +153,12 @@ class Utils:
     @staticmethod
     def to_datetime(s: str) -> Union[datetime, str]:
         """
-        日付もしくは日付時間をdatetimeオブジェクトに変換
-        日付や日付時間にならないものは文字列に変換
+        | 日付もしくは日付時間をdatetimeオブジェクトに変換
+        | 日付や日付時間にならないものは文字列に変換
 
         :param str s:
-        :return: datetime object or str(s)
+        :return:
+        :rtype: datetime or str
         """
         if not isinstance(s, str):
             return str(s)
@@ -168,7 +174,8 @@ class Utils:
 
         :param list query:
         :param dict doc:
-        :return bool result:
+        :return: result
+        :rtype: bool
         """
         result = False
         for key in query:
@@ -191,7 +198,8 @@ class Utils:
 
         :param dict doc:
         :param tuple del_keys:
-        :return: dict item
+        :return: item
+        :rtype: dict
         """
         for key in del_keys:
             if key in doc:
@@ -207,7 +215,8 @@ class Utils:
         | {collection:[{key:value},{key:value}...]}
 
         :param list rec_result:
-        :return: dict
+        :return:
+        :rtype: dict
         """
         for bros in rec_result:
             tmp_bros = defaultdict(list)

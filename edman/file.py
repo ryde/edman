@@ -28,7 +28,8 @@ class File:
         ファイルタプルからファイルを取り出すジェネレータ
 
         :param tuple files: 中身はPathオブジェクト
-        :yield fp:
+        :return: ファイル名と内容(str)のタプル
+        :rtype: tuple
         """
         for file in files:
             try:
@@ -45,11 +46,14 @@ class File:
         ドキュメントにファイルリファレンスを追加する
 
         :param str collection:
-        :param ObjectId or str oid:
+        :param oid:
+        :type oid: ObjectId or str
         :param tuple file_path:
         :param str structure:
-        :param list or None query:
-        :return bool:
+        :param query:
+        :type query: list or None
+        :return:
+        :rtype: bool
         """
 
         oid = Utils.conv_objectid(oid)
@@ -99,8 +103,10 @@ class File:
         :param str collection:
         :param str oid:
         :param str structure:
-        :param list or None query:
-        :return bool:
+        :param query:
+        :type query: list or None
+        :return:
+        :rtype: bool
         """
 
         oid = Utils.conv_objectid(oid)
@@ -166,8 +172,10 @@ class File:
 
         :param dict doc:
         :param str structure:
-        :param list or None query:
-        :return list files_list:
+        :param query:
+        :type: list or None
+        :return: files_list
+        :rtype: list
         """
         if structure == 'emb' and query is None:
             sys.exit('embにはクエリが必要です')
@@ -199,8 +207,10 @@ class File:
         :param str collection:
         :param str oid:
         :param str structure:
-        :param list or None query: embの時だけ必要. refの時はNone
-        :return dict result:
+        :param query: embの時だけ必要. refの時はNone
+        :type query: list or None
+        :return: result
+        :rtype: dict
         """
         oid = Utils.conv_objectid(oid)
 
@@ -228,8 +238,10 @@ class File:
         Gridfsからデータをダウンロードし、ファイルに保存
 
         :param ObjectId oid:
-        :param str or Path path:
-        :return bool result:
+        :param path:
+        :type path: str or Path
+        :return: result
+        :rtype: bool
         """
         result = False
 
@@ -271,7 +283,8 @@ class File:
 
         :param dict doc:
         :param list files_oid: ObjectIdのリスト
-        :return dict doc:
+        :return: doc
+        :rtype: dict
         """
 
         if self.file_ref in doc:
@@ -292,7 +305,8 @@ class File:
 
         :param dict doc:
         :param list files_oid:
-        :return dict doc:
+        :return: doc
+        :rtype: dict
         """
         if self.file_ref in doc:
             if len(files_oid) == 0:
@@ -310,7 +324,8 @@ class File:
 
         :param dict doc:
         :param list query:
-        :return list:
+        :return:
+        :rtype:list
         """
         s = ''
 

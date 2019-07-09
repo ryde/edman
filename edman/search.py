@@ -31,7 +31,8 @@ class Search:
         :param dict query: 検索クエリ
         :param int parent_depth: 親の指定深度
         :param int child_depth: 子の指定深度
-        :return: dict result 親 + 自分 + 子の階層構造となった辞書データ
+        :return: result 親 + 自分 + 子の階層構造となった辞書データ
+        :rtype: dict
         """
 
         coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
@@ -73,7 +74,8 @@ class Search:
 
         :param dict parent_result:マージ前の親データ
         :param dict self_result:マージ済み家族データ
-        :return: dict parent_result 親と自分と子をマージしたデータ
+        :return: parent_result 親と自分と子をマージしたデータ
+        :rtype: dict
         """
 
         def recursive(data: dict):
@@ -102,7 +104,8 @@ class Search:
         ObjectIdのチェックと変換
 
         :param dict query:
-        :return: dict query
+        :return: query
+        :rtype: dict
         """
         if '_id' in query:
             try:
@@ -117,7 +120,8 @@ class Search:
 
         :param dict query:
         :param str collection:
-        :return: dict
+        :return:
+        :rtype: dict
         """
         docs = list(self.connected_db[collection].find(query))
 
@@ -136,7 +140,8 @@ class Search:
         ドキュメント選択
 
         :param list docs:
-        :return: dict
+        :return:
+        :rtype: dict
         """
         print('この条件は複数のドキュメントが存在します')
         for idx, doc in enumerate(docs):
@@ -158,7 +163,8 @@ class Search:
 
         :param dict self_doc:
         :param int depth:
-        :return: dict result
+        :return: result
+        :rtype: dict or None
         """
 
         def recursive(doc):
@@ -192,7 +198,8 @@ class Search:
         | parentに近い方から順番に並んでいる(一番最後がrootまたはrootに近い方)
 
         :param list parent_data_list:
-        :return: dict result
+        :return: result
+        :rtype: dict
         """
         result = None
         for read_data in parent_data_list:
@@ -213,7 +220,8 @@ class Search:
           型をJSONに合わせる
 
         :param dict result_dict:
-        :return: dict result_dict
+        :return: result_dict
+        :rtype: dict
         """
         refs = ('_id', self.parent, self.child, self.file)
 
@@ -244,8 +252,10 @@ class Search:
         datetime型なら書式変更して辞書に入れる
         その場合は辞書を返し、それ以外の時は入ってきた値をそのまま返す
 
-        :param item: Union[str, int, float, bool, datetime]
-        :return:result Union[dict, str, int, float, bool, datetime]
+        :param item:
+        :type item: str or int or float or bool or datetime
+        :return: result
+        :rtype: dict or str or int or float or bool or datetime
         """
         # datetimeそのままだと%Y-%m-%dと%H:%M:%Sの間に"T"が入るため書式変更
         result = item
