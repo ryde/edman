@@ -22,21 +22,22 @@ class Convert:
     @staticmethod
     def _collection_name_check(collection_name: str) -> bool:
         """
-        MongoDBの命名規則チェック(コレクション名)
-                # $ None(null) '' system.
-        最初がアンスコか文字
-        mongoの制約の他に頭文字に#もNG
-
-        コレクション名空間の最大長は、データベース名、ドット（.）区切り文字
-        およびコレクション名（つまり <database>.<collection>）を合わせて
-        120バイトを超えないこと
-        ただし、子のメソッド利用時はDB名を取得するタイミングではないため、
-        文字数のチェックは行えないことを留意すること
-
-        https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names
+        | MongoDBの命名規則チェック(コレクション名)
+                | # $ None(null) '' system.
+        | 最初がアンスコか文字
+        | mongoの制約の他に頭文字に#もNG
+        |
+        | コレクション名空間の最大長は、データベース名、ドット（.）区切り文字
+        | およびコレクション名（つまり <database>.<collection>）を合わせて
+        | 120バイトを超えないこと
+        | ただし、子のメソッド利用時はDB名を取得するタイミングではないため、
+        | 文字数のチェックは行えないことを留意すること
+        |
+        | https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names
 
         :param str collection_name:
-        :return: bool
+        :return:
+        :rtype: bool
         """
         if collection_name is None:
             return False
@@ -64,13 +65,14 @@ class Convert:
     @staticmethod
     def _field_name_check(field_name: str) -> bool:
         """
-        MongoDBの命名規則チェック(フィールド名)
-        void, None(Null), 文字列先頭に($ .)は使用不可
+        | MongoDBの命名規則チェック(フィールド名)
+        | void, None(Null), 文字列先頭に($ .)は使用不可
 
-        https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names
+        | https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names
 
         :param str field_name:
-        :return: bool
+        :return:
+        :rtype: bool
         """
         if field_name is None:
             return False
@@ -91,7 +93,8 @@ class Convert:
         子データのリファレンス情報を作成して取得
 
         :param dict child_data:
-        :return: dict
+        :return:
+        :rtype: dict
         """
         children = []
         for collection, child_value in child_data.items():
@@ -112,15 +115,16 @@ class Convert:
 
     def _convert_datetime(self, child_dict: dict) -> dict:
         """
-        辞書内辞書になっている文字列日付時間データを、辞書内日付時間に変換
+        | 辞書内辞書になっている文字列日付時間データを、辞書内日付時間に変換
 
-        (例)
-        {'start_date': {'#date': '1981-04-23'}}
-        から
-        {'start_date': 1981-04-23T00:00:00}
+        | (例)
+        | {'start_date': {'#date': '1981-04-23'}}
+        | から
+        | {'start_date': 1981-04-23T00:00:00}
 
         :param dict child_dict:
-        :return: dict result
+        :return: result
+        :rtype: dict
         """
         result = copy.deepcopy(child_dict)
         if isinstance(child_dict, dict):
@@ -140,35 +144,36 @@ class Convert:
     @staticmethod
     def _list_organize(extracted_data: list) -> list:
         """
-        リスト内辞書のデータから、同じコレクションの場合、
-        値(リストになっている)を取り出し、マージさせる
-        バルクインサートを利用するために、
-        同じコレクションでまとめたほうが効率が良いため
-        (例)
-        [
-            {
-                'honda': [
-                    {'name': 'NSX', 'power': '280'}
-                ]
-            },
-            {
-                'honda': [
-                    {'name': 'S800', 'first model year': '1966'}
-                ]
-            }
-        ]
-        から
-        [
-            {
-                'honda': [
-                    {'name': 'NSX', 'power': '280'},
-                    {'name': 'S800', 'first model year': '1966'}
-                ]
-            }
-        ]
+        | リスト内辞書のデータから、同じコレクションの場合、
+        | 値(リストになっている)を取り出し、マージさせる
+        | バルクインサートを利用するために、
+        | 同じコレクションでまとめたほうが効率が良いため
+        | (例)
+        | [
+        |   {
+        |        'honda': [
+        |            {'name': 'NSX', 'power': '280'}
+        |        ]
+        |    },
+        |    {
+        |        'honda': [
+        |            {'name': 'S800', 'first model year': '1966'}
+        |        ]
+        |    }
+        | ]
+        | から
+        | [
+        |    {
+        |        'honda': [
+        |            {'name': 'NSX', 'power': '280'},
+        |            {'name': 'S800', 'first model year': '1966'}
+        |        ]
+        |    }
+        | ]
 
         :param list extracted_data:
-        :return: list result
+        :return: result
+        :rtype: list
         """
         result = defaultdict(list)
         for insert_unit in extracted_data:
@@ -182,12 +187,13 @@ class Convert:
     def _list_intercept_hook(self, collection: str,
                              doc_with_child: Union[dict, list]) -> dict:
         """
-        対象ドキュメントの子要素のみを削除し、
-        出力の対象コレクション内のリストに対して要素の追加もしくは書き換えを行う
+        | 対象ドキュメントの子要素のみを削除し、
+        | 出力の対象コレクション内のリストに対して要素の追加もしくは書き換えを行う
 
         :param str collection:
         :param dict doc_with_child:
-        :return: dict output
+        :return: output
+        :rtype: dict
         """
 
         def child_delete(doc_with_child: dict) -> None:
@@ -195,7 +201,7 @@ class Convert:
             子要素を削除する
 
             :param dict doc_with_child:
-            :return: None
+            :return:
             """
             tmp = copy.deepcopy(doc_with_child)
             tmp_list = []
@@ -233,7 +239,8 @@ class Convert:
         リファレンスモードでedman用に変換を行う
 
         :param dict raw_data:
-        :return: list
+        :return:
+        :rtype: list
         """
         list_output = []
         ref_list = []
@@ -245,7 +252,8 @@ class Convert:
             要リファクタリング
 
             :param dict reading_dict_data:
-            :return: dict output
+            :return: output
+            :rtype: dict
             """
             output = {}
             parent = -2  # 説明変数
@@ -348,11 +356,12 @@ class Convert:
     @staticmethod
     def _attached_oid(data: dict) -> dict:
         """
-        辞書の一番上の階層にoidを付与する
-        辞書の中身がリストの場合はリスト内の辞書すべてにoidを付与
+        | 辞書の一番上の階層にoidを付与する
+        | 辞書の中身がリストの場合はリスト内の辞書すべてにoidを付与
 
         :param dict data:
-        :return: dict data
+        :return: data
+        :rtype: dict
         """
         for k, v in data.items():
             try:
@@ -368,15 +377,16 @@ class Convert:
 
     def _date_replace(self, list_data: list) -> list:
         """
-        リスト内の要素に{'#date':日付時間}のデータが含まれていたら
-        datetimeオブジェクトに変換する
-        例
-        [{'#date':2019-02-28 11:43:22}, ' test_date']
-        ↓
-        [datetime.datetime(2019, 2, 28, 11, 43, 22), 'test_date']
+        | リスト内の要素に{'#date':日付時間}のデータが含まれていたら
+        | datetimeオブジェクトに変換する
+        | 例
+        | [{'#date':2019-02-28 11:43:22}, ' test_date']
+        | ↓
+        | [datetime.datetime(2019, 2, 28, 11, 43, 22), 'test_date']
 
         :param list list_data:
-        :return list:
+        :return:
+        :rtype: list
         """
         return [Utils.to_datetime(i[self.date])
                 if isinstance(i, dict) and self.date in i
@@ -385,12 +395,13 @@ class Convert:
 
     def emb(self, raw_data: dict) -> dict:
         """
-        エンベデッドモードでedman用の変換を行う
-        主に日付の変換
-        update処理でも使用している
+        | エンベデッドモードでedman用の変換を行う
+        | 主に日付の変換
+        | update処理でも使用している
 
         :param dict raw_data:
-        :return: dict
+        :return:
+        :rtype: dict
         """
 
         def recursive(data: dict) -> dict:
@@ -399,7 +410,8 @@ class Convert:
             要リファクタリング
 
             :param dict data:
-            :return: dict
+            :return:
+            :rtype: dict
             """
             output = {}
 
@@ -440,12 +452,13 @@ class Convert:
 
     def dict_to_edman(self, raw_data: dict, mode='ref') -> list:
         """
-        json辞書からedman用に変換する
-        embはobjectIdを付与したり、辞書からリストに変換している
+        | json辞書からedman用に変換する
+        | embはobjectIdを付与したり、辞書からリストに変換している
 
         :param dict raw_data: JSONを辞書にしたデータ
         :param str mode: ref(reference) or emb(embedded) データ構造の選択肢
-        :return: list インサート用のリストデータ
+        :return: インサート用のリストデータ
+        :rtype: list
         """
         if mode == 'ref':
             return self._ref(raw_data)

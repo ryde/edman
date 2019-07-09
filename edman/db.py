@@ -11,8 +11,8 @@ from edman import Config, Convert, File
 
 class DB:
     """
-    DB関連クラス
-    MongoDBへの接続や各種チェック、インサート、作成や破棄など
+    | DB関連クラス
+    | MongoDBへの接続や各種チェック、インサート、作成や破棄など
     """
 
     def __init__(self, con=None) -> None:
@@ -40,8 +40,8 @@ class DB:
     @staticmethod
     def _connect(**kwargs: dict):
         """
-        DBに接続
-        self.edman_dbというメンバ変数には、このメソッドでDBオブジェクトが入る
+        | DBに接続
+        | self.edman_dbというメンバ変数には、このメソッドでDBオブジェクトが入る
 
         :param dict kwargs: DB接続情報の辞書
         :return: DB接続インスタンス(self.edman_db)
@@ -67,7 +67,8 @@ class DB:
         インサート実行
 
         :param list insert_data: バルクインサート対応のリストデータ
-        :return: list results
+        :return: results
+        :rtype: list
         """
         results = []
 
@@ -105,11 +106,13 @@ class DB:
                                                  ObjectId]) -> Union[str,
                                                                      None]:
         """
-        DB内のコレクションから指定のObjectIDを探し、所属しているコレクションを返す
-        DBに負荷がかかるので使用は注意が必要
+        | DB内のコレクションから指定のObjectIDを探し、所属しているコレクションを返す
+        | DBに負荷がかかるので使用は注意が必要
 
-        :param ObjectId or str oid:
-        :return str or None collection:
+        :param oid:
+        :type oid: ObjectId or str
+        :return: collection
+        :rtype: str or None
         """
         oid = Utils.conv_objectid(oid)
         result = None
@@ -124,14 +127,17 @@ class DB:
     def doc(self, collection: str, oid: Union[ObjectId, str],
             query: Union[list, None], reference_delete=True) -> dict:
         """
-        refもしくはembのドキュメントを取得する
-        オプションでedman特有のデータ含んで取得することもできる
+        | refもしくはembのドキュメントを取得する
+        | オプションでedman特有のデータ含んで取得することもできる
 
         :param str collection:
-        :param ObjectId or str oid:
-        :param list or None query:
+        :param oid:
+        :type oid: ObjectId or str
+        :param query:
+        :type query: list or None
         :param bool reference_delete: default True
-        :return dict result:
+        :return: result
+        :rtype: dict
         """
 
         oid = Utils.conv_objectid(oid)
@@ -161,7 +167,8 @@ class DB:
 
         :param dict doc:
         :param list query:
-        :return dict result:
+        :return: result
+        :rtype: dict
         """
         s = ''
 
@@ -185,10 +192,13 @@ class DB:
         ドキュメントの項目を削除する
 
         :param str collection:
-        :param str or ObjectId oid:
+        :param oid:
+        :type oid: str or ObjectId
         :param str delete_key:
-        :param list or None query:
-        :return bool:
+        :param query:
+        :type query: list or None
+        :return:
+        :rtype: bool
         """
 
         oid = Utils.conv_objectid(oid)
@@ -239,7 +249,8 @@ class DB:
         amendにリストデータがある場合は中身も変換対象とする
 
         :param dict amend:
-        :return: dict result
+        :return: result
+        :rtype: dict
         """
         result = copy.deepcopy(amend)
         if isinstance(amend, dict):
@@ -270,10 +281,12 @@ class DB:
         修正データを用いてDBデータをアップデート
 
         :param str collection:
-        :param str or ObjectId oid:
+        :param oid:
+        :type oid: str or ObjectId
         :param dict amend_data:
         :param str structure:
-        :return bool:
+        :return:
+        :rtype: bool
         """
 
         oid = Utils.conv_objectid(oid)
@@ -311,7 +324,8 @@ class DB:
 
         :param list orig:
         :param list amend:
-        :return list result:
+        :return: result
+        :rtype: list
         """
         result = copy.copy(orig)
         for i, value in enumerate(amend):
@@ -329,7 +343,8 @@ class DB:
 
         :param dict orig:
         :param dict amend:
-        :return dict result:
+        :return: result
+        :rtype: dict
         """
         result = copy.copy(orig)
         for item in amend:
@@ -347,14 +362,16 @@ class DB:
     def delete(self, oid: Union[str, ObjectId], collection: str,
                structure: str) -> bool:
         """
-        ドキュメントを削除する
-        指定のoidを含む下位のドキュメントを全削除
-        refで親が存在する時は親のchildリストから指定のoidを取り除く
+        | ドキュメントを削除する
+        | 指定のoidを含む下位のドキュメントを全削除
+        | refで親が存在する時は親のchildリストから指定のoidを取り除く
 
-        :param str or ObjectId oid:
+        :param oid:
+        :type oid: str or ObjectId
         :param str collection:
         :param str structure:
-        :return bool:
+        :return:
+        :rtype: bool
         """
         oid = Utils.conv_objectid(oid)
         db_result = self.db[collection].find_one({'_id': oid})
@@ -476,6 +493,7 @@ class DB:
         :param dict doc:
         :param str collection:
         :return:
+        :rtype: dict
         """
         file_ref_buff = {}
         if doc.get(self.file_ref) is not None:
@@ -492,6 +510,7 @@ class DB:
         :param dict doc:
         :param str collection:
         :return:
+        :rtype: dict
         """
         yield self._extract_elements_from_doc(doc, collection)
 
@@ -506,7 +525,8 @@ class DB:
 
         :param dict doc:
         :param str request_key:
-        :return list value:
+        :return: value
+        :rtype: list
         """
 
         for key, value in doc.items():
@@ -529,20 +549,28 @@ class DB:
 
     def get_reference_point(self, self_result: dict) -> dict:
         """
-
-        ドキュメントに親や子のリファレンス項目名が含まれているか調べる
-
-        片方しかない場合は末端(親、または一番下の子)となる
-        両方含まれていればこのドキュメントには親と子が存在する
-        両方含まれていなければ、単独のドキュメント
+        | ドキュメントに親や子のリファレンス項目名が含まれているか調べる
+        |
+        | 片方しかない場合は末端(親、または一番下の子)となる
+        | 両方含まれていればこのドキュメントには親と子が存在する
+        | 両方含まれていなければ、単独のドキュメント
 
         :param dict self_result:
-        :return: dict
+        :return:
+        :rtype: dict
         """
         return {key: True if self_result.get(key) else False for key in
                 (self.parent, self.child)}
 
     def get_structure(self, collection: str, oid: ObjectId) -> str:
+        """
+        対象のドキュメントの構造を取得する
+
+        :param str collection:
+        :param ObjectId oid:
+        :return: ref or emb
+        :rtype: str
+        """
         doc = self.db[collection].find_one({'_id': Utils.conv_objectid(oid)})
         if doc is None:
             sys.exit('指定のドキュメントがありません')
@@ -561,7 +589,8 @@ class DB:
         :param ObjectId oid:
         :param str structure_mode:
         :param str new_collection:
-        :return:
+        :return: structured_result
+        :rtype: list
         """
 
         oid = Utils.conv_objectid(oid)
@@ -621,10 +650,11 @@ class DB:
 
     def get_child_all(self, self_doc: dict) -> dict:
         """
-        | 子のドキュメントを再帰で全部取得
+        子のドキュメントを再帰で全部取得
 
         :param dict self_doc:
-        :return: dict
+        :return:
+        :rtype: dict
         """
 
         def recursive(doc_list):
@@ -651,7 +681,8 @@ class DB:
 
         :param dict self_doc:
         :param int depth:
-        :return: dict
+        :return:
+        :rtype: dict
         """
 
         def recursive(doc_list: list, depth: int):
@@ -685,7 +716,8 @@ class DB:
         | 同じコレクションの場合は子データをリストで囲む
 
         :param dict doc:
-        :return: list children
+        :return: children
+        :rtype: list
         """
         doc = list(doc.values())[0]
         children = []
@@ -702,7 +734,8 @@ class DB:
         子の検索結果（リスト）を入れ子辞書に組み立てる
 
         :param list find_result:
-        :return: dict
+        :return:
+        :rtype: dict
         """
         find_result = [i for i in Utils.child_combine(find_result)]
         parent_id_dict = self._generate_parent_id_dict(find_result)
@@ -725,7 +758,8 @@ class DB:
         親IDをキーとする辞書を生成する
 
         :param list find_result:
-        :return: dict
+        :return:
+        :rtype: dict
         """
         result = {}
         for bros in find_result:
@@ -743,8 +777,9 @@ class DB:
         |
         | エラーがなければ通常は親は唯一なので一つのOidを返す
 
-        :param bros:
-        :return: ObjectId
+        :param dict bros:
+        :return:
+        :rtype: ObjectId
         """
         parent_list = []
         for collection, doc in bros.items():
@@ -766,7 +801,8 @@ class DB:
 
         :param dict emb_data:
         :param tuple reference:
-        :return: dict
+        :return:
+        :rtype: dict
         """
 
         def recursive(data):

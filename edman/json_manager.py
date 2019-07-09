@@ -18,7 +18,8 @@ class JsonManager:
         JSONファイルに書き出し
 
         :param dict report_data: 対象の辞書データ
-        :param str or Path path: ファイルパス
+        :param path: ファイルパス
+        :type path: str or Path
         :param str name: ファイル名
         :param bool date: 日付 ファイル名先頭に追加
         :return: None
