@@ -12,15 +12,13 @@ signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
 # コマンドライン引数処理
 parser = argparse.ArgumentParser(description='ドキュメントの項目を修正するスクリプト')
 # parser.add_argument('-c', '--collection', help='collection name.')
-# parser.add_argument('-o', '--objectid', help='objectid str.')
 parser.add_argument('objectid', help='objectid str.')
 parser.add_argument('amend_file', type=open, help='JSON file.')
-parser.add_argument('-s', '--structure', default='ref',
-                    help='Select ref(Reference, default) or emb(embedded).')
+parser.add_argument('structure', help='Select ref or emb.')
 args = parser.parse_args()
 # 構造はrefかembのどちらか
 if not (args.structure == 'ref' or args.structure == 'emb'):
-    parser.error("--structure requires 'ref' or 'emb'.")
+    parser.error("structure requires 'ref' or 'emb'.")
 
 # iniファイル読み込み
 settings = configparser.ConfigParser()
