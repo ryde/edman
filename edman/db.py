@@ -479,9 +479,17 @@ class DB:
                 '親となる' + parent_doc['id'] + 'に' + str(del_oid) + 'が登録されていません')
         else:
             children.remove(target)
-            result = self.db[ref.collection].update_one(
-                {'_id': ref.id},
-                {'$set': {self.child: children}})
+
+            # 他に子要素が登録されていればself.childを更新
+            if len(children) > 0:
+                result = self.db[ref.collection].update_one(
+                    {'_id': ref.id},
+                    {'$set': {self.child: children}})
+            # 他に子要素がなければself.child自体を削除
+            else:
+                del parent_doc[self.child]
+                result = self.db[ref.collection].replace_one(
+                    {'_id': ref.id}, parent_doc)
 
         if not result.modified_count:
             raise ValueError('親となる' + parent_doc['id'] + 'は変更できませんでした')
