@@ -19,7 +19,8 @@ class Action:
         XMLならstr、jsonなら辞書を返す
 
         :param tuple files:中身はPathオブジェクト
-        :yield dict read_data or str read_data:
+        :return: read_data
+        :rtype: dict or str
         """
         for file in files:
 
@@ -49,9 +50,12 @@ class Action:
         単一ファイルもディレクトリ内の複数ファイルもタプルにして返す
         拡張子の指定をすると、ディレクトリ内の該当のファイルのみ取得
 
-        :param str or Path file_or_dir_path:
-        :param str or None suffix:
-        :return tuple files:
+        :param file_or_dir_path:
+        :type file_or_dir_path: str or Path
+        :param suffix:
+        :type suffix: str or None
+        :return: files
+        :rtype: tuple
         """
         if isinstance(file_or_dir_path, str):
             p = Path(file_or_dir_path)
@@ -85,7 +89,8 @@ class Action:
         文字列のクエリを受け取り、辞書に変換する
 
         :param str raw_query:
-        :return dict query:
+        :return: query
+        :rtype: dict
         """
         error_message = 'クエリが正しくありません。\"{}\"で囲みpythonの辞書形式にしてください'
         try:
@@ -102,9 +107,10 @@ class Action:
         embの場合文字列のクエリを受け取り、リストに変換する
         refの場合はNoneを返す
 
-        :param raw_query:
-        :param structure:
-        :return:
+        :param str raw_query:
+        :param str structure:
+        :return: query
+        :rtype: list
         """
         # embのときだけクエリが必須
         if 'ref' in structure:
@@ -249,9 +255,10 @@ class Action:
         :param dict user: 削除対象のユーザデータ
         :param str host: ホスト名
         :param int port: ポート番号
-        :param dict or None admin: ユーザを削除する場合のみ管理者のデータが必要
+        :param admin: ユーザを削除する場合のみ管理者のデータが必要
+        :type admin: dict or None
         :param bool del_user: ユーザ削除フラグ
-        :return: None
+        :return:
         """
         if del_user and admin is None:
             sys.exit('You need administrator privileges to delete users.')

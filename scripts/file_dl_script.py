@@ -13,18 +13,12 @@ signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
 parser = argparse.ArgumentParser(
     description='ファイルを実験データからダウンロードするスクリプト')
 # parser.add_argument('-c', '--collection', help='collection name.')
-# parser.add_argument('-o', '--objectid', help='objectid str.')
 parser.add_argument('objectid', help='objectid str.')
 parser.add_argument('path', help='Download Dir path.')
 # クエリは structureがembの時だけ
 parser.add_argument('-q', '--query', default=None,
                     help='Ref is ObjectId or Emb is query list strings.')
-parser.add_argument('-s', '--structure', default='ref',
-                    help='Select ref(Reference, default) or emb(embedded).')
 args = parser.parse_args()
-
-# クエリの変換
-query = Action.file_query_eval(args.query, args.structure)
 
 # iniファイル読み込み
 settings = configparser.ConfigParser()
@@ -37,9 +31,14 @@ file = File(db.get_db)
 # 対象oidの所属コレクションを自動的に取得 ※動作が遅い場合は使用しないこと
 collection = db.find_collection_from_objectid(args.objectid)
 
+# ドキュメント構造の取得
+structure = db.get_structure(collection, args.objectid)
+
+# クエリの変換
+query = Action.file_query_eval(args.query, structure)
+
 # ファイル名一覧を取得
-file_names = file.get_file_names(collection, args.objectid, args.structure,
-                                 query)
+file_names = file.get_file_names(collection, args.objectid, structure, query)
 file_oids = []
 # ファイル名一覧を画面表示&file_oid用リスト作成
 for idx, (oid, filename) in enumerate(file_names.items()):
