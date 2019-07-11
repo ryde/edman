@@ -44,6 +44,7 @@ Modules Usage
     from path import Path
     from edman import DB, JsonManager, Search
 
+    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
     db = DB(con)
     search = Search(db)
     collection = 'target_collection'
@@ -66,9 +67,17 @@ Modules Usage
     import json
     from edman import DB
 
-    # Modified file based on the search result json
     modified_data = json.load(modified_json_file)
 
+    # emb example
+    # Same key will be modified, new key will be added
+    # modified_data = {'key': 'modified value', 'child': {'key': 'value'}}
+
+    # ref example
+    # Same key will be modified, new key will be added
+    # modified_data = {'key': 'modified value', 'new_key': 'value'}
+
+    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
     db = DB(con)
     result = db.update(collection, objectid, modified_data, structure='ref')
 
@@ -78,6 +87,7 @@ Modules Usage
 
     from edman import DB
 
+    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
     db = DB(con)
     result = db.delete(objectid, collection, structure='ref')
 
