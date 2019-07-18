@@ -72,9 +72,13 @@ class DB:
         """
         results = []
 
-        # tqdm用のドキュメントのリスト数を取得
+        # tqdm用のドキュメントの合計数を取得
         total_bulk_lists = sum(
-            (len(i[bulk_list]) for i in insert_data for bulk_list in i))
+            (len(i[collection_name]) for i in insert_data for
+             collection_name, bulk_list in i.items() if
+             isinstance(bulk_list, list)))
+        if not total_bulk_lists:  # embの場合
+            total_bulk_lists = 1
 
         for i in insert_data:
             collection_bar = tqdm(i.keys(), desc='collections', position=0)
