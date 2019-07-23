@@ -138,14 +138,14 @@ Scripts Usage
 |   データが複数あり、リストで囲まれていた場合は添字を数字で指定
 |
 |  ◯各スクリプトファイル
-|  entry_script.py: jsonファイルからMongoDBに投入
-|  find_script.py: データを検索し、jsonに保存 クエリ1を使用します
+|  entry.py: jsonファイルからMongoDBに投入
+|  find.py: データを検索し、jsonに保存 クエリ1を使用します
 |  item_delete.py: データ内の項目を消す embの時クエリ2を使用します
 |  update.py: データの更新(更新用jsonファイルを用意)
 |  delete.py: ドキュメントの削除(embは全削除、refは指定したobjectid以下を削除)
-|  file_add_script.py:  該当データにファイルを添付する embの時クエリ2を使用します
-|  file_dl_script.py: 添付ファイルをダウンロード embの時クエリ2を使用します
-|  file_delete_script.py: 添付ファイルを削除 embの時クエリ2を使用します
+|  file_add.py:  該当データにファイルを添付する embの時クエリ2を使用します
+|  file_dl.py: 添付ファイルをダウンロード embの時クエリ2を使用します
+|  file_delete.py: 添付ファイルを削除 embの時クエリ2を使用します
 |  db_create.py: データベース及びユーザ作成操作支援用(MongoDBの管理者アカウントが必要)
 |  db_destroy.py: データベース削除操作支援用(ユーザ削除はソース書き換えが必要)
 |
