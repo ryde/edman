@@ -354,6 +354,71 @@ class Convert:
         return self._list_organize(list_output)
 
     @staticmethod
+    def pullout_key(data: dict, pull_key: str) -> dict:
+        """
+        指定のキーの要素を子要素を含めて抜き出す
+
+        :param dict data:
+        :param str pull_key:
+        :return: output
+        :rtype: dict
+        """
+
+        def recursive(doc):
+            for key, value in doc.items():
+
+                if isinstance(value, dict):
+                    if key == pull_key:
+                        output.update({key: value})
+                    recursive(value)
+                elif isinstance(value, list) and Utils.item_literal_check(
+                        value):
+                    pass
+                elif isinstance(value, list):
+                    if key == pull_key:
+                        output.update({key: value})
+                    tmp_list = []
+                    for i in value:
+                        tmp_list.append(recursive(i))
+                else:
+                    pass
+
+        output = {}
+        recursive(data)
+        return output
+
+    @staticmethod
+    def exclusion_key(data: dict, ex_keys: tuple) -> dict:
+        """
+        指定のキーの要素を除外する
+
+        :param dict data:
+        :param tuple ex_keys:
+        :return: result
+        :rtype: dict
+        """
+        def recursive(doc):
+            output = {}
+            for key, value in doc.items():
+                if isinstance(value, dict):
+                    if key in ex_keys:
+                        continue
+                    output.update({key: recursive(value)})
+                elif isinstance(value, list) and Utils.item_literal_check(
+                        value):
+                    output.update({key: value})
+                elif isinstance(value, list):
+                    if key in ex_keys:
+                        continue
+                    output.update({key: [recursive(i) for i in value]})
+                else:
+                    output.update({key: value})
+            return output
+
+        result = recursive(data)
+        return result
+
+    @staticmethod
     def _attached_oid(data: dict) -> dict:
         """
         | 辞書の一番上の階層にoidを付与する

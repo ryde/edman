@@ -146,6 +146,130 @@ class TestConvert(TestCase):
         actual = self.convert._date_replace(list_data)
         self.assertListEqual(expected, actual)
 
+    def test_pullout_key(self):
+
+        data = {
+            'beamtime': {
+                'username': 'guest',
+                'expInfo': [
+                    {
+                        'date': '2019-08-02',
+                        'position': {'a': '1', 'b': '2'},
+                        'file': {'name': 'sample.jpg'},
+                        'process': {
+                            'cc': '33',
+                            'file': {
+                                'name': 'machine.log',
+                                'file': {'name': 'machine2.log'}
+                            }
+                        }
+                    },
+                    {
+                        'date': '2019-08-03',
+                        'position': {'a': '11', 'b': '22'},
+                        'file': {'name': 'process.jpg'},
+                        'process': {
+                            'cc': '44',
+                            'file': {
+                                'name': 'machine3.log',
+                                'file': {'name': 'machine4.log'}
+                            }
+                        }
+                    },
+                ]}
+        }
+        key = 'expInfo'
+        actual = self.convert.pullout_key(data, key)
+
+        expected = {
+            'expInfo': [
+                {
+                    'date': '2019-08-02',
+                    'position': {'a': '1', 'b': '2'},
+                    'file': {'name': 'sample.jpg'},
+                    'process': {
+                        'cc': '33',
+                        'file': {
+                            'name': 'machine.log',
+                            'file': {'name': 'machine2.log'}
+                        }
+                    }
+                },
+                {
+                    'date': '2019-08-03',
+                    'position': {'a': '11', 'b': '22'},
+                    'file': {'name': 'process.jpg'},
+                    'process': {
+                        'cc': '44',
+                        'file': {
+                            'name': 'machine3.log',
+                            'file': {'name': 'machine4.log'}
+                        }
+                    }
+                },
+            ]}
+        self.assertIsInstance(actual, dict)
+        self.assertDictEqual(expected, actual)
+
+    def test_exclusion_key(self):
+        data = {
+            'expInfo': [
+                {
+                    'date': '2019-08-02',
+                    'position': {'a': '1', 'b': '2'},
+                    'file': {'name': 'sample.jpg'},
+                    'process': {
+                        'cc': '33',
+                        'file': {
+                            'name': 'machine.log',
+                            'file': {'name': 'machine2.log'}
+                        }
+                    }
+                },
+                {
+                    'date': '2019-08-03',
+                    'position': {'a': '11', 'b': '22'},
+                    'file': {'name': 'process.jpg'},
+                    'process': {
+                        'cc': '44',
+                        'file': {
+                            'name': 'machine3.log',
+                            'file': {'name': 'machine4.log'}
+                        }
+                    }
+                },
+            ]}
+
+        exclusion = ('position',)
+        actual = self.convert.exclusion_key(data, exclusion)
+        expected = {
+            'expInfo': [
+                {
+                    'date': '2019-08-02',
+                    'file': {'name': 'sample.jpg'},
+                    'process': {
+                        'cc': '33',
+                        'file': {
+                            'name': 'machine.log',
+                            'file': {'name': 'machine2.log'}
+                        }
+                    }
+                },
+                {
+                    'date': '2019-08-03',
+                    'file': {'name': 'process.jpg'},
+                    'process': {
+                        'cc': '44',
+                        'file': {
+                            'name': 'machine3.log',
+                            'file': {'name': 'machine4.log'}
+                        }
+                    }
+                },
+            ]}
+        self.assertIsInstance(actual, dict)
+        self.assertDictEqual(expected, actual)
+
     def test__ref(self):
         pass
         # テスト用jsonの読み込み
