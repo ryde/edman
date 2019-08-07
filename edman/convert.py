@@ -356,7 +356,7 @@ class Convert:
     @staticmethod
     def pullout_key(data: dict, pull_key: str) -> dict:
         """
-        指定のキーの要素を子要素を含めて抜き出す
+        最初に発見した指定のキーの要素を、子要素を含めて抜き出す
 
         :param dict data:
         :param str pull_key:
@@ -367,6 +367,9 @@ class Convert:
         def recursive(doc):
             for key, value in doc.items():
 
+                # 最初に発見した要素がoutputに入っていたら再帰を終了
+                if output:
+                    break
                 if isinstance(value, dict):
                     if key == pull_key:
                         output.update({key: value})

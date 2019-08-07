@@ -211,6 +211,61 @@ class TestConvert(TestCase):
         self.assertIsInstance(actual, dict)
         self.assertDictEqual(expected, actual)
 
+        # 別のデータ(この場合は1番目のprocessを拾ってくる)
+        data2 = {
+            'beamtime': {
+                'username': 'guest',
+                'expInfo': [
+                    {
+                        'date': '2019-08-02',
+                        'position': {'a': '1', 'b': '2'},
+                        'file': {'name': 'sample.jpg'},
+                        'process': {
+                            'cc': '33',
+                            'file': {
+                                'name': 'machine.log',
+                                'file': {'name': 'machine2.log'}
+                            }
+                        }
+                    },
+                    {
+                        'date': '2019-08-03',
+                        'position': {'a': '11', 'b': '22'},
+                        'file': {'name': 'process.jpg'},
+                        'process': {
+                            'cc': '44',
+                            'file': {
+                                'name': 'machine3.log',
+                                'file': {'name': 'machine4.log'}
+                            }
+                        }
+                    },
+                ]}
+        }
+        key = 'process'
+        actual = self.convert.pullout_key(data2, key)
+        expected = {
+            'process': {
+                'cc': '33',
+                'file': {
+                    'name': 'machine.log',
+                    'file': {'name': 'machine2.log'}
+                }
+            }
+        }
+        self.assertDictEqual(expected, actual)
+
+        # 指定のキーが見つからなかった時
+        key = 'foobar'
+        actual = self.convert.pullout_key(data, key)
+        self.assertDictEqual({}, actual)
+
+        # データが無かった場合
+        data3 = {}
+        key = 'expInfo'
+        actual = self.convert.pullout_key(data3, key)
+        self.assertDictEqual({}, actual)
+
     def test_exclusion_key(self):
         data = {
             'expInfo': [
@@ -269,6 +324,11 @@ class TestConvert(TestCase):
             ]}
         self.assertIsInstance(actual, dict)
         self.assertDictEqual(expected, actual)
+
+        # 指定のキーが見つからなかった時
+        exclusion = ('foobar',)
+        actual = self.convert.exclusion_key(data, exclusion)
+        self.assertDictEqual(data, actual)
 
     def test__ref(self):
         pass
