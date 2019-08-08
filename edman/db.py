@@ -875,10 +875,14 @@ class DB:
             pull_result = convert.pullout_key(emb_result, key)
             if not pull_result:
                 sys.exit(f'{key}は存在しません')
-            ex_result = convert.exclusion_key(pull_result, exclusion)
-            if pull_result == ex_result:
-                sys.exit(f'{list(exclusion)}は存在しません')
-            converted_edman = convert.dict_to_edman(ex_result)
+            if exclusion:
+                result = convert.exclusion_key(pull_result, exclusion)
+                if pull_result == result:
+                    sys.exit(f'{list(exclusion)}は存在しません')
+            else:
+                result = pull_result
+
+            converted_edman = convert.dict_to_edman(result)
             structured_result = self.insert(converted_edman)
             structured_result.reverse()
             result_list.append(structured_result)
