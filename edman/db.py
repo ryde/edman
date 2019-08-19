@@ -844,7 +844,7 @@ class DB:
         recursive(emb_data)
         return emb_data
 
-    def roop_exclusion_key_and_ref(self, collection: str, key: str,
+    def loop_exclusion_key_and_ref(self, collection: str, key: str,
                                    exclusion: tuple) -> dict:
         """
         対象のコレクション内のドキュメントを全て、指定のキーの要素を抜き出してrefに変換してDBに入れる

@@ -33,7 +33,7 @@ con = dict([i for i in settings['DB'].items()])
 
 db = DB(con)
 exclusion = tuple(args.exclusion_keys if args.exclusion_keys is not None else [])
-result = db.roop_exclusion_key_and_ref(args.collection, args.pullout_key, exclusion)
+result = db.loop_exclusion_key_and_ref(args.collection, args.pullout_key, exclusion)
 
 # 結果を保存する
 # if args.dir is not None:
