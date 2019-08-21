@@ -110,18 +110,6 @@ class TestConvert(TestCase):
             True if '_id' in list(actual.values())[0][0] else False)
         self.assertIsInstance(list(actual.values())[0][0]['_id'], ObjectId)
 
-    def test__collection_name_check(self):
-
-        illegals = [None, '', '$aaa', 'aaa$b', 'system.aaa', '#aaa', '@aaa']
-        for i in illegals:
-            with self.subTest(i=i):
-                actual = self.convert._collection_name_check(i)
-                self.assertFalse(actual)
-
-        # 文字列以外の方は文字列に変換される
-        actual = self.convert._collection_name_check(345)
-        self.assertTrue(actual)
-
     def test__field_name_check(self):
 
         illegals = [None, '', '$aa', '.aa']

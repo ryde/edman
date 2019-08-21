@@ -1,4 +1,4 @@
-import re
+# import re
 import sys
 import copy
 from typing import Union
@@ -18,49 +18,6 @@ class Convert:
         self.parent = config.parent
         self.child = config.child
         self.date = config.date
-
-    @staticmethod
-    def _collection_name_check(collection_name: str) -> bool:
-        """
-        | MongoDBの命名規則チェック(コレクション名)
-                | # $ None(null) '' system.
-        | 最初がアンスコか文字
-        | mongoの制約の他に頭文字に#もNG
-        |
-        | コレクション名空間の最大長は、データベース名、ドット（.）区切り文字
-        | およびコレクション名（つまり <database>.<collection>）を合わせて
-        | 120バイトを超えないこと
-        | ただし、子のメソッド利用時はDB名を取得するタイミングではないため、
-        | 文字数のチェックは行えないことを留意すること
-        |
-        | https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names
-
-        :param str collection_name:
-        :return:
-        :rtype: bool
-        """
-        if collection_name is None:
-            return False
-
-        if not isinstance(collection_name, str):
-            collection_name = str(collection_name)
-
-        collection_name_length = len(collection_name)
-        if collection_name_length == 0:
-            return False
-
-        if '$' in collection_name:
-            return False
-
-        if collection_name.startswith(
-                'system.') or collection_name.startswith('#'):
-            return False
-
-        # 先頭に記号があるとマッチする
-        if re.match(r'(\W)', collection_name) is not None:
-            return False
-
-        return True
 
     @staticmethod
     def _field_name_check(field_name: str) -> bool:
@@ -263,7 +220,7 @@ class Convert:
 
                 if isinstance(value, dict):
 
-                    if not self._collection_name_check(key):
+                    if not Utils.collection_name_check(key):
                         sys.exit(f'この名前はコレクション名にできません {key}')
 
                     # リファレンス作成
@@ -303,7 +260,7 @@ class Convert:
 
                 elif isinstance(value, list):
 
-                    if not self._collection_name_check(key):
+                    if not Utils.collection_name_check(key):
                         sys.exit(f'この名前はコレクション名にできません {key}')
 
                     tmp_list = []
@@ -486,7 +443,7 @@ class Convert:
             for key, value in data.items():
 
                 if isinstance(value, dict):
-                    if not self._collection_name_check(key):
+                    if not Utils.collection_name_check(key):
                         sys.exit(f'この名前は使用できません {key}')
 
                     converted_value = self._convert_datetime(value)
@@ -503,7 +460,7 @@ class Convert:
                         list_tmp_data = value
                     # 子要素としてのリストデータの場合
                     else:
-                        if not self._collection_name_check(key):
+                        if not Utils.collection_name_check(key):
                             sys.exit(f'この名前は使用できません {key}')
                         list_tmp_data = [recursive(self._convert_datetime(i))
                                          for i in value]
