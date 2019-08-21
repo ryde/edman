@@ -110,18 +110,6 @@ class TestConvert(TestCase):
             True if '_id' in list(actual.values())[0][0] else False)
         self.assertIsInstance(list(actual.values())[0][0]['_id'], ObjectId)
 
-    def test__collection_name_check(self):
-
-        illegals = [None, '', '$aaa', 'aaa$b', 'system.aaa', '#aaa', '@aaa']
-        for i in illegals:
-            with self.subTest(i=i):
-                actual = self.convert._collection_name_check(i)
-                self.assertFalse(actual)
-
-        # 文字列以外の方は文字列に変換される
-        actual = self.convert._collection_name_check(345)
-        self.assertTrue(actual)
-
     def test__field_name_check(self):
 
         illegals = [None, '', '$aa', '.aa']
@@ -145,6 +133,190 @@ class TestConvert(TestCase):
                     'text']
         actual = self.convert._date_replace(list_data)
         self.assertListEqual(expected, actual)
+
+    def test_pullout_key(self):
+
+        data = {
+            'beamtime': {
+                'username': 'guest',
+                'expInfo': [
+                    {
+                        'date': '2019-08-02',
+                        'position': {'a': '1', 'b': '2'},
+                        'file': {'name': 'sample.jpg'},
+                        'process': {
+                            'cc': '33',
+                            'file': {
+                                'name': 'machine.log',
+                                'file': {'name': 'machine2.log'}
+                            }
+                        }
+                    },
+                    {
+                        'date': '2019-08-03',
+                        'position': {'a': '11', 'b': '22'},
+                        'file': {'name': 'process.jpg'},
+                        'process': {
+                            'cc': '44',
+                            'file': {
+                                'name': 'machine3.log',
+                                'file': {'name': 'machine4.log'}
+                            }
+                        }
+                    },
+                ]}
+        }
+        key = 'expInfo'
+        actual = self.convert.pullout_key(data, key)
+
+        expected = {
+            'expInfo': [
+                {
+                    'date': '2019-08-02',
+                    'position': {'a': '1', 'b': '2'},
+                    'file': {'name': 'sample.jpg'},
+                    'process': {
+                        'cc': '33',
+                        'file': {
+                            'name': 'machine.log',
+                            'file': {'name': 'machine2.log'}
+                        }
+                    }
+                },
+                {
+                    'date': '2019-08-03',
+                    'position': {'a': '11', 'b': '22'},
+                    'file': {'name': 'process.jpg'},
+                    'process': {
+                        'cc': '44',
+                        'file': {
+                            'name': 'machine3.log',
+                            'file': {'name': 'machine4.log'}
+                        }
+                    }
+                },
+            ]}
+        self.assertIsInstance(actual, dict)
+        self.assertDictEqual(expected, actual)
+
+        # 別のデータ(この場合は1番目のprocessを拾ってくる)
+        data2 = {
+            'beamtime': {
+                'username': 'guest',
+                'expInfo': [
+                    {
+                        'date': '2019-08-02',
+                        'position': {'a': '1', 'b': '2'},
+                        'file': {'name': 'sample.jpg'},
+                        'process': {
+                            'cc': '33',
+                            'file': {
+                                'name': 'machine.log',
+                                'file': {'name': 'machine2.log'}
+                            }
+                        }
+                    },
+                    {
+                        'date': '2019-08-03',
+                        'position': {'a': '11', 'b': '22'},
+                        'file': {'name': 'process.jpg'},
+                        'process': {
+                            'cc': '44',
+                            'file': {
+                                'name': 'machine3.log',
+                                'file': {'name': 'machine4.log'}
+                            }
+                        }
+                    },
+                ]}
+        }
+        key = 'process'
+        actual = self.convert.pullout_key(data2, key)
+        expected = {
+            'process': {
+                'cc': '33',
+                'file': {
+                    'name': 'machine.log',
+                    'file': {'name': 'machine2.log'}
+                }
+            }
+        }
+        self.assertDictEqual(expected, actual)
+
+        # 指定のキーが見つからなかった時
+        key = 'foobar'
+        actual = self.convert.pullout_key(data, key)
+        self.assertDictEqual({}, actual)
+
+        # データが無かった場合
+        data3 = {}
+        key = 'expInfo'
+        actual = self.convert.pullout_key(data3, key)
+        self.assertDictEqual({}, actual)
+
+    def test_exclusion_key(self):
+        data = {
+            'expInfo': [
+                {
+                    'date': '2019-08-02',
+                    'position': {'a': '1', 'b': '2'},
+                    'file': {'name': 'sample.jpg'},
+                    'process': {
+                        'cc': '33',
+                        'file': {
+                            'name': 'machine.log',
+                            'file': {'name': 'machine2.log'}
+                        }
+                    }
+                },
+                {
+                    'date': '2019-08-03',
+                    'position': {'a': '11', 'b': '22'},
+                    'file': {'name': 'process.jpg'},
+                    'process': {
+                        'cc': '44',
+                        'file': {
+                            'name': 'machine3.log',
+                            'file': {'name': 'machine4.log'}
+                        }
+                    }
+                },
+            ]}
+
+        exclusion = ('position',)
+        actual = self.convert.exclusion_key(data, exclusion)
+        expected = {
+            'expInfo': [
+                {
+                    'date': '2019-08-02',
+                    'file': {'name': 'sample.jpg'},
+                    'process': {
+                        'cc': '33',
+                        'file': {
+                            'name': 'machine.log',
+                            'file': {'name': 'machine2.log'}
+                        }
+                    }
+                },
+                {
+                    'date': '2019-08-03',
+                    'file': {'name': 'process.jpg'},
+                    'process': {
+                        'cc': '44',
+                        'file': {
+                            'name': 'machine3.log',
+                            'file': {'name': 'machine4.log'}
+                        }
+                    }
+                },
+            ]}
+        self.assertIsInstance(actual, dict)
+        self.assertDictEqual(expected, actual)
+
+        # 指定のキーが見つからなかった時
+        exclusion = ('foobar',)
+        actual = self.convert.exclusion_key(data, exclusion)
+        self.assertDictEqual(data, actual)
 
     def test__ref(self):
         pass

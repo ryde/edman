@@ -205,3 +205,15 @@ class TestConvert(TestCase):
         actual = [i for i in Utils.child_combine(test_data)]
         self.assertIsInstance(actual, list)
         self.assertEqual(2, len(actual[0]['collection_A']))
+
+    def test_collection_name_check(self):
+
+        illegals = [None, '', '$aaa', 'aaa$b', 'system.aaa', '#aaa', '@aaa']
+        for i in illegals:
+            with self.subTest(i=i):
+                actual = Utils.collection_name_check(i)
+                self.assertFalse(actual)
+
+        # 文字列以外の方は文字列に変換される
+        actual = Utils.collection_name_check(345)
+        self.assertTrue(actual)

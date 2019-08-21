@@ -1,3 +1,4 @@
+import re
 import sys
 from collections import defaultdict
 from typing import Union, Callable
@@ -225,3 +226,46 @@ class Utils:
                 for collection, doc in docs.items():
                     tmp_bros[collection].append(doc)
             yield dict(tmp_bros)
+
+    @staticmethod
+    def collection_name_check(collection_name: str) -> bool:
+        """
+        | MongoDBの命名規則チェック(コレクション名)
+                | # $ None(null) '' system.
+        | 最初がアンスコか文字
+        | mongoの制約の他に頭文字に#もNG
+        |
+        | コレクション名空間の最大長は、データベース名、ドット（.）区切り文字
+        | およびコレクション名（つまり <database>.<collection>）を合わせて
+        | 120バイトを超えないこと
+        | ただし、子のメソッド利用時はDB名を取得するタイミングではないため、
+        | 文字数のチェックは行えないことを留意すること
+        |
+        | https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names
+
+        :param str collection_name:
+        :return:
+        :rtype: bool
+        """
+        if collection_name is None:
+            return False
+
+        if not isinstance(collection_name, str):
+            collection_name = str(collection_name)
+
+        collection_name_length = len(collection_name)
+        if collection_name_length == 0:
+            return False
+
+        if '$' in collection_name:
+            return False
+
+        if collection_name.startswith(
+                'system.') or collection_name.startswith('#'):
+            return False
+
+        # 先頭に記号があるとマッチする
+        if re.match(r'(\W)', collection_name) is not None:
+            return False
+
+        return True

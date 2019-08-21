@@ -1,4 +1,4 @@
-import re
+# import re
 import sys
 import copy
 from typing import Union
@@ -18,49 +18,6 @@ class Convert:
         self.parent = config.parent
         self.child = config.child
         self.date = config.date
-
-    @staticmethod
-    def _collection_name_check(collection_name: str) -> bool:
-        """
-        | MongoDBの命名規則チェック(コレクション名)
-                | # $ None(null) '' system.
-        | 最初がアンスコか文字
-        | mongoの制約の他に頭文字に#もNG
-        |
-        | コレクション名空間の最大長は、データベース名、ドット（.）区切り文字
-        | およびコレクション名（つまり <database>.<collection>）を合わせて
-        | 120バイトを超えないこと
-        | ただし、子のメソッド利用時はDB名を取得するタイミングではないため、
-        | 文字数のチェックは行えないことを留意すること
-        |
-        | https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names
-
-        :param str collection_name:
-        :return:
-        :rtype: bool
-        """
-        if collection_name is None:
-            return False
-
-        if not isinstance(collection_name, str):
-            collection_name = str(collection_name)
-
-        collection_name_length = len(collection_name)
-        if collection_name_length == 0:
-            return False
-
-        if '$' in collection_name:
-            return False
-
-        if collection_name.startswith(
-                'system.') or collection_name.startswith('#'):
-            return False
-
-        # 先頭に記号があるとマッチする
-        if re.match(r'(\W)', collection_name) is not None:
-            return False
-
-        return True
 
     @staticmethod
     def _field_name_check(field_name: str) -> bool:
@@ -263,7 +220,7 @@ class Convert:
 
                 if isinstance(value, dict):
 
-                    if not self._collection_name_check(key):
+                    if not Utils.collection_name_check(key):
                         sys.exit(f'この名前はコレクション名にできません {key}')
 
                     # リファレンス作成
@@ -303,7 +260,7 @@ class Convert:
 
                 elif isinstance(value, list):
 
-                    if not self._collection_name_check(key):
+                    if not Utils.collection_name_check(key):
                         sys.exit(f'この名前はコレクション名にできません {key}')
 
                     tmp_list = []
@@ -352,6 +309,74 @@ class Convert:
         # list_outputを書き換えているため、extract()の返り値(output)は利用していない
         _ = recursive(raw_data)
         return self._list_organize(list_output)
+
+    @staticmethod
+    def pullout_key(data: dict, pull_key: str) -> dict:
+        """
+        最初に発見した指定のキーの要素を、子要素を含めて抜き出す
+
+        :param dict data:
+        :param str pull_key:
+        :return: output
+        :rtype: dict
+        """
+
+        def recursive(doc):
+            for key, value in doc.items():
+
+                # 最初に発見した要素がoutputに入っていたら再帰を終了
+                if output:
+                    break
+                if isinstance(value, dict):
+                    if key == pull_key:
+                        output.update({key: value})
+                    recursive(value)
+                elif isinstance(value, list) and Utils.item_literal_check(
+                        value):
+                    pass
+                elif isinstance(value, list):
+                    if key == pull_key:
+                        output.update({key: value})
+                    tmp_list = []
+                    for i in value:
+                        tmp_list.append(recursive(i))
+                else:
+                    pass
+
+        output = {}
+        recursive(data)
+        return output
+
+    @staticmethod
+    def exclusion_key(data: dict, ex_keys: tuple) -> dict:
+        """
+        指定のキーの要素を除外する
+
+        :param dict data:
+        :param tuple ex_keys:
+        :return: result
+        :rtype: dict
+        """
+        def recursive(doc):
+            output = {}
+            for key, value in doc.items():
+                if isinstance(value, dict):
+                    if key in ex_keys:
+                        continue
+                    output.update({key: recursive(value)})
+                elif isinstance(value, list) and Utils.item_literal_check(
+                        value):
+                    output.update({key: value})
+                elif isinstance(value, list):
+                    if key in ex_keys:
+                        continue
+                    output.update({key: [recursive(i) for i in value]})
+                else:
+                    output.update({key: value})
+            return output
+
+        result = recursive(data)
+        return result
 
     @staticmethod
     def _attached_oid(data: dict) -> dict:
@@ -418,7 +443,7 @@ class Convert:
             for key, value in data.items():
 
                 if isinstance(value, dict):
-                    if not self._collection_name_check(key):
+                    if not Utils.collection_name_check(key):
                         sys.exit(f'この名前は使用できません {key}')
 
                     converted_value = self._convert_datetime(value)
@@ -435,7 +460,7 @@ class Convert:
                         list_tmp_data = value
                     # 子要素としてのリストデータの場合
                     else:
-                        if not self._collection_name_check(key):
+                        if not Utils.collection_name_check(key):
                             sys.exit(f'この名前は使用できません {key}')
                         list_tmp_data = [recursive(self._convert_datetime(i))
                                          for i in value]

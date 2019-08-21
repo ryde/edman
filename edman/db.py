@@ -843,3 +843,53 @@ class DB:
 
         recursive(emb_data)
         return emb_data
+
+    def loop_exclusion_key_and_ref(self, collection: str, key: str,
+                                   exclusion: tuple) -> dict:
+        """
+        対象のコレクション内のドキュメントを全て、指定のキーの要素を抜き出してrefに変換してDBに入れる
+        また、取り出したデータ内の指定の要素を除外することもできる
+
+        :param str collection: 変換対象のコレクション
+        :param str key: refに変換開始する対象のキー
+        :param tuple exclusion: 除外するキーの設定
+        :return: result
+        :rtype: dict
+        """
+        docs = self.db[collection].find()
+        if docs.count() == 0:
+            sys.exit('対象のドキュメントは存在しません')
+        id_list = []
+        for doc in docs:
+            if self.get_structure(collection, doc['_id']) == 'emb':
+                id_list.append(doc['_id'])
+
+        if len(id_list) == 0:
+            sys.exit('変換対象のドキュメントは全てreferenceです')
+
+        result_list = []
+        for oid in id_list:
+            emb_result = self.db[collection].find_one({'_id': oid})
+            del emb_result['_id']
+            convert = Convert()
+            pull_result = convert.pullout_key(emb_result, key)
+            if not pull_result:
+                sys.exit(f'{key}は存在しません')
+            if exclusion:
+                result = convert.exclusion_key(pull_result, exclusion)
+                if pull_result == result:
+                    sys.exit(f'{list(exclusion)}は存在しません')
+            else:
+                result = pull_result
+
+            converted_edman = convert.dict_to_edman(result)
+            structured_result = self.insert(converted_edman)
+            structured_result.reverse()
+            result_list.append(structured_result)
+
+        result = {}
+        if len(result_list):
+            result.update({'result': result_list})
+            print('\r\n')  # 改行できない問題を回避
+
+        return result
