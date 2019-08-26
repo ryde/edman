@@ -227,10 +227,7 @@ class Action:
             'host = ' + ini_data['host'] + '\n',
             'database = ' + ini_data['dbname'],
             'user = ' + ini_data['username'],
-            'password = ' + ini_data['userpwd'] + '\n',
-            '[COLLECTION]',
-            '# Collection name in MongoDB of file section in XML',
-            'file = ' + '_file' + '\n'
+            'password = ' + ini_data['userpwd'] + '\n'
         ]
 
         # iniファイルの書き出し
