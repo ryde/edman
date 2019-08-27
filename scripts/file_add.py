@@ -17,6 +17,7 @@ parser.add_argument('path', help='file or Dir path.')
 # クエリは structureがembの時だけ
 parser.add_argument('-q', '--query', default=None,
                     help='Ref is ObjectId or Emb is query list strings.')
+parser.add_argument('-c', '--compress', action='store_true')
 args = parser.parse_args()
 
 # iniファイル読み込み
@@ -37,7 +38,8 @@ structure = db.get_structure(collection, args.objectid)
 query = Action.file_query_eval(args.query, structure)
 
 if file.add_file_reference(collection, args.objectid,
-                           Action.files_read(args.path), structure, query):
+                           Action.files_read(args.path), structure, query,
+                           args.compress):
     print('更新しました')
 else:
     print('更新に失敗しました')
