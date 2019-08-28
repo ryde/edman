@@ -1,5 +1,6 @@
 import configparser
 import tempfile
+import gzip
 from unittest import TestCase
 from pathlib import Path
 import gridfs
@@ -206,7 +207,8 @@ class TestFile(TestCase):
             oid = [i[collection][0] for i in insert_result if collection in i][
                 0]
             insert_file_result = self.file.add_file_reference(collection, oid,
-                                                              file_path, 'ref')
+                                                              file_path, 'ref',
+                                                              compress=True)
 
             # DBからデータ取得
             query = {'_id': oid}
@@ -218,6 +220,8 @@ class TestFile(TestCase):
             for file_oid in result[self.config.file]:
                 data = self.fs.get(file_oid)
                 d = data.read()
+                if hasattr(data, 'compress') and data.compress == 'gzip':
+                    d = gzip.decompress(d)
                 actual.append((data.filename, d.decode()))
 
             # テスト
@@ -312,7 +316,8 @@ class TestFile(TestCase):
             insert_file_emb_result = self.file.add_file_reference(collection,
                                                                   oid,
                                                                   files, 'emb',
-                                                                  query)
+                                                                  query,
+                                                                  compress=True)
             # ドキュメントをfindして出す
             result = self.testdb[collection].find_one({'_id': oid})
 
@@ -322,6 +327,9 @@ class TestFile(TestCase):
             for oid in result['structure_2'][1][self.config.file]:
                 data = self.fs.get(oid)
                 f_data = data.read()
+                if hasattr(data, 'compress') and data.compress == 'gzip':
+                    f_data = gzip.decompress(f_data)
+
                 out_data.append(f_data.decode())
 
             # DBデータとファイルのデータに差異はないか
@@ -424,8 +432,10 @@ class TestFile(TestCase):
             self.fs = gridfs.GridFS(self.testdb)
             for filename in p.glob('file_dl*.txt'):
                 with filename.open('rb') as f:
+                    file_obj = gzip.compress(f.read(), compresslevel=6)
                     files_oid.append(
-                        self.fs.put(f.read(), filename=filename.name))
+                        self.fs.put(file_obj, filename=filename.name,
+                                    compress='gzip'))
 
             files_list_dic = dict(zip(files_oid, filename_list))
 

@@ -1,6 +1,7 @@
 import sys
 import os
 import copy
+import gzip
 from typing import Union, Tuple, Iterator, List
 from pathlib import Path
 import gridfs
@@ -41,9 +42,10 @@ class File:
 
     def add_file_reference(self, collection: str, oid: Union[ObjectId, str],
                            file_path: Tuple[Path], structure: str,
-                           query=None) -> bool:
+                           query=None, compress=False) -> bool:
         """
         ドキュメントにファイルリファレンスを追加する
+        ファイルのインサート処理、圧縮処理なども行う
 
         :param str collection:
         :param oid:
@@ -52,6 +54,7 @@ class File:
         :param str structure:
         :param query:
         :type query: list or None
+        :param bool compress: default False
         :return:
         :rtype: bool
         """
@@ -69,8 +72,16 @@ class File:
                 sys.exit('対象のドキュメントに対してクエリーが一致しません.')
 
         # ファイルのインサート
-        inserted_file_oids = [self.fs.put(file[1], filename=file[0]) for file
-                              in self.file_gen(file_path)]
+        inserted_file_oids = []
+        for file in self.file_gen(file_path):
+            file_obj = file[1]
+            metadata = {'filename': file[0]}
+
+            if compress:
+                file_obj = gzip.compress(file_obj, compresslevel=6)
+                metadata.update({'compress': 'gzip'})
+
+            inserted_file_oids.append(self.fs.put(file_obj, **metadata))
 
         if structure == 'ref':
             new_doc = self._file_list_attachment(doc, inserted_file_oids)
@@ -236,6 +247,7 @@ class File:
     def download(self, oid: ObjectId, path: Union[str, Path]) -> bool:
         """
         Gridfsからデータをダウンロードし、ファイルに保存
+        metadataに圧縮指定があれば伸長する
 
         :param ObjectId oid:
         :param path:
@@ -256,10 +268,13 @@ class File:
         if self.fs.exists(oid):
             fs_out = self.fs.get(oid)
             save_path = p / fs_out.filename
-
             try:
                 with save_path.open('wb') as f:
-                    f.write(fs_out.read())
+                    tmp = fs_out.read()
+                    if hasattr(fs_out,
+                               'compress') and fs_out.compress == 'gzip':
+                        tmp = gzip.decompress(tmp)
+                    f.write(tmp)
                     f.flush()
                     os.fsync(f.fileno())
             except IOError:
