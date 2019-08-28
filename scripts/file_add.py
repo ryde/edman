@@ -17,7 +17,8 @@ parser.add_argument('path', help='file or Dir path.')
 # クエリは structureがembの時だけ
 parser.add_argument('-q', '--query', default=None,
                     help='Ref is ObjectId or Emb is query list strings.')
-parser.add_argument('-c', '--compress', action='store_true')
+parser.add_argument('-c', '--compress', action='store_true',
+                    help='gzip compress.Default is not compressed.')
 args = parser.parse_args()
 
 # iniファイル読み込み
