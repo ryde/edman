@@ -29,7 +29,7 @@ for key, value in admin_text.items():
 
 # ユーザアカウント入力
 user_text = OrderedDict()
-user_text["MongoDB's create user DB >> "] = 'dbname'
+user_text["MongoDB's create user DB(and Authenticate DB) >> "] = 'dbname'
 user_text["MongoDB's create user name >> "] = 'name'
 user_text["MongoDB's create user password >> "] = 'pwd'
 user_account = {}
