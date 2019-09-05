@@ -50,7 +50,7 @@ class TestDB(TestCase):
                     },
                 ],
             )
-            # ユーザ側認証
+            # ユーザ側認証 このauthenticate()は非推奨なので後々変更
             cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
                                                         cls.test_ini[
                                                             'password'])
@@ -59,6 +59,7 @@ class TestDB(TestCase):
                 'host': cls.test_ini['host'],
                 'port': cls.test_ini['port'],
                 'database': cls.test_ini['db'],
+                'auth_database': cls.test_ini['db'],
                 'user': cls.test_ini['user'],
                 'password': cls.test_ini['password']
             }

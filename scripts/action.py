@@ -148,6 +148,7 @@ class Action:
         adminpwd = admin['pwd']
 
         userdb = user['dbname']
+        userauthdb = user['dbname']
         username = user['name']
         userpwd = user['pwd']
 
@@ -157,7 +158,7 @@ class Action:
         except errors.ConnectionFailure:
             sys.exit('DB server not exists.')
 
-        try:  # DB管理者認証
+        try:  # DB管理者認証 authenticate()は現在非推奨
             client[admindb].authenticate(adminname, adminpwd)
         except errors.OperationFailure:
             sys.exit('Authenticate failed.')
@@ -189,7 +190,8 @@ class Action:
             'port': port,
             'username': username,
             'userpwd': userpwd,
-            'dbname': userdb
+            'dbname': userdb,
+            'auth_dbname': userdb
         }
         Action.create_ini(ini_data, ini_dir)
 
@@ -226,6 +228,7 @@ class Action:
             '# MongoDB server host',
             'host = ' + ini_data['host'] + '\n',
             'database = ' + ini_data['dbname'],
+            'auth_database = ' + ini_data['auth_dbname'],
             'user = ' + ini_data['username'],
             'password = ' + ini_data['userpwd'] + '\n'
         ]

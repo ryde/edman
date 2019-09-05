@@ -57,6 +57,7 @@ class TestSearch(TestCase):
                 'host': cls.test_ini['host'],
                 'port': cls.test_ini['port'],
                 'database': cls.test_ini['db'],
+                'auth_database': cls.test_ini['db'],
                 'user': cls.test_ini['user'],
                 'password': cls.test_ini['password']
             }

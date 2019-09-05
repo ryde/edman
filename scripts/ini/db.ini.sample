@@ -8,15 +8,6 @@ port = 27017
 host = 127.0.0.1
 
 database = database_name
+auth_database = authenticate_database_name
 user = user_name
 password = user_password
-
-[ADMIN]
-# DB Admin settings
-user = admin
-password = admin
-database = admin
-
-[COLLECTION]
-# Collection name in MongoDB of 'file' section in XML
-file = _file

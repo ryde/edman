@@ -49,17 +49,26 @@ class DB:
         host = kwargs['host']
         port = kwargs['port']
         database = kwargs['database']
+        auth_database = kwargs['auth_database']
         user = kwargs['user']
         password = kwargs['password']
-        statement = f'mongodb://{user}:{password}@{host}:{port}/{database}'
+        statement = f'mongodb://{user}:{password}@{host}:{port}/{auth_database}'
         client = MongoClient(statement)
 
         try:  # サーバの接続確認
             client.admin.command('ismaster')
+        except errors.OperationFailure:
+            sys.exit('Invalid account.')
         except errors.ConnectionFailure:
             sys.exit('Server not available.')
 
         edman_db = client[database]
+
+        try:  # 現状、認証を確認する方法がないため、これで代用
+            edman_db.list_collection_names()
+        except errors.OperationFailure:
+            sys.exit('Authentication failed.')
+
         return edman_db
 
     def insert(self, insert_data: list) -> list:

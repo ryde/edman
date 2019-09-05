@@ -33,7 +33,7 @@ Modules Usage
     converted_edman = convert.dict_to_edman(json_dict)
 
     # insert
-    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'auth_database':'auth_database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
     db = DB(con)
     result = db.insert(converted_edman)
 
@@ -44,7 +44,7 @@ Modules Usage
     from path import Path
     from edman import DB, JsonManager, Search
 
-    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'auth_database':'auth_database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
     db = DB(con)
     search = Search(db)
     collection = 'target_collection'
@@ -77,7 +77,7 @@ Modules Usage
     # Same key will be modified, new key will be added
     # modified_data = {'key': 'modified value', 'new_key': 'value'}
 
-    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'auth_database':'auth_database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
     db = DB(con)
     result = db.update(collection, objectid, modified_data, structure='ref')
 
@@ -87,7 +87,7 @@ Modules Usage
 
     from edman import DB
 
-    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'auth_database':'auth_database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
     db = DB(con)
     result = db.delete(objectid, collection, structure='ref')
 
@@ -148,6 +148,9 @@ Scripts Usage
 |  file_delete.py: 添付ファイルを削除 embの時クエリ2を使用します
 |  db_create.py: データベース及びユーザ作成操作支援用(MongoDBの管理者アカウントが必要)
 |  db_destroy.py: データベース削除操作支援用(ユーザ削除はソース書き換えが必要)
+|  structure_convert.py: DB内のembをrefへ変換、またはその逆を行います
+|  pullout.py: コレクション内のembのキーを指定し、そのキーを含む階層を全てrefに変換します
+|  action.py: 上記の操作スクリプト用のモジュール
 |
 オプションなど詳しくは::
 

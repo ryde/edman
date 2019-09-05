@@ -179,7 +179,8 @@ class TestAction(TestCase):
             'port': 27017,
             'username': 'username',
             'userpwd': 'userpwd',
-            'dbname': 'userdb'
+            'dbname': 'userdb',
+            'auth_dbname': 'userdb'
         }
         with tempfile.TemporaryDirectory() as tmp_dir:
             p = Path(tmp_dir)
@@ -199,6 +200,7 @@ class TestAction(TestCase):
                 'port': '27017',
                 'host': '127.0.0.1',
                 'database': 'userdb',
+                'auth_database': 'userdb',
                 'user': 'username',
                 'password': 'userpwd'}
 
