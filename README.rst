@@ -148,6 +148,9 @@ Scripts Usage
 |  file_delete.py: 添付ファイルを削除 embの時クエリ2を使用します
 |  db_create.py: データベース及びユーザ作成操作支援用(MongoDBの管理者アカウントが必要)
 |  db_destroy.py: データベース削除操作支援用(ユーザ削除はソース書き換えが必要)
+|  structure_convert.py: DB内のembをrefへ変換、またはその逆を行います
+|  pullout.py: コレクション内のembのキーを指定し、そのキーを含む階層を全てrefに変換します
+|  action.py: 上記の操作スクリプト用のモジュール
 |
 オプションなど詳しくは::
 
