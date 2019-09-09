@@ -59,7 +59,7 @@ jobs:
             source ~/venv/bin/activate
             sphinx-apidoc -f -o ./ ~/edman_test/edman/
             make html
-          working_directory: ~edman_test/docs
+          working_directory: ~/edman_test/docs
 
       - store_artifacts:
           path: ~/test-reports
