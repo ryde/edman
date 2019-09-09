@@ -40,6 +40,7 @@ jobs:
             python --version
             pip install -U pip
             pip install -U setuptools
+            pip install sphinx
             pip install pytest
             pip install ~/edman_test/
           working_directory: ~/
@@ -52,9 +53,22 @@ jobs:
             pytest --junitxml=~/test-reports/junit.xml
           working_directory: ~/edman_test/tests
 
+      - run:
+          name: docs
+          command: |
+            source ~/venv/bin/activate
+            mkdir ~/docs
+            sphinx-apidoc -f -o ./ ~/edman_test/edman/
+            make html
+            cp -r _build/html ~/docs/
+          working_directory: ~/edman_test/docs
+
       - store_artifacts:
           path: ~/test-reports
           destination: ~/test-reports
+
+      - store_artifacts:
+          path: ~/docs/html
 
       # - save_cache:
           # paths:
