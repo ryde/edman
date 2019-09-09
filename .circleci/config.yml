@@ -57,8 +57,10 @@ jobs:
           name: docs
           command: |
             source ~/venv/bin/activate
+            mkdir ~/docs
             sphinx-apidoc -f -o ./ ~/edman_test/edman/
             make html
+            cp -r html ~/docs/
           working_directory: ~/edman_test/docs
 
       - store_artifacts:
