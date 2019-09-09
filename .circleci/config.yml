@@ -60,7 +60,7 @@ jobs:
             mkdir ~/docs
             sphinx-apidoc -f -o ./ ~/edman_test/edman/
             make html
-            cp -r html ~/docs/
+            cp -r _build/html ~/docs/
           working_directory: ~/edman_test/docs
 
       - store_artifacts:
@@ -68,7 +68,7 @@ jobs:
           destination: ~/test-reports
 
       - store_artifacts:
-          path: ~/docs/_build/html
+          path: ~/docs/html
 
       # - save_cache:
           # paths:
