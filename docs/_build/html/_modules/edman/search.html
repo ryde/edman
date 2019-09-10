@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>edman.search &#8212; edman  ドキュメント</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>edman.search のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">bson</span> <span class="k">import</span> <span class="n">errors</span><span class="p">,</span> <span class="n">ObjectId</span>
+<span class="kn">from</span> <span class="nn">edman.utils</span> <span class="k">import</span> <span class="n">Utils</span>
+<span class="kn">from</span> <span class="nn">edman</span> <span class="k">import</span> <span class="n">Config</span>
+
+
+<div class="viewcode-block" id="Search"><a class="viewcode-back" href="../../edman.html#edman.search.Search">[ドキュメント]</a><span class="k">class</span> <span class="nc">Search</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    検索関連クラス</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>  <span class="c1"># システム環境用の設定を読み込む</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">child</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">date</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
+
+        <span class="k">if</span> <span class="n">db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connected_db</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_db</span>
+
+<div class="viewcode-block" id="Search.find"><a class="viewcode-back" href="../../edman.html#edman.search.Search.find">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">parent_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+             <span class="n">child_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        検索用メソッド</span>
+
+<span class="sd">        :param str collection: 対象コレクション</span>
+<span class="sd">        :param dict query: 検索クエリ</span>
+<span class="sd">        :param int parent_depth: 親の指定深度</span>
+<span class="sd">        :param int child_depth: 子の指定深度</span>
+<span class="sd">        :return: result 親 + 自分 + 子の階層構造となった辞書データ</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">coll_filter</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$regex&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^(?!system\.)&quot;</span><span class="p">}}</span>
+        <span class="k">if</span> <span class="n">collection</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected_db</span><span class="o">.</span><span class="n">list_collection_names</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">coll_filter</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;コレクションが存在しません&#39;</span><span class="p">)</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objectid_replacement</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">self_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_self</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">collection</span><span class="p">)</span>
+        <span class="n">reference_point_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_reference_point</span><span class="p">(</span><span class="n">self_result</span><span class="p">[</span><span class="n">collection</span><span class="p">])</span>
+
+        <span class="n">parent_result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">reference_point_result</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">]:</span>
+            <span class="n">parent_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_parent</span><span class="p">(</span><span class="n">self_result</span><span class="p">,</span> <span class="n">parent_depth</span><span class="p">)</span>
+
+        <span class="n">children_result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">reference_point_result</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">]:</span>
+            <span class="n">children_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_child</span><span class="p">(</span><span class="n">self_result</span><span class="p">,</span> <span class="n">child_depth</span><span class="p">)</span>
+
+        <span class="c1"># 親も子も存在しない時はselfのみ</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">self_result</span>
+
+        <span class="c1"># 子データが存在する時だけselfとマージ</span>
+        <span class="k">if</span> <span class="n">children_result</span><span class="p">:</span>
+            <span class="n">self_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">self_result</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">self_result</span><span class="p">[</span><span class="n">self_key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">children_result</span><span class="p">)</span>
+
+        <span class="c1"># 親データが存在する時だけselfとマージ</span>
+        <span class="k">if</span> <span class="n">parent_result</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_parent</span><span class="p">(</span><span class="n">parent_result</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+        <span class="c1"># JSONデータ用に変換</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_data_derived_from_mongodb</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="k">def</span> <span class="nf">_merge_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">self_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        親データに家族データをマージする</span>
+
+<span class="sd">        :param dict parent_result:マージ前の親データ</span>
+<span class="sd">        :param dict self_result:マージ済み家族データ</span>
+<span class="sd">        :return: parent_result 親と自分と子をマージしたデータ</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            親データ内で一番深いドキュメントに家族データを挿入する</span>
+
+<span class="sd">            :param dict data:</span>
+<span class="sd">            :return:</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># 親が複数存在することはありえないので辞書のみで可</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="s1">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">parent_id</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;_id&#39;</span><span class="p">]:</span>
+                            <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">self_result</span><span class="p">)</span>
+                    <span class="n">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+        <span class="n">self_doc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">self_result</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">parent_id</span> <span class="o">=</span> <span class="n">self_doc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">recursive</span><span class="p">(</span><span class="n">parent_result</span><span class="p">)</span>  <span class="c1"># parent_resultにself_resultを入れる</span>
+        <span class="k">return</span> <span class="n">parent_result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_objectid_replacement</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ObjectIdのチェックと変換</span>
+
+<span class="sd">        :param dict query:</span>
+<span class="sd">        :return: query</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">query</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">query</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">query</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">InvalidId</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;ObjectIdが正しくありません&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span>
+
+    <span class="k">def</span> <span class="nf">_get_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        自分自身のドキュメント取得</span>
+
+<span class="sd">        :param dict query:</span>
+<span class="sd">        :param str collection:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connected_db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;ドキュメントが見つかりませんでした&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># 複数ドキュメントの場合は選択処理へ</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_self_data_select</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">collection</span><span class="p">:</span> <span class="n">doc</span><span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_self_data_select</span><span class="p">(</span><span class="n">docs</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ドキュメント選択</span>
+
+<span class="sd">        :param list docs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;この条件は複数のドキュメントが存在します&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">doc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">docs</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="s1">&#39; : &#39;</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span>
+
+        <span class="c1"># ユーザからのドキュメント選択</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">doc_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;選択してください [0-{len(docs) - 1}] &gt;&gt;&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">doc_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Out of range.&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">docs</span><span class="p">[</span><span class="n">doc_idx</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">self_doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        | 親となるドキュメントを取得</span>
+<span class="sd">        | depthで深度を設定し、階層分取得する</span>
+
+<span class="sd">        :param dict self_doc:</span>
+<span class="sd">        :param int depth:</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: dict or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">recursive</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            再帰でドキュメントを取得</span>
+<span class="sd">            DBReferenceを利用し、設定されている深度を減らしながら再帰</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected_db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">])</span>
+                <span class="n">parent_collection</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">collection</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">parent_collection</span><span class="p">:</span> <span class="n">parent</span><span class="p">})</span>
+                <span class="k">nonlocal</span> <span class="n">depth</span>
+                <span class="n">depth</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">recursive</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># recによって書き換えられる</span>
+            <span class="n">recursive</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">self_doc</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_to_doc_parent</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_to_doc_parent</span><span class="p">(</span><span class="n">parent_data_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        | 親の検索結果（リスト）を入れ子辞書に組み立てる</span>
+<span class="sd">        |</span>
+<span class="sd">        | 入力値であるparent_data_listについて、</span>
+<span class="sd">        | parentに近い方から順番に並んでいる(一番最後がrootまたはrootに近い方)</span>
+
+<span class="sd">        :param list parent_data_list:</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">read_data</span> <span class="ow">in</span> <span class="n">parent_data_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">buff</span> <span class="o">=</span> <span class="n">read_data</span>
+                <span class="n">collection</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">buff</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">buff</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="n">collection</span><span class="p">:</span> <span class="n">doc</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">read_data</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_process_data_derived_from_mongodb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        MongoDB依存の項目を処理する::</span>
+<span class="sd">          _idとrefの削除</span>
+<span class="sd">          型をJSONに合わせる</span>
+
+<span class="sd">        :param dict result_dict:</span>
+<span class="sd">        :return: result_dict</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">refs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_id&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="c1"># idとrefの削除</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">recursive</span><span class="p">(</span><span class="n">Utils</span><span class="o">.</span><span class="n">reference_item_delete</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">refs</span><span class="p">))</span>
+                <span class="c1"># リストデータは中身を型変換する</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_literal_check</span><span class="p">(</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_datetime</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                        <span class="n">recursive</span><span class="p">(</span><span class="n">Utils</span><span class="o">.</span><span class="n">reference_item_delete</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">refs</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>  <span class="c1"># 型変換</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_datetime</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="n">recursive</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_dict</span>
+
+    <span class="k">def</span> <span class="nf">_format_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span>
+                         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        datetime型なら書式変更して辞書に入れる</span>
+<span class="sd">        その場合は辞書を返し、それ以外の時は入ってきた値をそのまま返す</span>
+
+<span class="sd">        :param item:</span>
+<span class="sd">        :type item: str or int or float or bool or datetime</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: dict or str or int or float or bool or datetime</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># datetimeそのままだと%Y-%m-%dと%H:%M:%Sの間に&quot;T&quot;が入るため書式変更</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">edman</a></h1>
+
+
+
+
+
+
+
+
+<h3>ナビゲーション</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../edman.html">edman package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">モジュールコード</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, KEK IMSS SBRC/PF Yusuke yamada.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

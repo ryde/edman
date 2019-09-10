@@ -1,0 +1,978 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>edman package &#8212; edman  ドキュメント</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="Welcome to edman&#39;s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="edman-package">
+<h1>edman package<a class="headerlink" href="#edman-package" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</div>
+<div class="section" id="module-edman.config">
+<span id="edman-config-module"></span><h2>edman.config module<a class="headerlink" href="#module-edman.config" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="edman.config.Config">
+<em class="property">class </em><code class="sig-prename descclassname">edman.config.</code><code class="sig-name descname">Config</code><a class="reference internal" href="_modules/edman/config.html#Config"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.config.Config" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>このパッケージを利用したシステム上での共通の定義</p>
+<p><strong>デフォルトのままをおすすめする</strong></p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">定義を変更した場合、このパッケージを利用している他のシステムと、データ交換ができなくなる</div>
+<div class="line">DBにデータが入っている状態で、この定義を変更した場合、データが破壊される可能性が高い</div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">それでも変更したい場合は、単一、もしくは同じシステム内で定義を統一すること</div>
+<div class="line">その場合、他のシステムとデータ交換したくなった場合は独自に変換スクリプトを作成すること</div>
+</div>
+<dl class="attribute">
+<dt id="edman.config.Config.child">
+<code class="sig-name descname">child</code><em class="property"> = '_ed_child'</em><a class="headerlink" href="#edman.config.Config.child" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="edman.config.Config.date">
+<code class="sig-name descname">date</code><em class="property"> = '#date'</em><a class="headerlink" href="#edman.config.Config.date" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="edman.config.Config.file">
+<code class="sig-name descname">file</code><em class="property"> = '_ed_file'</em><a class="headerlink" href="#edman.config.Config.file" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="edman.config.Config.parent">
+<code class="sig-name descname">parent</code><em class="property"> = '_ed_parent'</em><a class="headerlink" href="#edman.config.Config.parent" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-edman.convert">
+<span id="edman-convert-module"></span><h2>edman.convert module<a class="headerlink" href="#module-edman.convert" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="edman.convert.Convert">
+<em class="property">class </em><code class="sig-prename descclassname">edman.convert.</code><code class="sig-name descname">Convert</code><a class="reference internal" href="_modules/edman/convert.html#Convert"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.convert.Convert" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>研究データをEdman用にコンバートするクラス</p>
+<dl class="method">
+<dt id="edman.convert.Convert.dict_to_edman">
+<code class="sig-name descname">dict_to_edman</code><span class="sig-paren">(</span><em class="sig-param">raw_data: dict</em>, <em class="sig-param">mode='ref'</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/edman/convert.html#Convert.dict_to_edman"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.convert.Convert.dict_to_edman" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">json辞書からedman用に変換する</div>
+<div class="line">embはobjectIdを付与したり、辞書からリストに変換している</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_data</strong> (<em>dict</em>) -- JSONを辞書にしたデータ</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) -- ref(reference) or emb(embedded) データ構造の選択肢</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>インサート用のリストデータ</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.convert.Convert.emb">
+<code class="sig-name descname">emb</code><span class="sig-paren">(</span><em class="sig-param">raw_data: dict</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/convert.html#Convert.emb"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.convert.Convert.emb" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">エンベデッドモードでedman用の変換を行う</div>
+<div class="line">主に日付の変換</div>
+<div class="line">update処理でも使用している</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>raw_data</strong> (<em>dict</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.convert.Convert.exclusion_key">
+<em class="property">static </em><code class="sig-name descname">exclusion_key</code><span class="sig-paren">(</span><em class="sig-param">data: dict</em>, <em class="sig-param">ex_keys: tuple</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/convert.html#Convert.exclusion_key"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.convert.Convert.exclusion_key" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定のキーの要素を除外する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) -- </p></li>
+<li><p><strong>ex_keys</strong> (<em>tuple</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.convert.Convert.pullout_key">
+<em class="property">static </em><code class="sig-name descname">pullout_key</code><span class="sig-paren">(</span><em class="sig-param">data: dict</em>, <em class="sig-param">pull_key: str</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/convert.html#Convert.pullout_key"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.convert.Convert.pullout_key" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最初に発見した指定のキーの要素を、子要素を含めて抜き出す</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) -- </p></li>
+<li><p><strong>pull_key</strong> (<em>str</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>output</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-edman.db">
+<span id="edman-db-module"></span><h2>edman.db module<a class="headerlink" href="#module-edman.db" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="edman.db.DB">
+<em class="property">class </em><code class="sig-prename descclassname">edman.db.</code><code class="sig-name descname">DB</code><span class="sig-paren">(</span><em class="sig-param">con=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/db.html#DB"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<div class="line-block">
+<div class="line">DB関連クラス</div>
+<div class="line">MongoDBへの接続や各種チェック、インサート、作成や破棄など</div>
+</div>
+<dl class="method">
+<dt id="edman.db.DB.delete">
+<code class="sig-name descname">delete</code><span class="sig-paren">(</span><em class="sig-param">oid: Union[str, bson.objectid.ObjectId], collection: str, structure: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/db.html#DB.delete"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.delete" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">ドキュメントを削除する</div>
+<div class="line">指定のoidを含む下位のドキュメントを全削除</div>
+<div class="line">refで親が存在する時は親のchildリストから指定のoidを取り除く</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oid</strong> (<em>str</em><em> or </em><em>ObjectId</em>) -- </p></li>
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.delete_reference">
+<em class="property">static </em><code class="sig-name descname">delete_reference</code><span class="sig-paren">(</span><em class="sig-param">emb_data: dict</em>, <em class="sig-param">reference: tuple</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/db.html#DB.delete_reference"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.delete_reference" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ドキュメント内の特定の項目(リファレンスも)を削除する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>emb_data</strong> (<em>dict</em>) -- </p></li>
+<li><p><strong>reference</strong> (<em>tuple</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.doc">
+<code class="sig-name descname">doc</code><span class="sig-paren">(</span><em class="sig-param">collection: str, oid: Union[bson.objectid.ObjectId, str], query: Optional[list], reference_delete=True</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/db.html#DB.doc"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.doc" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">refもしくはembのドキュメントを取得する</div>
+<div class="line">オプションでedman特有のデータ含んで取得することもできる</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em><em> or </em><em>str</em>) -- </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) -- </p></li>
+<li><p><strong>reference_delete</strong> (<em>bool</em>) -- default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.find_collection_from_objectid">
+<code class="sig-name descname">find_collection_from_objectid</code><span class="sig-paren">(</span><em class="sig-param">oid: Union[str, bson.objectid.ObjectId]</em><span class="sig-paren">)</span> &#x2192; Optional[str]<a class="reference internal" href="_modules/edman/db.html#DB.find_collection_from_objectid"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.find_collection_from_objectid" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">DB内のコレクションから指定のObjectIDを探し、所属しているコレクションを返す</div>
+<div class="line">DBに負荷がかかるので使用は注意が必要</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>oid</strong> (<em>ObjectId</em><em> or </em><em>str</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>collection</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.get_child">
+<code class="sig-name descname">get_child</code><span class="sig-paren">(</span><em class="sig-param">self_doc: dict</em>, <em class="sig-param">depth: int</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/db.html#DB.get_child"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.get_child" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">子のドキュメントを取得</div>
+<div class="line"><br /></div>
+<div class="line">depthで深度を設定し、階層分取得する</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self_doc</strong> (<em>dict</em>) -- </p></li>
+<li><p><strong>depth</strong> (<em>int</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.get_child_all">
+<code class="sig-name descname">get_child_all</code><span class="sig-paren">(</span><em class="sig-param">self_doc: dict</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/db.html#DB.get_child_all"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.get_child_all" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>子のドキュメントを再帰で全部取得</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>self_doc</strong> (<em>dict</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.get_db">
+<em class="property">property </em><code class="sig-name descname">get_db</code><a class="headerlink" href="#edman.db.DB.get_db" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>プロパティ</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>DB接続インスタンス(self.db)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.get_reference_point">
+<code class="sig-name descname">get_reference_point</code><span class="sig-paren">(</span><em class="sig-param">self_result: dict</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/db.html#DB.get_reference_point"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.get_reference_point" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">ドキュメントに親や子のリファレンス項目名が含まれているか調べる</div>
+<div class="line"><br /></div>
+<div class="line">片方しかない場合は末端(親、または一番下の子)となる</div>
+<div class="line">両方含まれていればこのドキュメントには親と子が存在する</div>
+<div class="line">両方含まれていなければ、単独のドキュメント</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>self_result</strong> (<em>dict</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.get_structure">
+<code class="sig-name descname">get_structure</code><span class="sig-paren">(</span><em class="sig-param">collection: str</em>, <em class="sig-param">oid: bson.objectid.ObjectId</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/edman/db.html#DB.get_structure"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.get_structure" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>対象のドキュメントの構造を取得する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>ref or emb</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.insert">
+<code class="sig-name descname">insert</code><span class="sig-paren">(</span><em class="sig-param">insert_data: list</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/edman/db.html#DB.insert"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.insert" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>インサート実行</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>insert_data</strong> (<em>list</em>) -- バルクインサート対応のリストデータ</p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>results</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.item_delete">
+<code class="sig-name descname">item_delete</code><span class="sig-paren">(</span><em class="sig-param">collection: str, oid: Union[bson.objectid.ObjectId, str], delete_key: str, query: Optional[list]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/db.html#DB.item_delete"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.item_delete" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ドキュメントの項目を削除する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>oid</strong> (<em>str</em><em> or </em><em>ObjectId</em>) -- </p></li>
+<li><p><strong>delete_key</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.loop_exclusion_key_and_ref">
+<code class="sig-name descname">loop_exclusion_key_and_ref</code><span class="sig-paren">(</span><em class="sig-param">collection: str</em>, <em class="sig-param">key: str</em>, <em class="sig-param">exclusion: tuple</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/db.html#DB.loop_exclusion_key_and_ref"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.loop_exclusion_key_and_ref" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>対象のコレクション内のドキュメントを全て、指定のキーの要素を抜き出してrefに変換してDBに入れる
+また、取り出したデータ内の指定の要素を除外することもできる</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- 変換対象のコレクション</p></li>
+<li><p><strong>key</strong> (<em>str</em>) -- refに変換開始する対象のキー</p></li>
+<li><p><strong>exclusion</strong> (<em>tuple</em>) -- 除外するキーの設定</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.structure">
+<code class="sig-name descname">structure</code><span class="sig-paren">(</span><em class="sig-param">collection: str</em>, <em class="sig-param">oid: bson.objectid.ObjectId</em>, <em class="sig-param">structure_mode: str</em>, <em class="sig-param">new_collection: str</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/edman/db.html#DB.structure"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.structure" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>構造をrefからembへ、またはembからrefへ変更する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em>) -- </p></li>
+<li><p><strong>structure_mode</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>new_collection</strong> (<em>str</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>structured_result</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.db.DB.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">collection: str, oid: Union[str, bson.objectid.ObjectId], amend_data: dict, structure: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/db.html#DB.update"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.db.DB.update" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>修正データを用いてDBデータをアップデート</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>oid</strong> (<em>str</em><em> or </em><em>ObjectId</em>) -- </p></li>
+<li><p><strong>amend_data</strong> (<em>dict</em>) -- </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-edman.file">
+<span id="edman-file-module"></span><h2>edman.file module<a class="headerlink" href="#module-edman.file" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="edman.file.File">
+<em class="property">class </em><code class="sig-prename descclassname">edman.file.</code><code class="sig-name descname">File</code><span class="sig-paren">(</span><em class="sig-param">db=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/file.html#File"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.file.File" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ファイル取扱クラス</p>
+<dl class="method">
+<dt id="edman.file.File.add_file_reference">
+<code class="sig-name descname">add_file_reference</code><span class="sig-paren">(</span><em class="sig-param">collection: str, oid: Union[bson.objectid.ObjectId, str], file_path: Tuple[pathlib.Path], structure: str, query=None, compress=False</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/file.html#File.add_file_reference"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.file.File.add_file_reference" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ドキュメントにファイルリファレンスを追加する
+ファイルのインサート処理、圧縮処理なども行う</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em><em> or </em><em>str</em>) -- </p></li>
+<li><p><strong>file_path</strong> (<em>tuple</em>) -- </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) -- </p></li>
+<li><p><strong>compress</strong> (<em>bool</em>) -- default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.file.File.delete">
+<code class="sig-name descname">delete</code><span class="sig-paren">(</span><em class="sig-param">delete_oid: bson.objectid.ObjectId, collection: str, oid: Union[bson.objectid.ObjectId, str], structure: str, query=None</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/file.html#File.delete"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.file.File.delete" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>該当のoidをファイルリファレンスから削除し、GridFSからファイルを削除</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delete_oid</strong> (<em>ObjectId</em>) -- </p></li>
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>oid</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.file.File.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">oid: bson.objectid.ObjectId, path: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/file.html#File.download"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.file.File.download" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Gridfsからデータをダウンロードし、ファイルに保存
+metadataに圧縮指定があれば伸長する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oid</strong> (<em>ObjectId</em>) -- </p></li>
+<li><p><strong>path</strong> (<em>str</em><em> or </em><em>Path</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.file.File.file_gen">
+<em class="property">static </em><code class="sig-name descname">file_gen</code><span class="sig-paren">(</span><em class="sig-param">files: Tuple[pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; Iterator<a class="reference internal" href="_modules/edman/file.html#File.file_gen"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.file.File.file_gen" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルタプルからファイルを取り出すジェネレータ</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>files</strong> (<em>tuple</em>) -- 中身はPathオブジェクト</p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>ファイル名と内容(str)のタプル</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.file.File.fs_delete">
+<code class="sig-name descname">fs_delete</code><span class="sig-paren">(</span><em class="sig-param">oids: list</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/edman/file.html#File.fs_delete"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.file.File.fs_delete" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>fsからファイル削除</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>oids</strong> (<em>list</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.file.File.get_file_names">
+<code class="sig-name descname">get_file_names</code><span class="sig-paren">(</span><em class="sig-param">collection: str, oid: Union[bson.objectid.ObjectId, str], structure: str, query: Optional[list]</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/file.html#File.get_file_names"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.file.File.get_file_names" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル一覧を取得</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>oid</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) -- embの時だけ必要. refの時はNone</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.file.File.get_file_ref">
+<code class="sig-name descname">get_file_ref</code><span class="sig-paren">(</span><em class="sig-param">doc: dict</em>, <em class="sig-param">structure: str</em>, <em class="sig-param">query=None</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/edman/file.html#File.get_file_ref"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.file.File.get_file_ref" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルリファレンス情報を取得</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>dict</em>) -- </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) -- </p></li>
+<li><p><strong>query</strong> -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>list or None</p>
+</dd>
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>files_list</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-edman.json_manager">
+<span id="edman-json-manager-module"></span><h2>edman.json_manager module<a class="headerlink" href="#module-edman.json_manager" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="edman.json_manager.JsonManager">
+<em class="property">class </em><code class="sig-prename descclassname">edman.json_manager.</code><code class="sig-name descname">JsonManager</code><a class="reference internal" href="_modules/edman/json_manager.html#JsonManager"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.json_manager.JsonManager" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>JSONファイルの取扱いクラス</p>
+<dl class="method">
+<dt id="edman.json_manager.JsonManager.save">
+<em class="property">static </em><code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">report_data: dict, path: Union[str, pathlib.Path], name: str, date=False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/edman/json_manager.html#JsonManager.save"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.json_manager.JsonManager.save" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>JSONファイルに書き出し</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>report_data</strong> (<em>dict</em>) -- 対象の辞書データ</p></li>
+<li><p><strong>path</strong> (<em>str</em><em> or </em><em>Path</em>) -- ファイルパス</p></li>
+<li><p><strong>name</strong> (<em>str</em>) -- ファイル名</p></li>
+<li><p><strong>date</strong> (<em>bool</em>) -- 日付 ファイル名先頭に追加</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-edman.search">
+<span id="edman-search-module"></span><h2>edman.search module<a class="headerlink" href="#module-edman.search" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="edman.search.Search">
+<em class="property">class </em><code class="sig-prename descclassname">edman.search.</code><code class="sig-name descname">Search</code><span class="sig-paren">(</span><em class="sig-param">db=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/search.html#Search"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.search.Search" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>検索関連クラス</p>
+<dl class="method">
+<dt id="edman.search.Search.find">
+<code class="sig-name descname">find</code><span class="sig-paren">(</span><em class="sig-param">collection: str</em>, <em class="sig-param">query: dict</em>, <em class="sig-param">parent_depth: int</em>, <em class="sig-param">child_depth: int</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/search.html#Search.find"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.search.Search.find" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>検索用メソッド</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) -- 対象コレクション</p></li>
+<li><p><strong>query</strong> (<em>dict</em>) -- 検索クエリ</p></li>
+<li><p><strong>parent_depth</strong> (<em>int</em>) -- 親の指定深度</p></li>
+<li><p><strong>child_depth</strong> (<em>int</em>) -- 子の指定深度</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>result 親 + 自分 + 子の階層構造となった辞書データ</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-edman.utils">
+<span id="edman-utils-module"></span><h2>edman.utils module<a class="headerlink" href="#module-edman.utils" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="edman.utils.Utils">
+<em class="property">class </em><code class="sig-prename descclassname">edman.utils.</code><code class="sig-name descname">Utils</code><a class="reference internal" href="_modules/edman/utils.html#Utils"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<div class="line-block">
+<div class="line">各クラス共通の静的メソッド</div>
+<div class="line">インスタンス化禁止</div>
+</div>
+<dl class="method">
+<dt id="edman.utils.Utils.child_combine">
+<em class="property">static </em><code class="sig-name descname">child_combine</code><span class="sig-paren">(</span><em class="sig-param">rec_result: list</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/utils.html#Utils.child_combine"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils.child_combine" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">同じコレクションのデータをリストでまとめるジェネレータ</div>
+<div class="line"><br /></div>
+<div class="line">コレクション:ドキュメントのリストを作成</div>
+<div class="line">{collection:[{key:value},{key:value}...]}</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>rec_result</strong> (<em>list</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.utils.Utils.collection_name_check">
+<em class="property">static </em><code class="sig-name descname">collection_name_check</code><span class="sig-paren">(</span><em class="sig-param">collection_name: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/utils.html#Utils.collection_name_check"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils.collection_name_check" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">MongoDBの命名規則チェック(コレクション名)
+| # $ None(null) '' system.</div>
+<div class="line">最初がアンスコか文字</div>
+<div class="line">mongoの制約の他に頭文字に#もNG</div>
+<div class="line"><br /></div>
+<div class="line">コレクション名空間の最大長は、データベース名、ドット（.）区切り文字</div>
+<div class="line">およびコレクション名（つまり &lt;database&gt;.&lt;collection&gt;）を合わせて</div>
+<div class="line">120バイトを超えないこと</div>
+<div class="line">ただし、子のメソッド利用時はDB名を取得するタイミングではないため、</div>
+<div class="line">文字数のチェックは行えないことを留意すること</div>
+<div class="line"><br /></div>
+<div class="line"><a class="reference external" href="https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names">https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names</a></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>collection_name</strong> (<em>str</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.utils.Utils.conv_objectid">
+<em class="property">static </em><code class="sig-name descname">conv_objectid</code><span class="sig-paren">(</span><em class="sig-param">oid: Union[str, bson.objectid.ObjectId]</em><span class="sig-paren">)</span> &#x2192; bson.objectid.ObjectId<a class="reference internal" href="_modules/edman/utils.html#Utils.conv_objectid"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils.conv_objectid" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">文字列だった場合ObjectIdを変換する</div>
+<div class="line">元々ObjectIdならそのまま</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>oid</strong> (<em>ObjectId</em><em> or </em><em>str</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>ObjectId</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.utils.Utils.doc_traverse">
+<em class="property">static </em><code class="sig-name descname">doc_traverse</code><span class="sig-paren">(</span><em class="sig-param">doc: dict</em>, <em class="sig-param">target_keys: list</em>, <em class="sig-param">query: list</em>, <em class="sig-param">f: Callable</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/utils.html#Utils.doc_traverse"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils.doc_traverse" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">ドキュメントを走査し、クエリで指定した階層に指定の関数オブジェクトを適応</div>
+<div class="line">関数適応後のドキュメントを返す</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>dict</em>) -- </p></li>
+<li><p><strong>target_keys</strong> (<em>list</em>) -- コールバック関数の適応対象の辞書のキーのリスト</p></li>
+<li><p><strong>query</strong> (<em>list</em>) -- </p></li>
+<li><p><strong>f</strong> (<em>Callable</em>) -- コールバック関数</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>doc</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.utils.Utils.item_literal_check">
+<em class="property">static </em><code class="sig-name descname">item_literal_check</code><span class="sig-paren">(</span><em class="sig-param">list_child: Union[dict, list]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/utils.html#Utils.item_literal_check"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils.item_literal_check" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">リストデータ内にリテラルやオブジェクトのデータだけあればTrue</div>
+<div class="line">それ以外はFalse</div>
+<div class="line"><br /></div>
+<div class="line">OKパターン</div>
+<div class="line">list_child = [1,2,3]</div>
+<div class="line">list_child = [1,2,objectId()]</div>
+<div class="line"><br /></div>
+<div class="line">NGパターン</div>
+<div class="line">list_child = {'A':'B'}</div>
+<div class="line">list_child = ['A':[1,2,3]]</div>
+<div class="line">list_child = [1,2,{'A':'B'}]</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>list_child</strong> (<em>dict</em><em> or </em><em>list</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.utils.Utils.query_check">
+<em class="property">static </em><code class="sig-name descname">query_check</code><span class="sig-paren">(</span><em class="sig-param">query: list</em>, <em class="sig-param">doc: dict</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/edman/utils.html#Utils.query_check"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils.query_check" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>クエリーが正しいか評価</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>list</em>) -- </p></li>
+<li><p><strong>doc</strong> (<em>dict</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.utils.Utils.reference_item_delete">
+<em class="property">static </em><code class="sig-name descname">reference_item_delete</code><span class="sig-paren">(</span><em class="sig-param">doc: dict</em>, <em class="sig-param">del_keys: tuple</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/edman/utils.html#Utils.reference_item_delete"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils.reference_item_delete" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>_id、親と子のリファレンス、ファイルリファレンスなどを削除</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>dict</em>) -- </p></li>
+<li><p><strong>del_keys</strong> (<em>tuple</em>) -- </p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p>item</p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="edman.utils.Utils.to_datetime">
+<em class="property">static </em><code class="sig-name descname">to_datetime</code><span class="sig-paren">(</span><em class="sig-param">s: str</em><span class="sig-paren">)</span> &#x2192; Union[datetime.datetime, str]<a class="reference internal" href="_modules/edman/utils.html#Utils.to_datetime"><span class="viewcode-link">[ソース]</span></a><a class="headerlink" href="#edman.utils.Utils.to_datetime" title="この定義へのパーマリンク">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">日付もしくは日付時間をdatetimeオブジェクトに変換</div>
+<div class="line">日付や日付時間にならないものは文字列に変換</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ</dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) -- </p>
+</dd>
+<dt class="field-even">戻り値</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">戻り値の型</dt>
+<dd class="field-odd"><p>datetime or str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-edman">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-edman" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">edman</a></h1>
+
+
+
+
+
+
+
+
+<h3>ナビゲーション</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">edman package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.config">edman.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.convert">edman.convert module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.db">edman.db module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.file">edman.file module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.json_manager">edman.json_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.search">edman.search module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.utils">edman.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="前の章へ">Welcome to edman's documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, KEK IMSS SBRC/PF Yusuke yamada.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/edman.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
