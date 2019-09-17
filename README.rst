@@ -131,6 +131,10 @@ Json Format
 | 使用できる型はjsonに準拠。整数、浮動小数点数、ブール値、null型、配列も使用可。
 |     https://dateutil.readthedocs.io/en/stable/parser.html#module-dateutil.parser
 | jsonのオブジェクト型はEdmanでは階層構造として認識されます。
+|
+| MongoDBの1つのドキュメントの容量上限は16MBですが、
+|     emb形式の場合はObjectId及びファイル追加ごとのリファレンスデータを含むため、16MBより少なくなります。
+|     ref形式の場合は1階層につきObjectId、及びroot(一番上の親)以外は親への参照もデフォルトで含め、子要素やファイルが多いほど参照が増えるため16MBより少なくなります。
 
 Scripts Usage
 -------------
