@@ -91,6 +91,51 @@ Modules Usage
     db = DB(con)
     result = db.delete(objectid, collection, structure='ref')
 
+Json Format
+-----------
+| example
+
+::
+
+    {
+        "Beamtime":
+        [
+            {
+                "date": {"#date": "2019-09-17"},
+                "expInfo":[
+                        {
+                            "time": {"#date": "2019/09/17 13:21:45"},
+                            "int_value": 135,
+                            "float_value":24.98
+                        },
+                        {
+                            "time": {"#date": "2019/09/17 13:29:12"},
+                            "string_value": "hello world"
+                        }
+                ]
+            },
+            {
+                "date": {"#date": "2019-09-18"},
+                "expInfo":[
+                        {
+                            "array_value": ["string", 1234, 56.78, true, null],
+                            "Bool": false,
+                            "Null type": null
+                        }
+                ]
+            }
+        ]
+    }
+
+| #date{}で囲むと日付書式がdatetime型に変換されます。書式はdateutilと同等。
+| 使用できる型はjsonに準拠。整数、浮動小数点数、ブール値、null型、配列も使用可。
+|     https://dateutil.readthedocs.io/en/stable/parser.html#module-dateutil.parser
+| jsonのオブジェクト型はEdmanでは階層構造として認識されます。
+|
+| MongoDBの1つのドキュメントの容量上限は16MBですが、
+|     emb形式の場合はObjectId及びファイル追加ごとのリファレンスデータを含むため、16MBより少なくなります。
+|     ref形式の場合は1階層につきObjectId、及びroot(一番上の親)以外は親への参照もデフォルトで含め、子要素やファイルが多いほど参照が増えるため16MBより少なくなります。
+
 Scripts Usage
 -------------
 
@@ -168,6 +213,9 @@ Licence
 -------
 todo
 
+API Document
+-------
+https://yuskyamada.github.io/EDMAN/
 
 Author
 ------
