@@ -213,6 +213,9 @@ Licence
 -------
 todo
 
+API Document
+-------
+https://yuskyamada.github.io/EDMAN/
 
 Author
 ------
