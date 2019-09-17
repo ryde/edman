@@ -132,6 +132,14 @@ Json Format
 |     https://dateutil.readthedocs.io/en/stable/parser.html#module-dateutil.parser
 | jsonのオブジェクト型はEdmanでは階層構造として認識されます。
 |
+| 使ってはいけないコレクション名
+|   ・親子関係のリファレンスと同じ名前(_ed_parent,_ed_child) ※システム構築時にのみ変更可
+| 使ってはいけないキー名
+|   ・日付表現の変換に使用(#date) ※システム構築時にのみ変更可
+|   ・ObjectIdと同じフィールド名(_id)
+| その他MongoDBで禁止されているフィールド名は使用不可
+|      https://docs.mongodb.com/manual/reference/limits/#naming-restrictions
+|
 | MongoDBの1つのドキュメントの容量上限は16MBですが、
 |     emb形式の場合はObjectId及びファイル追加ごとのリファレンスデータを含むため、16MBより少なくなります。
 |     ref形式の場合は1階層につきObjectId、及びroot(一番上の親)以外は親への参照もデフォルトで含め、子要素やファイルが多いほど参照が増えるため16MBより少なくなります。
@@ -178,7 +186,7 @@ Scripts Usage
        }
 
 |   ・data4を消したい場合
-|   "['collectionA', '1', 'collectionC', 'collectionD']"
+|       "['collectionA', '1', 'collectionC', 'collectionD']"
 |   リストで消したい項目の直近の親までを指定する
 |   データが複数あり、リストで囲まれていた場合は添字を数字で指定
 |
@@ -196,7 +204,7 @@ Scripts Usage
 |  structure_convert.py: DB内のembをrefへ変換、またはその逆を行います
 |  pullout.py: コレクション内のembのキーを指定し、そのキーを含む階層を全てrefに変換します
 |  action.py: 上記の操作スクリプト用のモジュール
-|
+
 オプションなど詳しくは::
 
   scriptname.py -h
@@ -214,7 +222,7 @@ Licence
 todo
 
 API Document
--------
+------------
 https://yuskyamada.github.io/EDMAN/
 
 Author
