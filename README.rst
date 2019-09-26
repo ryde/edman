@@ -237,5 +237,6 @@ Author
 .. |py_version| image:: https://img.shields.io/badge/python-3.6-blue.svg
     :alt: Use python
 
-.. |circleci| image:: https://circleci.com/gh/ryde/edman_test/tree/develop.svg?style=svg&circle-token=f669e73a212627c6f4e57e18fa7002c3454d07fd
+.. |circleci| image:: https://circleci.com/gh/yuskyamada/EDMAN/tree/develop.svg?style=svg
     :alt: Build status on circleCi
+    :target: https://circleci.com/gh/yuskyamada/EDMAN/tree/develop
