@@ -80,7 +80,7 @@ jobs:
             git add .
             git commit -m "apidoc html renew"
             git remote -v
-            git remote set-url origin git@github.com:yuskyamada/EDMAN.git
+            git remote add origin git@github.com:yuskyamada/EDMAN.git
             git push -f origin master:gh-pages
           working_directory: ~/docs
 
