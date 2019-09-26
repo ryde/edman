@@ -68,6 +68,21 @@ jobs:
             cp -r _build/html ~/docs/
           working_directory: ~/EDMAN/docs
 
+      - run:
+          name: make docs repo
+          command: |
+            touch .nojekyll
+            ls -la
+            git config user.email "310414+ryde@users.noreply.github.com"
+            git config user.name "circleci"
+            git init
+            git add .
+            git commit -m "apidoc html renew"
+            git remote -v
+            git remote set-url origin git@github.com:yuskyamada/EDMAN.git
+            git push -f origin master:gh-pages
+          working_directory: ~/docs
+
       - store_artifacts:
           path: ~/test-reports
           destination: ~/test-reports
