@@ -69,13 +69,14 @@ jobs:
           working_directory: ~/EDMAN/docs
 
       - run:
-          name: make docs repo
+          name: make docs repo and github push
           command: |
+            cd html
             touch .nojekyll
             ls -la
+            git init
             git config user.email "310414+ryde@users.noreply.github.com"
             git config user.name "circleci"
-            git init
             git add .
             git commit -m "apidoc html renew"
             git remote -v
