@@ -102,7 +102,7 @@ class TestFile(TestCase):
 
             # ファイル読み込み、テスト
             actual = []
-            files = tuple(p.glob('gen_test*.txt'))
+            files = tuple(sorted(p.glob('gen_test*.txt')))
             for idx, f in enumerate(self.file.file_gen(files)):
                 filename, filedata = f
                 actual.append((filename, filedata.decode()))
@@ -201,7 +201,7 @@ class TestFile(TestCase):
                     expected.append((gen_file, test_var))
                     f.write(test_var)
 
-            file_path = tuple(p.glob('insert_file_ref_test*.txt'))
+            file_path = tuple(sorted(p.glob('insert_file_ref_test*.txt')))
 
             # メソッド実行
             collection = 'structure_5'
@@ -308,7 +308,7 @@ class TestFile(TestCase):
                     test_var = 'test' + str(i)
                     f.write(test_var)
                     expected.append(test_var)
-            files = tuple(p.glob('emb_test*.txt'))
+            files = tuple(sorted(p.glob('emb_test*.txt')))
             collection = 'structure_emb'
             oid = insert_result.inserted_id
             query = ['structure_2', '1']
@@ -400,7 +400,7 @@ class TestFile(TestCase):
                     f.write(test_var)
 
             fs_oids = []
-            for i in tuple(p.glob('delete_test*.txt')):
+            for i in tuple(sorted(p.glob('delete_test*.txt'))):
                 with i.open('rb') as f:
                     self.fs = gridfs.GridFS(self.testdb)
                     fs_oids.append(
@@ -431,7 +431,7 @@ class TestFile(TestCase):
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in p.glob('file_dl*.txt'):
+            for filename in sorted(p.glob('file_dl*.txt')):
                 with filename.open('rb') as f:
                     file_obj = gzip.compress(f.read(), compresslevel=6)
                     files_oid.append(
@@ -478,7 +478,7 @@ class TestFile(TestCase):
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in p.glob('file_names*.txt'):
+            for filename in sorted(p.glob('file_names*.txt')):
                 with filename.open('rb') as f:
                     files_oid.append(
                         self.fs.put(f.read(), filename=filename.name))
@@ -561,7 +561,7 @@ class TestFile(TestCase):
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in p.glob('file_delete*.txt'):
+            for filename in sorted(p.glob('file_delete*.txt')):
                 with filename.open('rb') as f:
                     files_oid.append(
                         self.fs.put(f.read(), filename=filename.name))
@@ -595,7 +595,7 @@ class TestFile(TestCase):
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in p.glob('file_delete*.txt'):
+            for filename in sorted(p.glob('file_delete*.txt')):
                 with filename.open('rb') as f:
                     files_oid.append(
                         self.fs.put(f.read(), filename=filename.name))

@@ -91,3 +91,6 @@ ENV/
 .ropeproject
 
 /scripts/ini/db.ini
+
+# circleci
+.circleci/config.yml.bak
