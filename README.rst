@@ -219,7 +219,7 @@ pip install::
 
 Licence
 -------
-todo
+MIT
 
 API Document
 ------------
