@@ -213,6 +213,26 @@ class TestAction(TestCase):
             ps = sorted(p.glob('*.ini'))
             self.assertEqual(files_count + 1, len(ps))
 
+    @skipIf(import_flag is False, 'There is no action.py')
+    def test_is_duplicate_filename(self):
+
+        # 重複しない場合
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
+            dup_flg, proposal_filename = Action.is_duplicate_filename(p)
+            self.assertFalse(dup_flg)
+            self.assertIsNone(proposal_filename)
+
+        # 重複する場合
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
+            file_path = p / 'db.ini'
+            with file_path.open("w") as f:
+                f.write('test')
+            dup_flg, proposal_filename = Action.is_duplicate_filename(p)
+            self.assertTrue(dup_flg)
+            self.assertEqual(proposal_filename, 'db_2.ini')
+
     # @skipIf(import_flag is False, 'There is no action.py')
     # def test_create(self):
     #     pass

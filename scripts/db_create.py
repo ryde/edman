@@ -3,57 +3,45 @@
 """
 import sys
 import signal
-import getpass
+import argparse
 from pathlib import Path
-from collections import OrderedDict
 from action import Action
 
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
 
+# コマンドライン引数処理
+parser = argparse.ArgumentParser(description='MongoDBのユーザとDBを作成するスクリプト')
+parser.add_argument('-n', '--not_ini', action='store_false',
+                    help='Do not create db.ini.')
+args = parser.parse_args()
+
 # 管理者アカウント入力
-admin_text = OrderedDict()
-admin_text["MongoDB's Admin DB >> "] = 'dbname'
-admin_text["MongoDB's Admin name >> "] = 'name'
-admin_text["MongoDB's Admin password >> "] = 'pwd'
-admin_account = {}
-for key, value in admin_text.items():
-    while True:
-        # パスワードの時は入力値を非表示
-        buff = getpass.getpass(key) if 'pwd' in value else input(key)
-        if not buff:
-            print('Required!')
-        else:
-            admin_account[value] = buff
-            break
+admin_account = Action.generate_account("Admin")
 
 # ユーザアカウント入力
-user_text = OrderedDict()
-user_text["MongoDB's create user DB(and Authenticate DB) >> "] = 'dbname'
-user_text["MongoDB's create user name >> "] = 'name'
-user_text["MongoDB's create user password >> "] = 'pwd'
-user_account = {}
-for key, value in user_text.items():
-    while True:
-        # パスワードの時は入力値を非表示
-        buff = getpass.getpass(key) if 'pwd' in value else input(key)
-        if not buff:
-            print('Required!')
-        else:
-            user_account[value] = buff
-            break
+user_account = Action.generate_account("User")
 
-# iniセーブパス入力
-while True:
-    ini_input = input("db.ini save path >> ")
-    p = Path(ini_input)
-    if not ini_input:
-        print('Required!')
-    elif not p.exists():
-        print('path is invalid')
-    else:
-        ini_dir = p.resolve()
-        break
+if args.not_ini:
+    # iniセーブパス入力
+    while True:
+        ini_input = input("db.ini save path(Absolute or Relative) >> ")
+        p = Path(ini_input)
+        if not ini_input:
+            print('Required!')
+        elif (not p.exists()) or (not p.is_dir()):
+            print('path is invalid')
+        else:
+
+            ini_dir = p.resolve()
+            dup_flg, proposal_name = Action.is_duplicate_filename(ini_dir)
+            if dup_flg:
+                print(
+                    f'Create in {proposal_name}'
+                    f', because the file name is duplicated.')
+            break
+else:
+    ini_dir = None
 
 # ホスト名入力(デフォルト設定あり)
 host = input(
@@ -73,23 +61,10 @@ while True:
         port = int(port)
         break
 
-# 入力値出力
-print('[admin]')
-for key, value in admin_account.items():
-    print(key + ' : ' + '*' * len(
-        value) if key == 'pwd' else key + ' : ' + value)
-
-print('\n[user]')
-for key, value in user_account.items():
-    print(key + ' : ' + '*' * len(
-        value) if key == 'pwd' else key + ' : ' + value)
-
 # 最終確認
-print(f"""
-host : {host}
-port : {port}
-ini dir : {ini_dir}
-""")
+Action.outputs({'Admin': admin_account, 'User': user_account}, host, port,
+               ini_dir)
+
 while True:
     confirm = input('OK? y/n(exit) >>')
     if confirm == 'n':
