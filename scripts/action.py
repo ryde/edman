@@ -2,7 +2,9 @@ import sys
 import os
 import json
 import ast
+import getpass
 from pathlib import Path
+from collections import OrderedDict
 from typing import Tuple, Iterator, Union
 from pymongo import MongoClient, errors
 
@@ -184,16 +186,17 @@ class Action:
             sys.exit('DB creation failed.')
         print('DB Create OK.')
 
-        # iniファイル書き出し処理
-        ini_data = {
-            'host': host,
-            'port': port,
-            'username': username,
-            'userpwd': userpwd,
-            'dbname': userdb,
-            'auth_dbname': userdb
-        }
-        Action.create_ini(ini_data, ini_dir)
+        if ini_dir is not None:
+            # iniファイル書き出し処理
+            ini_data = {
+                'host': host,
+                'port': port,
+                'username': username,
+                'userpwd': userpwd,
+                'dbname': userdb,
+                'auth_dbname': userdb
+            }
+            Action.create_ini(ini_data, ini_dir)
 
     @staticmethod
     def create_ini(ini_data: dict, ini_dir: Path) -> None:
@@ -289,3 +292,85 @@ class Action:
                 print('DB User delete OK.')
             except errors.OperationFailure:
                 sys.exit('Delete user failed. Delete user in Mongo shell.')
+
+    @staticmethod
+    def generate_account(user: str) -> dict:
+        """
+        DBアカウント作成のための画面表示
+
+        :param str user:
+        :return: account
+        :rtype: dict
+        """
+        acc = OrderedDict()
+        acc['name'] = f"MongoDB's {user} name >> "
+        acc['dbname'] = f"MongoDB's {user} DB >> "
+        acc['pwd'] = f"MongoDB's {user} password >> "
+        acc['pwd_verification'] = f"MongoDB's {user} Verification password >> "
+        account = {}
+        for key, value in acc.items():
+
+            if 'pwd' == key:
+                while True:
+                    buff = getpass.getpass(value)
+                    if not buff:
+                        print('Required!')
+                    else:
+                        break
+            elif 'pwd_verification' == key:
+                while True:
+                    buff = getpass.getpass(value)
+                    if account['pwd'] != buff:
+                        print('Do not match!')
+                    else:
+                        break
+            else:
+                while True:
+                    buff = input(value)
+                    if not buff:
+                        print('Required!')
+                    else:
+                        break
+
+            account[key] = buff
+            if account.get('pwd_verification'):
+                del account['pwd_verification']
+
+        return account
+
+    @staticmethod
+    def value_output(user: str, user_data: dict) -> None:
+        """
+        DB入力項目の確認表示(アカウント項目)
+
+        :param str user:
+        :param dict user_data:
+        :return:
+        """
+        print(f'[{user}]')
+        for key, value in user_data.items():
+            print(key + ' : ' + '*' * len(
+                value) if key == 'pwd' else key + ' : ' + value)
+
+    @staticmethod
+    def outputs(users: dict, host: str, port: int, ini_flg: bool,
+                ini_dir: Union[Path, None]) -> None:
+        """
+            DB入力項目の確認表示(サーバ項目)
+
+        :param dict users:
+        :param str host:
+        :param int port:
+        :param bool ini_flg:
+        :param Path or None ini_dir:
+        :return:
+        """
+        # 入力値出力
+        for user, user_data in users.items():
+            Action.value_output(user, user_data)
+        print(f"""
+        host : {host}
+        port : {port}
+        """)
+        if not ini_flg:
+            print(f"ini dir : {ini_dir}")
