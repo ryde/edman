@@ -25,14 +25,20 @@ user_account = Action.generate_account("User")
 if args.not_ini:
     # iniセーブパス入力
     while True:
-        ini_input = input("db.ini save path >> ")
+        ini_input = input("db.ini save path(Absolute or Relative) >> ")
         p = Path(ini_input)
         if not ini_input:
             print('Required!')
-        elif not p.exists():
+        elif (not p.exists()) or (not p.is_dir()):
             print('path is invalid')
         else:
+
             ini_dir = p.resolve()
+            dup_flg, proposal_name = Action.is_duplicate_filename(ini_dir)
+            if dup_flg:
+                print(
+                    f'Create in {proposal_name}'
+                    f', because the file name is duplicated.')
             break
 else:
     ini_dir = None
@@ -57,7 +63,7 @@ while True:
 
 # 最終確認
 Action.outputs({'Admin': admin_account, 'User': user_account}, host, port,
-               args.not_ini, ini_dir)
+               ini_dir)
 
 while True:
     confirm = input('OK? y/n(exit) >>')

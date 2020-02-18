@@ -208,16 +208,12 @@ class Action:
         :param Path ini_dir: 格納場所
         :return:
         """
+
         # この値は現在固定
-        name = 'db'
-        ext = '.ini'
-
-        default_filename = name + ext
-        ini_files = tuple(
-            [i.name for i in tuple(ini_dir.glob(name + '*' + ext))])
-
-        if default_filename in ini_files:
-            filename = name + '_' + str(len(ini_files) + 1) + ext
+        default_filename = 'db.ini'
+        dup_flg, proposal_filename = Action.is_duplicate_filename(ini_dir)
+        if dup_flg:
+            filename = proposal_filename
             print(f'{default_filename} is exists.Create it as a [{filename}].')
         else:
             filename = default_filename
@@ -294,6 +290,30 @@ class Action:
                 sys.exit('Delete user failed. Delete user in Mongo shell.')
 
     @staticmethod
+    def is_duplicate_filename(ini_dir: Path) -> Tuple[bool, Union[str, None]]:
+        """
+        ini_dirのパスに指定のファイルが存在していれば重複のフラグ、
+        及びfilename[+_number].iniを出力
+
+        :param Path ini_dir:
+        :return:
+        :rtype: tuple
+        """
+        # この値は現在固定
+        name = 'db'
+        ext = '.ini'
+
+        default_filename = name + ext
+        ini_files = tuple(
+            [i.name for i in tuple(ini_dir.glob(name + '*' + ext))])
+
+        if default_filename in ini_files:
+            proposal_filename = name + '_' + str(len(ini_files) + 1) + ext
+            return True, proposal_filename
+        else:
+            return False, None
+
+    @staticmethod
     def generate_account(user: str) -> dict:
         """
         DBアカウント作成のための画面表示
@@ -353,7 +373,7 @@ class Action:
                 value) if key == 'pwd' else key + ' : ' + value)
 
     @staticmethod
-    def outputs(users: dict, host: str, port: int, ini_flg: bool,
+    def outputs(users: dict, host: str, port: int,
                 ini_dir: Union[Path, None]) -> None:
         """
             DB入力項目の確認表示(サーバ項目)
@@ -361,7 +381,6 @@ class Action:
         :param dict users:
         :param str host:
         :param int port:
-        :param bool ini_flg:
         :param Path or None ini_dir:
         :return:
         """
@@ -372,5 +391,7 @@ class Action:
         host : {host}
         port : {port}
         """)
-        if not ini_flg:
-            print(f"ini dir : {ini_dir}")
+        if ini_dir is not None:
+            dup_flg, proposal_filename = Action.is_duplicate_filename(ini_dir)
+            filename = proposal_filename if dup_flg else 'db.ini'
+            print(f"ini path : {ini_dir / filename}")
