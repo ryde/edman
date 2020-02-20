@@ -1,8 +1,6 @@
 import sys
 import signal
-import configparser
 import argparse
-from pathlib import Path
 from edman import DB, JsonManager, Search
 from action import Action
 
@@ -23,6 +21,7 @@ parser.add_argument('-o', '--out_file_name',
                     default='search_result')
 parser.add_argument('-d', '--dir', help='generate json file, dir path',
                     default='.')
+parser.add_argument('-i', '--inifile', help='DB connect file path.')
 args = parser.parse_args()
 # クエリおよびクエリファイルはどちらかは必須
 if not args.query and not args.query_file:
@@ -32,9 +31,7 @@ if not args.query and not args.query_file:
 query = Action.query_eval(args.query if args.query else args.query_file.read())
 
 # iniファイル読み込み
-settings = configparser.ConfigParser()
-settings.read(Path.cwd() / 'ini' / 'db.ini')
-con = dict([i for i in settings['DB'].items()])
+con = Action.reading_config_file(args.inifile)
 
 db = DB(con)
 search = Search(db)

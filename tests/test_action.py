@@ -233,6 +233,36 @@ class TestAction(TestCase):
             self.assertTrue(dup_flg)
             self.assertEqual(proposal_filename, 'db_2.ini')
 
+    @skipIf(import_flag is False, 'There is no action.py')
+    def test_generate_config_path(self):
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
+            file_path = p / 'db.ini'
+            with file_path.open("w") as f:
+                f.write('test')
+            p2 = str(Path(file_path))
+            actual = Action.generate_config_path(p2)
+            self.assertIsInstance(actual, Path)
+
+    @skipIf(import_flag is False, 'There is no action.py')
+    def test_reading_config_file(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            p = Path(tmp_dir)
+            file_path = p / 'db.ini'
+            with file_path.open("w") as f:
+                f.write('[DB]\nname=admin\npwd=abcd')
+            p2 = str(Path(file_path))
+            actual = Action.reading_config_file(p2)
+            expected = {'name': 'admin', 'pwd': 'abcd'}
+            self.assertDictEqual(actual, expected)
+
+            # デフォルトの場合
+            # actual = Action.reading_config_file(None)
+            # print(actual)
+            # expected = {}
+            # self.assertDictEqual(actual, expected)
+
     # @skipIf(import_flag is False, 'There is no action.py')
     # def test_create(self):
     #     pass

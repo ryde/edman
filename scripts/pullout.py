@@ -1,10 +1,9 @@
 import sys
 import signal
-import configparser
 import argparse
-from pathlib import Path
 from edman import DB
 # from edman import DB, JsonManager
+from action import Action
 
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
@@ -15,6 +14,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('collection')
 parser.add_argument('pullout_key')
 parser.add_argument('-e', '--exclusion_keys', nargs='*')
+parser.add_argument('-i', '--inifile', help='DB connect file path.')
 # parser.add_argument('-d', '--dir',
 #                     help='Dir of report files.',
 #                     default=None)
@@ -27,9 +27,7 @@ args = parser.parse_args()
 #         sys.exit('パスが不正です')
 
 # iniファイル読み込み
-settings = configparser.ConfigParser()
-settings.read(Path.cwd() / 'ini' / 'db.ini')
-con = dict([i for i in settings['DB'].items()])
+con = Action.reading_config_file(args.inifile)
 
 db = DB(con)
 exclusion = tuple(args.exclusion_keys if args.exclusion_keys is not None else [])
