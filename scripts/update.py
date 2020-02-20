@@ -1,10 +1,9 @@
 import sys
 import signal
-import configparser
 import argparse
 import json
-from pathlib import Path
 from edman import DB
+from action import Action
 
 # Ctrl-Cを押下された時の対策
 signal.signal(signal.SIGINT, lambda sig, frame: sys.exit('\n'))
@@ -15,15 +14,14 @@ parser = argparse.ArgumentParser(description='ドキュメントの項目を修�
 parser.add_argument('objectid', help='objectid str.')
 parser.add_argument('amend_file', type=open, help='JSON file.')
 parser.add_argument('structure', help='Select ref or emb.')
+parser.add_argument('-i', '--inifile', help='DB connect file path.')
 args = parser.parse_args()
 # 構造はrefかembのどちらか
 if not (args.structure == 'ref' or args.structure == 'emb'):
     parser.error("structure requires 'ref' or 'emb'.")
 
 # iniファイル読み込み
-settings = configparser.ConfigParser()
-settings.read(Path.cwd() / 'ini' / 'db.ini')
-con = dict([i for i in settings['DB'].items()])
+con = Action.reading_config_file(args.inifile)
 
 # ファイル読み込み
 try:

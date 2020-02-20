@@ -1,7 +1,6 @@
 import sys
 import signal
 import argparse
-import configparser
 from pathlib import Path
 from edman import DB, Convert, JsonManager
 from action import Action
@@ -17,6 +16,7 @@ parser.add_argument('-rd', '--result_dir',
                     default=None)
 parser.add_argument('-s', '--structure', default='ref',
                     help='Select ref(Reference, default) or emb(embedded).')
+parser.add_argument('-i', '--inifile', help='DB connect file path.')
 args = parser.parse_args()
 # 構造はrefかembのどちらか ※モジュール内でも判断できる
 if not (args.structure == 'ref' or args.structure == 'emb'):
@@ -29,9 +29,7 @@ if args.result_dir is not None:
         sys.exit('パスが不正です')
 
 # iniファイル読み込み
-settings = configparser.ConfigParser()
-settings.read(Path.cwd() / 'ini' / 'db.ini')
-con = dict([i for i in settings['DB'].items()])
+con = Action.reading_config_file(args.inifile)
 
 db = DB(con)
 jm = JsonManager()

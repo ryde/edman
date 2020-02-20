@@ -1,8 +1,6 @@
 import sys
 import signal
-import configparser
 import argparse
-from pathlib import Path
 from edman import DB
 from action import Action
 
@@ -16,12 +14,11 @@ parser.add_argument('objectid', help='objectid str.')
 # クエリは structureがembの時だけ
 parser.add_argument('-q', '--query', default=None,
                     help='Ref is ObjectId or Emb is query list strings.')
+parser.add_argument('-i', '--inifile', help='DB connect file path.')
 args = parser.parse_args()
 
 # iniファイル読み込み
-settings = configparser.ConfigParser()
-settings.read(Path.cwd() / 'ini' / 'db.ini')
-con = dict([i for i in settings['DB'].items()])
+con = Action.reading_config_file(args.inifile)
 
 db = DB(con)
 

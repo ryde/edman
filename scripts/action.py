@@ -3,6 +3,7 @@ import os
 import json
 import ast
 import getpass
+import configparser
 from pathlib import Path
 from collections import OrderedDict
 from typing import Tuple, Iterator, Union
@@ -395,3 +396,40 @@ class Action:
             dup_flg, proposal_filename = Action.is_duplicate_filename(ini_dir)
             filename = proposal_filename if dup_flg else 'db.ini'
             print(f"ini path : {ini_dir / filename}")
+
+    @staticmethod
+    def generate_config_path(filepath: Union[str, None]) -> Path:
+        """
+        パス文字列からパスオブジェクト生成
+        パス文字列がなければデフォルトのiniディレクトリパスを返す
+
+        :param str filepath:
+        :return: config_path
+        :rtype: Path
+        """
+
+        if filepath is not None:
+            p = Path(filepath)
+            if p.exists():
+                config_path = p
+            else:
+                sys.exit(f'{filepath}は存在しません')
+        else:
+            config_path = Path.cwd() / 'ini' / 'db.ini'
+
+        return config_path
+
+    @staticmethod
+    def reading_config_file(input_file: Union[str, None]) -> dict:
+        """
+        設定ファイルを読み込み、辞書として返す
+
+        :param str input_file:
+        :return: con
+        :rtype: Path
+        """
+        p = Action.generate_config_path(input_file)
+        settings = configparser.ConfigParser()
+        settings.read(p)
+        con = dict([i for i in settings['DB'].items()])
+        return con
