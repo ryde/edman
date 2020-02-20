@@ -407,20 +407,20 @@ class Action:
         パス文字列がなければデフォルトのiniディレクトリパスを返す
 
         :param str filepath:
-        :return: config_path
+        :return: result
         :rtype: Path
         """
 
         if filepath is not None:
             p = Path(filepath)
             if p.exists():
-                config_path = p
+                result = p
             else:
                 sys.exit(f'{filepath}は存在しません')
         else:
-            config_path = Path.cwd() / Action.default_ini_dir / Action.default_ini
+            result = Path.cwd() / Action.default_ini_dir / Action.default_ini
 
-        return config_path
+        return result
 
     @staticmethod
     def reading_config_file(input_file: Union[str, None]) -> dict:
