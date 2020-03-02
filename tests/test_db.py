@@ -5,6 +5,7 @@ import gridfs
 from unittest import TestCase
 from pathlib import Path
 from datetime import datetime
+import dateutil.parser
 from pymongo import errors, MongoClient
 from bson import ObjectId, DBRef
 from edman import Config, DB, Convert, File
@@ -1303,12 +1304,12 @@ class TestDB(TestCase):
                     {
                         'data': 'value',
                         'Machine product': [
-                         {
-                             'hard': 'SNES',
-                             'Developer': 'Nintendo'
-                         }
+                            {
+                                'hard': 'SNES',
+                                'Developer': 'Nintendo'
+                            }
                         ]
-                     }
+                    }
                 ]
             }
         }
@@ -1708,6 +1709,207 @@ class TestDB(TestCase):
                 }
         }
         self.assertDictEqual(expect, actual)
+
+    def test_get_collections(self):
+        if not self.db_server_connect:
+            return
+
+        # テストデータ入力
+        test_data = {
+            'test_get_collections1': {
+                'str_data': 'test',
+                'int_data': 12,
+                'float_data': 25.1,
+                'bool_data': True,
+                'datetime_data': datetime.now(),
+            },
+            'test_get_collections2': {
+                'str_data': 'test',
+                'int_data': 12,
+                'float_data': 25.1,
+                'bool_data': True,
+                'datetime_data': datetime.now(),
+            }
+        }
+        expected = []
+        for collection, doc in test_data.items():
+            insert_result = self.testdb[collection].insert_one(doc)
+            expected.append(collection)
+            # print(self.testdb[collection].find_one(
+            #     {'_id': insert_result.inserted_id}))
+        expected.sort()
+
+        # 作成したデータとテストDB内のコレクションが一致するかどうかテスト
+        coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
+        actual = self.db.get_collections(coll_filter=coll_filter)
+        self.assertEqual(expected, actual)
+        # print(expected, actual)
+
+    def test_bson_type(self):
+        if not self.db_server_connect:
+            return
+
+        # 共通データ
+        type_table = {
+            'bool': bool,
+            'int': int,
+            'float': float,
+            'str': str,
+            'datetime': dateutil.parser.parse
+        }
+
+        # 正常系 すべての値を変換のテスト
+        collection = 'test_get_bson_type'
+        test_data = {
+            collection: {
+                'str_data': 'test',
+                'int_data': '12',
+                'float_data': '25.1',
+                'bool_data': 'True',
+                'datetime_data': '2018-02-21 21:46:39',
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items = list(test_data.values())[0]
+        insert_result = self.testdb[list(test_data.keys())[0]].insert_one(
+            input_items)
+        before_result = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+        input_json = {
+            collection: {
+                'str_data': 'str',
+                'int_data': 'int',
+                'float_data': 'float',
+                'bool_data': 'bool',
+                'datetime_data': 'datetime',
+            }
+        }
+        _ = self.db.bson_type(input_json)
+        after_result = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+        # print(before_result)
+        # print(after_result)
+        input_values = list(input_json.values())[0]
+        for (before_k, before_v), (after_k, after_v) in zip(
+                before_result.items(), after_result.items()):
+            # before_vにinput_valuesのvalueにtype_tableから取ってきた型をキャスト
+            # specify_type = input_values.get(before_k)
+            type_cast = type_table.get(input_values.get(before_k), str)
+            expected = type(type_cast(before_v))
+
+            # after_vの型
+            actual = type(after_v)
+            # 1と2をassertEqualでテスト
+            with self.subTest(after=expected, before=actual):
+                self.assertEqual(expected, actual)
+
+        # 正常系 指定していないデータは無変換のテスト
+        collection = 'test_bson_type2'
+        test_data2 = {
+            collection: {
+                'data1': 'test',
+                'data2': '12',
+                'data3': 23.4,
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items = list(test_data2.values())[0]
+        insert_result = self.testdb[list(test_data2.keys())[0]].insert_one(
+            input_items)
+        input_json = {
+            collection: {
+                'data2': 'int'
+            }
+        }
+        _ = self.db.bson_type(input_json)
+        actual = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+        input_values = list(input_json.values())[0]
+        expected = list(copy.deepcopy(test_data2).values())[0]
+        del expected['_ed_child']
+        del expected['_id']
+        for k, v in input_values.items():
+            type_cast = type_table.get(v)
+            buff = type_cast(input_items.get(k))
+            expected[k] = buff
+        self.assertDictEqual(expected, actual)
+
+        # 正常系 存在しないパラメータは無視
+        collection = 'test_bson_type3'
+        test_data3 = {
+            collection: {
+                'data1': 'test',
+                'data2': '13',
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items = list(test_data3.values())[0]
+        insert_result = self.testdb[list(test_data3.keys())[0]].insert_one(
+            input_items)
+        input_json = {
+            collection: {
+                'data2': 'int',
+                'pass_data': 'str'
+            }
+        }
+        _ = self.db.bson_type(input_json)
+        actual = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        # expected作成
+        input_values = list(input_json.values())[0]
+        expected = list(copy.deepcopy(test_data3).values())[0]
+        del expected['_ed_child']
+        del expected['_id']
+        # input_valuesのキーがexpectedに存在しない時はexpectedからキーを消す
+        for i in [k for k in input_values if expected.get(k) is None]:
+            input_values.pop(i, None)
+
+        # expectedにjsonを適応
+        for k, v in input_values.items():
+            type_cast = type_table.get(v)
+            expected[k] = type_cast(input_items.get(k))
+
+        # print("expected", expected, "actual", actual)
+        self.assertDictEqual(expected, actual)
+
+        # 正常系 存在しないコレクションは無視
+        collection = 'test_bson_type4'
+        test_data4 = {
+            collection: {
+                'data': '13',
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items = list(test_data4.values())[0]
+        insert_result = self.testdb[list(test_data4.keys())[0]].insert_one(
+            input_items)
+        test_non_collection = 'test_non_collection'
+        input_json = {
+            collection: {'data': 'int'},
+            test_non_collection: {'data2': 'test'}
+        }
+        _ = self.db.bson_type(input_json)
+
+        actual = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        # expected作成
+        input_values = list(input_json.values())[0]
+        expected = list(copy.deepcopy(test_data4).values())[0]
+        del expected['_ed_child']
+        del expected['_id']
+        for k, v in input_values.items():
+            type_cast = type_table.get(v)
+            expected[k] = type_cast(input_items.get(k))
+
+        self.assertDictEqual(expected, actual)
+
 
     # def test__generate_parent_id_dict(self):
     #     pass

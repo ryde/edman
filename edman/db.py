@@ -902,3 +902,131 @@ class DB:
             print('\r\n')  # 改行できない問題を回避
 
         return result
+
+    def get_collections(self, coll_filter=None,
+                        gf_filter=True) -> list:
+        """
+        コレクションを取得
+
+        :param dict or None coll_filter:
+        :param bool gf_filter: default True
+        :return:
+        :rtype: list
+        """
+        collections = [collection for collection in
+                       self.db.list_collection_names(filter=coll_filter)]
+        if gf_filter:
+            gridfs_collections = ['fs.files', 'fs.chunks']
+            result = list(set(collections) - set(gridfs_collections))
+        else:
+            result = collections
+        result.sort()
+
+        return result
+
+    def bson_type(self, bson_data: dict) -> dict:
+        """
+        DB内のデータをJSONに従って型変更をする
+        DBにあってJSONにないキーは無視
+        スペルミスも含め型一覧にない型を指定した時はstrに変換
+
+        JSON例:
+        {
+            "コレクション名":{
+                "キー": "変更する型",
+                "キー2": "変更する型",
+            },
+            "コレクション名2":{
+                "キー": ["変更する型","変更する型"],
+            }
+        }
+
+        型一覧:
+        [int,float,bool,str,datetime]
+
+        :param dict bson_data:
+        :return: result
+        :rtype: dict
+        """
+        result = {}
+
+        # コレクション存在チェック
+        # coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
+        # collections = set(self.get_collections(coll_filter=coll_filter))
+        # input_collections = set(
+        #     [collection for collection in bson_data.keys()])
+        # diff = input_collections & collections
+        # if not input_collections == diff:
+        #     sys.exit(f'存在しないコレクション名が含まれています'
+        #              f'{input_collections - diff}')
+
+        for collection, items in bson_data.items():
+
+            # フィルタ、プロジェクション作成
+            items_keys = list(items.keys())
+            projection = {k: 1 for k in items_keys}
+            filter = {'$or': [
+                {
+                    self.child: {'$exists': True}
+                },
+                {
+                    self.parent: {'$exists': True}
+                }]}
+            docs = self.db[collection].find(filter, projection=projection)
+
+            for doc in docs:
+                update_param = {}
+                log_buff = []
+                for item_key in items_keys:
+                    if item_key in doc:
+                        # 値がリストの場合
+                        if isinstance(items[item_key], list):
+                            # DB側がリストじゃない時
+                            # DB側がリストなのに、JSONとDBのリスト個数が違う時
+                            if (not isinstance(doc[item_key], list)) or (
+                                    isinstance(doc[item_key], list) and len(
+                                    doc[item_key]) != len(items[item_key])):
+                                print(
+                                    f'リストの個数が違うため無視します '
+                                    f'{collection} {doc["_id"]} {item_key}')
+                                param = {}
+                            else:
+                                list_buff = []
+                                for idx, list_value in enumerate(
+                                        items[item_key]):
+                                    type_cast_l = Utils.type_cast_conv(
+                                        list_value)
+                                    list_buff.append(
+                                        type_cast_l(doc[item_key][idx]))
+                                param = {item_key: list_buff}
+                        else:
+                            # 取り出したデータを型キャストする
+                            type_cast = Utils.type_cast_conv(items[item_key])
+                            param = {item_key: type_cast(doc[item_key])}
+
+                        if param:
+                            update_param.update(param)
+                            log_buff.append(item_key)
+                # update
+                if update_param:
+                    res = self.db[collection].update_one(
+                        {'_id': doc['_id']},
+                        {'$set': update_param})
+                    update_result = res.modified_count
+                else:
+                    update_result = None
+
+                # ログ作成
+                out_buff = {
+                    str(doc['_id']): {
+                        'target param': log_buff,
+                        'update_result': update_result
+                    }
+                }
+                if result.get(collection):
+                    result[collection].update(out_buff)
+                else:
+                    result.update({collection: out_buff})
+
+        return result
+

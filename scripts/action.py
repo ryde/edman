@@ -14,6 +14,12 @@ class Action:
     """
     ラッパーやファイル読み込み操作、書き出しなどの操作用
     """
+    # DB接続用ファイルのデフォルト設定
+    # このクラスはインスタンス化しない前提なので、クラス変数で設定
+    setting_ini = 'db'
+    ini_ext = '.ini'
+    default_ini = setting_ini + ini_ext
+    default_ini_dir = 'ini'
 
     @staticmethod
     def file_gen(files: Tuple[Path]) -> Union[Iterator[dict], Iterator[str]]:
@@ -211,13 +217,13 @@ class Action:
         """
 
         # この値は現在固定
-        default_filename = 'db.ini'
         dup_flg, proposal_filename = Action.is_duplicate_filename(ini_dir)
         if dup_flg:
             filename = proposal_filename
-            print(f'{default_filename} is exists.Create it as a [{filename}].')
+            print(
+                f'{Action.default_ini} is exists.Create it as a [{filename}].')
         else:
-            filename = default_filename
+            filename = Action.default_ini
 
         # iniファイルの内容
         put_data = [
@@ -300,16 +306,13 @@ class Action:
         :return:
         :rtype: tuple
         """
-        # この値は現在固定
-        name = 'db'
-        ext = '.ini'
-
-        default_filename = name + ext
         ini_files = tuple(
-            [i.name for i in tuple(ini_dir.glob(name + '*' + ext))])
+            [i.name for i in
+             tuple(ini_dir.glob(Action.setting_ini + '*' + Action.ini_ext))])
 
-        if default_filename in ini_files:
-            proposal_filename = name + '_' + str(len(ini_files) + 1) + ext
+        if Action.default_ini in ini_files:
+            proposal_filename = Action.setting_ini + '_' + str(
+                len(ini_files) + 1) + Action.ini_ext
             return True, proposal_filename
         else:
             return False, None
@@ -394,7 +397,7 @@ class Action:
         """)
         if ini_dir is not None:
             dup_flg, proposal_filename = Action.is_duplicate_filename(ini_dir)
-            filename = proposal_filename if dup_flg else 'db.ini'
+            filename = proposal_filename if dup_flg else Action.default_ini
             print(f"ini path : {ini_dir / filename}")
 
     @staticmethod
@@ -404,20 +407,20 @@ class Action:
         パス文字列がなければデフォルトのiniディレクトリパスを返す
 
         :param str filepath:
-        :return: config_path
+        :return: result
         :rtype: Path
         """
 
         if filepath is not None:
             p = Path(filepath)
             if p.exists():
-                config_path = p
+                result = p
             else:
                 sys.exit(f'{filepath}は存在しません')
         else:
-            config_path = Path.cwd() / 'ini' / 'db.ini'
+            result = Path.cwd() / Action.default_ini_dir / Action.default_ini
 
-        return config_path
+        return result
 
     @staticmethod
     def reading_config_file(input_file: Union[str, None]) -> dict:
