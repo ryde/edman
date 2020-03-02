@@ -1,11 +1,12 @@
 from unittest import TestCase
 from datetime import datetime
 from bson import ObjectId, errors
+import dateutil.parser
 from edman import Config
 from edman.utils import Utils
 
 
-class TestConvert(TestCase):
+class TestUtils(TestCase):
 
     def setUp(self):
         self.config = Config()
@@ -13,7 +14,6 @@ class TestConvert(TestCase):
         self.child = self.config.child
         self.date = self.config.date
         self.file = self.config.file
-
 
     def test__item_literal_check(self):
         # 正常系 リスト内が全てリテラルデータ
@@ -197,11 +197,6 @@ class TestConvert(TestCase):
                 {'collection_B': {'power': 280}}
             ]
         ]
-        # # test_data = [
-        #         {'collection_A': {'name': 'NSX'}},
-        #         {'collection_A': {'name': 'F355'}},
-        #         {'collection_B': {'power': 280}}
-        #     ]
         actual = [i for i in Utils.child_combine(test_data)]
         self.assertIsInstance(actual, list)
         self.assertEqual(2, len(actual[0]['collection_A']))
@@ -217,3 +212,16 @@ class TestConvert(TestCase):
         # 文字列以外の方は文字列に変換される
         actual = Utils.collection_name_check(345)
         self.assertTrue(actual)
+
+    def test_type_cast_conv(self):
+        # 正常系 変換テスト
+        input_l = ['str', 'int', 'float', 'bool', 'datetime']
+        expected = [str, int, float, bool, dateutil.parser.parse]
+        actual = [Utils.type_cast_conv(i) for i in input_l]
+        self.assertEqual(expected, actual)
+
+        # 正常系 str変更テスト
+        input_l = ['str', '12']
+        expected = [str, str]
+        actual = [Utils.type_cast_conv(i) for i in input_l]
+        self.assertEqual(expected, actual)

@@ -269,3 +269,22 @@ class Utils:
             return False
 
         return True
+
+    @staticmethod
+    def type_cast_conv(datatype: str) -> Union[bool, int, float, str,
+                                               dateutil.parser.parse]:
+        """
+        データタイプに合わせて型を選択する
+
+        :param int datatype:
+        :return:
+        :rtype: bool or int or float or str or dateutil.parser.parse
+        """
+        type_table = {
+            'bool': bool,
+            'int': int,
+            'float': float,
+            'str': str,
+            'datetime': dateutil.parser.parse
+        }
+        return type_table.get(datatype, str)
