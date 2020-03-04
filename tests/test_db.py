@@ -1910,6 +1910,48 @@ class TestDB(TestCase):
 
         self.assertDictEqual(expected, actual)
 
+        # DBデータとjsonデータのリスト(正常、個数違い境界)
+        # 正常系 すべての値を変換のテスト
+        collection = 'test_get_bson_type5'
+        test_data5 = {
+            collection: {
+                'str_data': 'test',
+                'list_data1': ['125', 'UK', 'True'],
+                'list_data2': ['1', '2', '3', '4'],
+                'list_data3': ['1', '2', '3', '4', '5', '6'],
+                'list_data4': ['1', '2', '3', '4', '5', '6'],
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items = list(test_data5.values())[0]
+        insert_result = self.testdb[list(test_data5.keys())[0]].insert_one(
+            input_items)
+        before_result = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+        # print('before_result', before_result)
+        input_json = {
+            collection: {
+                'str_data': 'str',
+                'list_data1': ['int', 'str', 'bool'],
+                'list_data2': ['str', 'int', 'str', 'int', 'int'],
+                'list_data3': ['str', 'int', 'str', 'int', 'int'],
+                'list_data4': ['int'],
+            }
+        }
+        _ = self.db.bson_type(input_json)
+        actual = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+        # print('actual', actual)
 
-    # def test__generate_parent_id_dict(self):
-    #     pass
+        # expected作成
+        # データ作成が複雑になるのでホワイトテストであることを利用し、ベタに
+        expected = {'str_data': 'test', 'list_data1': [125, 'UK', True],
+                    'list_data2': ['1', 2, '3', 4],
+                    'list_data3': ['1', 2, '3', 4, 5, 6],
+                    'list_data4': [1, 2, 3, 4, 5, 6]}
+        self.assertDictEqual(actual, expected)
+
+# def test__generate_parent_id_dict(self):
+#     pass
