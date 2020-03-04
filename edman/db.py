@@ -924,6 +924,28 @@ class DB:
 
         return result
 
+    @staticmethod
+    def pack_list(types: list, target: list) -> list:
+        """
+        typesが少ない時に、最後の値で足りない分を埋める
+        例
+        types = [str, int, int, str]
+        target = ['1', '2', '3', '4', '5']
+        出力は [str, int, int, str, str]
+
+        types = [int]
+        target = ['1', '2', '3', '4', '5']
+        出力は [int, int, int, int, int]
+
+        :param types:
+        :param target:
+        :return: types
+        :rtype: list
+        """
+        if len(target) > len(types):
+            types.extend([types[-1] for _ in range(len(target) - len(types))])
+        return types
+
     def bson_type(self, bson_data: dict) -> dict:
         """
         DB内のデータをJSONに従って型変更をする
@@ -940,6 +962,18 @@ class DB:
                 "キー": ["変更する型","変更する型"],
             }
         }
+
+        値がリストの時
+            ・双方どちらかがリストでない時は無視
+            ・JSON側が単一、DB側が複数の時は単一の型で全て変換する
+                JSON:['str']
+                DB:['1','2','3']
+            ・JSON側よりDB側が少ない時はJSON側は切り捨て
+                JSON:['str'、'int', 'int']
+                DB:['1',2]
+            ・DB側よりJSON側が少ない時は、リストの最後の型で繰り返す
+                JSON:['str'、'int']
+                DB:['1',2,3,4,5]
 
         型一覧:
         [int,float,bool,str,datetime]
@@ -975,43 +1009,51 @@ class DB:
             docs = self.db[collection].find(filter, projection=projection)
 
             for doc in docs:
-                update_param = {}
+                update_params = {}
                 log_buff = []
                 for item_key in items_keys:
                     if item_key in doc:
-                        # 値がリストの場合
-                        if isinstance(items[item_key], list):
-                            # DB側がリストじゃない時
-                            # DB側がリストなのに、JSONとDBのリスト個数が違う時
-                            if (not isinstance(doc[item_key], list)) or (
-                                    isinstance(doc[item_key], list) and len(
-                                    doc[item_key]) != len(items[item_key])):
+                        db_value = doc[item_key]
+                        json_value = items[item_key]
+
+                        # JSONの値がリストの場合
+                        if isinstance(json_value, list):
+                            if isinstance(db_value, list):
+                                # JSONとDBのリストを同じ個数にパックする
+                                # JSON側が少ない時はJSON側の最後の値で埋める
+                                # DB側が少ない時はDBと同じ個数でJSON側を切り捨て
+                                j = self.pack_list(json_value, db_value)
+                                list_buff = []
+                                for idx, list_value in enumerate(db_value):
+                                    f = Utils.type_cast_conv(j[idx])
+                                    list_buff.append(f(list_value))
+                                param = {item_key: list_buff}
+                            else:
+                                # DB側がリストじゃない時
                                 print(
-                                    f'リストの個数が違うため無視します '
+                                    f'DB側はリストではありません.無視します '
+                                    f'{collection} {doc["_id"]} {item_key}')
+                                param = {}
+                        else:
+                            # JSONがリストじゃないのにDBがリストの時
+                            if isinstance(db_value, list):
+                                print(
+                                    f'DB側はリストですがJSONでリストが指定されていません.無視します '
                                     f'{collection} {doc["_id"]} {item_key}')
                                 param = {}
                             else:
-                                list_buff = []
-                                for idx, list_value in enumerate(
-                                        items[item_key]):
-                                    type_cast_l = Utils.type_cast_conv(
-                                        list_value)
-                                    list_buff.append(
-                                        type_cast_l(doc[item_key][idx]))
-                                param = {item_key: list_buff}
-                        else:
-                            # 取り出したデータを型キャストする
-                            type_cast = Utils.type_cast_conv(items[item_key])
-                            param = {item_key: type_cast(doc[item_key])}
+                                # DBもJSONも単一の型の時
+                                f = Utils.type_cast_conv(json_value)
+                                param = {item_key: f(db_value)}
 
                         if param:
-                            update_param.update(param)
+                            update_params.update(param)
                             log_buff.append(item_key)
                 # update
-                if update_param:
+                if update_params:
                     res = self.db[collection].update_one(
                         {'_id': doc['_id']},
-                        {'$set': update_param})
+                        {'$set': update_params})
                     update_result = res.modified_count
                 else:
                     update_result = None
@@ -1029,4 +1071,3 @@ class DB:
                     result.update({collection: out_buff})
 
         return result
-
