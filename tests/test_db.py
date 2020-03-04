@@ -1745,6 +1745,36 @@ class TestDB(TestCase):
         self.assertEqual(expected, actual)
         # print(expected, actual)
 
+    def test_pack_list(self):
+
+        # 正常系 (変換設定、変換対象の個数が同じ)
+        input_types = ['int', 'str', 'int']
+        test_list = ['1', '2', '3']
+        actual = self.db.pack_list(input_types, test_list)
+        expected = input_types
+        self.assertListEqual(expected, actual)
+
+        # 正常系 型の設定側が多い場合
+        input_types = ['int', 'str', 'int']
+        test_list = ['1', '2']
+        actual = self.db.pack_list(input_types, test_list)
+        expected = ['int', 'str', 'int']
+        self.assertListEqual(expected, actual)
+
+        # 正常系 変換対象のリスト側が多い場合
+        input_types = ['int', 'str', 'int']
+        test_list = ['1', '2', '3', '4', '5']
+        actual = self.db.pack_list(input_types, test_list)
+        expected = ['int', 'str', 'int', 'int', 'int']
+        self.assertListEqual(expected, actual)
+
+        # 正常系 型の設定側が一つ
+        input_types = ['int']
+        test_list = ['1', '2', '3', '4', '5']
+        actual = self.db.pack_list(input_types, test_list)
+        expected = ['int', 'int', 'int', 'int', 'int']
+        self.assertListEqual(expected, actual)
+
     def test_bson_type(self):
         if not self.db_server_connect:
             return
