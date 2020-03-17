@@ -201,6 +201,18 @@ class TestUtils(TestCase):
         self.assertIsInstance(actual, list)
         self.assertEqual(2, len(actual[0]['collection_A']))
 
+    def test_field_name_check(self):
+
+        illegals = [None, '', '$aa', '.aa']
+        for i in illegals:
+            with self.subTest(i=i):
+                actual = Utils.field_name_check(i)
+                self.assertFalse(actual)
+
+        # 文字列以外の方は文字列に変換される
+        actual = Utils.field_name_check(455)
+        self.assertTrue(actual)
+
     def test_collection_name_check(self):
 
         illegals = [None, '', '$aaa', 'aaa$b', 'system.aaa', '#aaa', '@aaa']

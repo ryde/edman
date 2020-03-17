@@ -110,18 +110,6 @@ class TestConvert(TestCase):
             True if '_id' in list(actual.values())[0][0] else False)
         self.assertIsInstance(list(actual.values())[0][0]['_id'], ObjectId)
 
-    def test__field_name_check(self):
-
-        illegals = [None, '', '$aa', '.aa']
-        for i in illegals:
-            with self.subTest(i=i):
-                actual = self.convert._field_name_check(i)
-                self.assertFalse(actual)
-
-        # 文字列以外の方は文字列に変換される
-        actual = self.convert._field_name_check(455)
-        self.assertTrue(actual)
-
     def test__date_replace(self):
         list_data = [{self.date: '2019-02-28'},
                      {self.date: '2019-03-01 13:56:28'},
