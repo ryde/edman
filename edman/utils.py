@@ -228,6 +228,32 @@ class Utils:
             yield dict(tmp_bros)
 
     @staticmethod
+    def field_name_check(field_name: str) -> bool:
+        """
+        | MongoDBの命名規則チェック(フィールド名)
+        | void, None(Null), 文字列先頭に($ .)は使用不可
+
+        | https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names
+
+        :param str field_name:
+        :return:
+        :rtype: bool
+        """
+        if field_name is None:
+            return False
+
+        if not isinstance(field_name, str):
+            field_name = str(field_name)
+
+        if len(field_name) == 0:
+            return False
+
+        if field_name[0] in ('$', '.'):
+            return False
+
+        return True
+
+    @staticmethod
     def collection_name_check(collection_name: str) -> bool:
         """
         | MongoDBの命名規則チェック(コレクション名)

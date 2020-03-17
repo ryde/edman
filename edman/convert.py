@@ -19,32 +19,6 @@ class Convert:
         self.child = config.child
         self.date = config.date
 
-    @staticmethod
-    def _field_name_check(field_name: str) -> bool:
-        """
-        | MongoDBの命名規則チェック(フィールド名)
-        | void, None(Null), 文字列先頭に($ .)は使用不可
-
-        | https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names
-
-        :param str field_name:
-        :return:
-        :rtype: bool
-        """
-        if field_name is None:
-            return False
-
-        if not isinstance(field_name, str):
-            field_name = str(field_name)
-
-        if len(field_name) == 0:
-            return False
-
-        if field_name[0] in ('$', '.'):
-            return False
-
-        return True
-
     def _get_child_reference(self, child_data: dict) -> dict:
         """
         子データのリファレンス情報を作成して取得
@@ -252,7 +226,7 @@ class Convert:
 
                 elif isinstance(value, list) and Utils.item_literal_check(
                         value):
-                    if not self._field_name_check(key):
+                    if not Utils.field_name_check(key):
                         sys.exit(f'フィールド名に不備があります {key}')
 
                     # 日付データが含まれていたらdatetimeオブジェクトに変換
@@ -297,7 +271,7 @@ class Convert:
                     output.update({key: tmp_list})
 
                 else:
-                    if not self._field_name_check(key):
+                    if not Utils.field_name_check(key):
                         sys.exit(f'フィールド名に不備があります {key}')
                     # oidを取得して追加(rootの場合、すでに作成されている場合がある？)
                     if '_id' not in output:
@@ -455,7 +429,7 @@ class Convert:
 
                     # 通常のリストデータの場合
                     if Utils.item_literal_check(value):
-                        if not self._field_name_check(key):
+                        if not Utils.field_name_check(key):
                             sys.exit(f'フィールド名に不備があります {key}')
                         list_tmp_data = value
                     # 子要素としてのリストデータの場合
@@ -467,7 +441,7 @@ class Convert:
                     output.update({key: list_tmp_data})
 
                 else:
-                    if not self._field_name_check(key):
+                    if not Utils.field_name_check(key):
                         sys.exit(f'フィールド名に不備があります {key}')
                     output.update({key: value})
             return output
