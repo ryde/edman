@@ -1,11 +1,14 @@
 import sys
 import copy
+import traceback
 from typing import Union
 import jmespath
 from pymongo import MongoClient, errors
 from bson import ObjectId, DBRef
 from tqdm import tqdm
 from edman.utils import Utils
+from edman.exceptions import (EdmanDbConnectError, EdmanInternalError,
+                              EdmanDbProcessError)
 from edman import Config, Convert, File
 
 
@@ -18,7 +21,14 @@ class DB:
     def __init__(self, con=None) -> None:
 
         if con is not None:
-            self.db = self._connect(**con)
+            try:
+                self.db = self._connect(**con)
+            except EdmanDbConnectError:
+                # TODO ロギングで保存する traceback.format_exc()
+                # TODO raiseを入れると動かない？
+                raise
+            except Exception:
+                raise
 
         self.parent = Config.parent
         self.child = Config.child
@@ -35,7 +45,7 @@ class DB:
         if self.db is not None:
             return self.db
         else:
-            sys.exit('Please connect to DB.')
+            raise EdmanDbConnectError('Please connect to DB.')
 
     @staticmethod
     def _connect(**kwargs: dict):
@@ -58,16 +68,20 @@ class DB:
         try:  # サーバの接続確認
             client.admin.command('ismaster')
         except errors.OperationFailure:
-            sys.exit('Invalid account.')
+            raise EdmanDbConnectError('Invalid account.')
         except errors.ConnectionFailure:
-            sys.exit('Server not available.')
+            raise EdmanDbConnectError('Server not available.')
+        except Exception as e:
+            raise EdmanDbConnectError(e)
 
         edman_db = client[database]
 
         try:  # 現状、認証を確認する方法がないため、これで代用
             edman_db.list_collection_names()
         except errors.OperationFailure:
-            sys.exit('Authentication failed.')
+            raise EdmanDbConnectError('Authentication failed.')
+        except Exception as e:
+            raise EdmanDbConnectError(e)
 
         return edman_db
 
@@ -99,17 +113,19 @@ class DB:
                 # 単一のドキュメントの時にリストで囲まれていない場合がある
                 if isinstance(bulk_list, dict):
                     bulk_list = [bulk_list]
-                try:
-                    result = self.db[collection].insert_many(bulk_list)
+
+                    try:
+                        result = self.db[collection].insert_many(bulk_list)
+                    except errors.BulkWriteError as e:
+                        raise EdmanDbProcessError(
+                            f'インサートに失敗しました:{e.details}\nインサート結果:{results}')
+
                     results.append({collection: result.inserted_ids})
                     # プログレスバー表示関係
                     doc_bar.update(len(bulk_list))
                     collection_bar.set_description(f'Processing {collection}')
                     collection_bar.update(1)
 
-                except errors.BulkWriteError as bwe:
-                    print('インサートに失敗しました:', bwe.details)
-                    print('インサート結果:', results)
             doc_bar.close()
             collection_bar.close()
         return results
@@ -156,16 +172,20 @@ class DB:
         oid = Utils.conv_objectid(oid)
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('ドキュメントが存在しません')
 
         # embの場合は指定階層のドキュメントを引き抜く
         # refの場合はdocの結果をそのまま入れる
-        doc_result = self._get_emb_doc(doc,
-                                       query) if query is not None else doc
+        try:
+            doc_result = self._get_emb_doc(doc,
+                                           query) if query is not None else doc
+        except EdmanInternalError:
+            raise
 
         # クエリの指定によってはリストデータなども取得出てしまうため
         if not isinstance(doc_result, dict):
-            sys.exit(f'指定されたクエリはドキュメントではありません {query}')
+            raise EdmanInternalError(f'指定されたクエリはドキュメントではありません {query}')
 
         result = Utils.reference_item_delete(
             doc_result, ('_id', self.parent, self.child, self.file_ref)
@@ -195,7 +215,7 @@ class DB:
         try:
             result = jmespath.search(s, doc)
         except jmespath.parser.exceptions.ParseError:
-            sys.exit(f'クエリの変換がうまくいきませんでした: {s}')
+            raise EdmanInternalError(f'クエリの変換が出来ませんでした: {s}')
 
         return result
 
@@ -217,19 +237,19 @@ class DB:
         oid = Utils.conv_objectid(oid)
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
-            sys.exit('ドキュメントが存在しません')
+            raise EdmanDbProcessError('ドキュメントが存在しません')
 
         if query is not None:  # emb
             try:
                 doc = Utils.doc_traverse(doc, [delete_key], query,
                                          self._delete_execute)
-            except Exception as e:
-                sys.exit(e)
+            except Exception:
+                raise
         else:  # ref
             try:
                 del doc[delete_key]
             except IndexError:
-                sys.exit(f'キーは存在しません: {delete_key}')
+                raise EdmanInternalError(f'キーは存在しません: {delete_key}')
 
         # ドキュメント置き換え処理
         replace_result = self.db[collection].replace_one({'_id': oid}, doc)
@@ -269,6 +289,7 @@ class DB:
         if isinstance(amend, dict):
             try:
                 for key, value in amend.items():
+                    # TODO result.updateはあとで行う形にする
                     if isinstance(value, dict) and self.date in value:
                         result.update(
                             {
@@ -276,7 +297,6 @@ class DB:
                                     amend[key][self.date])
                             })
                     elif isinstance(value, list):
-
                         buff = [Utils.to_datetime(i[self.date])
                                 if isinstance(i, dict) and self.date in i
                                 else i
@@ -285,7 +305,7 @@ class DB:
                     else:
                         result.update({key: value})
             except AttributeError:
-                sys.exit(f'日付変換に失敗しました.構造に問題があります. {amend}')
+                raise EdmanInternalError(f'日付変換に失敗しました.構造に問題があります. {amend}')
         return result
 
     def update(self, collection: str, oid: Union[str, ObjectId],
@@ -305,29 +325,30 @@ class DB:
         oid = Utils.conv_objectid(oid)
         db_result = self.db[collection].find_one({'_id': oid})
         if db_result is None:
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('該当するドキュメントは存在しません')
 
         if structure == 'emb':
+            convert = Convert()
             try:
                 # 日付データを日付オブジェクトに変換するため、
                 # 必ずコンバートしてからマージする
-                convert = Convert()
                 converted_amend_data = convert.emb(amend_data)
                 amended = self._merge(db_result, converted_amend_data)
-            except ValueError as e:
-                sys.exit(e)
+            except ValueError:
+                raise
         elif structure == 'ref':
             # 日付データを日付オブジェクトに変換
             converted_amend_data = self._convert_datetime_dict(amend_data)
             amended = {**db_result, **converted_amend_data}
         else:
-            sys.exit('structureはrefまたはembの指定が必要です')
+            raise EdmanInternalError('structureはrefまたはembの指定が必要です')
 
         try:
             replace_result = self.db[collection].replace_one({'_id': oid},
                                                              amended)
         except errors.OperationFailure:
-            sys.exit('アップデートに失敗しました')
+            raise EdmanDbProcessError('アップデートに失敗しました')
 
         return True if replace_result.modified_count == 1 else False
 
@@ -389,6 +410,7 @@ class DB:
         oid = Utils.conv_objectid(oid)
         db_result = self.db[collection].find_one({'_id': oid})
         if db_result is None:
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('該当するドキュメントは存在しません')
 
         if structure == 'emb':
@@ -402,25 +424,23 @@ class DB:
                             db_result, self.file_ref)], []))
                     return True
                 else:
-                    sys.exit('指定のドキュメントは削除できませんでした' + str(oid))
-            except ValueError as e:
-                sys.exit(e)
+                    raise EdmanDbProcessError('指定のドキュメントは削除できませんでした' + str(oid))
+            except ValueError:
+                raise
 
         elif structure == 'ref':
-
             try:
                 # 親ドキュメントがあれば子要素リストから削除する
                 if db_result.get(self.parent):
                     self._delete_reference_from_parent(db_result[self.parent],
                                                        db_result['_id'])
-
                 # 対象のドキュメント以下のドキュメントと関連ファイルを削除する
                 self._delete_documents_and_files(db_result, collection)
                 return True
-            except ValueError as e:
-                sys.exit(e)
+            except ValueError:
+                raise
         else:
-            sys.exit('structureはrefまたはembの指定が必要です')
+            raise EdmanInternalError('structureはrefまたはembの指定が必要です')
 
     def _delete_documents_and_files(self, db_result: dict,
                                     collection: str) -> None:
@@ -594,6 +614,7 @@ class DB:
         """
         doc = self.db[collection].find_one({'_id': Utils.conv_objectid(oid)})
         if doc is None:
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('指定のドキュメントがありません')
 
         if any(key in doc for key in (self.parent, self.child)):
@@ -665,7 +686,7 @@ class DB:
             structured_result.reverse()
 
         else:
-            sys.exit('構造はrefかembを指定してください')
+            raise EdmanInternalError('structureはrefまたはembの指定が必要です')
 
         return structured_result
 
@@ -786,8 +807,8 @@ class DB:
         for bros in find_result:
             try:
                 parent_id = self._get_uni_parent(bros)
-            except ValueError as e:
-                sys.exit(e)
+            except ValueError:
+                raise
             result.update({parent_id: bros})
 
         return result
@@ -813,7 +834,7 @@ class DB:
         if len(set(parent_list)) == 1:
             return list(parent_list)[0]
         else:
-            raise ValueError(f'兄弟で親のObjectIDが異なっています\n{parent_list}')
+            raise ValueError(f'兄弟間で親のObjectIDが異なっています {parent_list}')
 
     @staticmethod
     def delete_reference(emb_data: dict, reference: tuple) -> dict:
@@ -867,6 +888,7 @@ class DB:
         """
         docs = self.db[collection].find()
         if docs.count() == 0:
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('対象のドキュメントは存在しません')
         id_list = []
         for doc in docs:
@@ -874,6 +896,7 @@ class DB:
                 id_list.append(doc['_id'])
 
         if len(id_list) == 0:
+            # TODO これは正常終了させても問題なさそう
             sys.exit('変換対象のドキュメントは全てreferenceです')
 
         result_list = []
@@ -883,11 +906,12 @@ class DB:
             convert = Convert()
             pull_result = convert.pullout_key(emb_result, key)
             if not pull_result:
-                sys.exit(f'{key}は存在しません')
+                raise EdmanInternalError(f'{key}は存在しません')
+
             if exclusion:
                 result = convert.exclusion_key(pull_result, exclusion)
                 if pull_result == result:
-                    sys.exit(f'{list(exclusion)}は存在しません')
+                    raise EdmanInternalError(f'{list(exclusion)}は存在しません')
             else:
                 result = pull_result
 
@@ -984,16 +1008,6 @@ class DB:
         """
         result = {}
 
-        # コレクション存在チェック
-        # coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
-        # collections = set(self.get_collections(coll_filter=coll_filter))
-        # input_collections = set(
-        #     [collection for collection in bson_data.keys()])
-        # diff = input_collections & collections
-        # if not input_collections == diff:
-        #     sys.exit(f'存在しないコレクション名が含まれています'
-        #              f'{input_collections - diff}')
-
         for collection, items in bson_data.items():
 
             # フィルタ、プロジェクション作成
@@ -1030,6 +1044,7 @@ class DB:
                                 param = {item_key: list_buff}
                             else:
                                 # DB側がリストじゃない時
+                                # TODO warningで出したほうが良さそう
                                 print(
                                     f'DB側はリストではありません.無視します '
                                     f'{collection} {doc["_id"]} {item_key}')
@@ -1037,6 +1052,7 @@ class DB:
                         else:
                             # JSONがリストじゃないのにDBがリストの時
                             if isinstance(db_value, list):
+                                # TODO warningで出したほうが良さそう
                                 print(
                                     f'DB側はリストですがJSONでリストが指定されていません.無視します '
                                     f'{collection} {doc["_id"]} {item_key}')
