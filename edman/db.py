@@ -114,17 +114,17 @@ class DB:
                 if isinstance(bulk_list, dict):
                     bulk_list = [bulk_list]
 
-                    try:
-                        result = self.db[collection].insert_many(bulk_list)
-                    except errors.BulkWriteError as e:
-                        raise EdmanDbProcessError(
-                            f'インサートに失敗しました:{e.details}\nインサート結果:{results}')
+                try:
+                    result = self.db[collection].insert_many(bulk_list)
+                except errors.BulkWriteError as e:
+                    raise EdmanDbProcessError(
+                        f'インサートに失敗しました:{e.details}\nインサート結果:{results}')
 
-                    results.append({collection: result.inserted_ids})
-                    # プログレスバー表示関係
-                    doc_bar.update(len(bulk_list))
-                    collection_bar.set_description(f'Processing {collection}')
-                    collection_bar.update(1)
+                results.append({collection: result.inserted_ids})
+                # プログレスバー表示関係
+                doc_bar.update(len(bulk_list))
+                collection_bar.set_description(f'Processing {collection}')
+                collection_bar.update(1)
 
             doc_bar.close()
             collection_bar.close()
