@@ -8,7 +8,7 @@ from bson import ObjectId, DBRef
 from tqdm import tqdm
 from edman.utils import Utils
 from edman.exceptions import (EdmanDbConnectError, EdmanInternalError,
-                              EdmanDbProcessError)
+                              EdmanDbProcessError, EdmanFormatError)
 from edman import Config, Convert, File
 
 
@@ -342,7 +342,7 @@ class DB:
             converted_amend_data = self._convert_datetime_dict(amend_data)
             amended = {**db_result, **converted_amend_data}
         else:
-            raise EdmanInternalError('structureはrefまたはembの指定が必要です')
+            raise EdmanFormatError('structureはrefまたはembの指定が必要です')
 
         try:
             replace_result = self.db[collection].replace_one({'_id': oid},
@@ -440,7 +440,7 @@ class DB:
             except ValueError:
                 raise
         else:
-            raise EdmanInternalError('structureはrefまたはembの指定が必要です')
+            raise EdmanFormatError('structureはrefまたはembの指定が必要です')
 
     def _delete_documents_and_files(self, db_result: dict,
                                     collection: str) -> None:
@@ -686,7 +686,7 @@ class DB:
             structured_result.reverse()
 
         else:
-            raise EdmanInternalError('structureはrefまたはembの指定が必要です')
+            raise EdmanFormatError('structureはrefまたはembの指定が必要です')
 
         return structured_result
 

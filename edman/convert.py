@@ -5,6 +5,7 @@ from typing import Union
 from collections import defaultdict
 from bson import ObjectId, DBRef
 from edman.utils import Utils
+from edman.exceptions import (EdmanInternalError, EdmanFormatError)
 from edman import Config
 
 
@@ -61,7 +62,6 @@ class Convert:
         if isinstance(child_dict, dict):
             try:
                 for key, value in child_dict.items():
-
                     if isinstance(value, dict) and self.date in value:
                         result.update(
                             {
@@ -69,7 +69,8 @@ class Convert:
                                     child_dict[key][self.date])
                             })
             except AttributeError:
-                sys.exit(f'日付変換に失敗しました.構造に問題があります. {child_dict}')
+                raise EdmanInternalError(
+                    f'日付変換に失敗しました.構造に問題があります. {child_dict}')
         return result
 
     @staticmethod
@@ -195,7 +196,7 @@ class Convert:
                 if isinstance(value, dict):
 
                     if not Utils.collection_name_check(key):
-                        sys.exit(f'この名前はコレクション名にできません {key}')
+                        raise EdmanFormatError(f'この名前はコレクション名にできません {key}')
 
                     # リファレンス作成
                     ref_list.append(DBRef(key, ObjectId()))
@@ -227,7 +228,7 @@ class Convert:
                 elif isinstance(value, list) and Utils.item_literal_check(
                         value):
                     if not Utils.field_name_check(key):
-                        sys.exit(f'フィールド名に不備があります {key}')
+                        raise EdmanFormatError(f'フィールド名に不備があります {key}')
 
                     # 日付データが含まれていたらdatetimeオブジェクトに変換
                     output.update({key: self._date_replace(value)})
@@ -235,7 +236,7 @@ class Convert:
                 elif isinstance(value, list):
 
                     if not Utils.collection_name_check(key):
-                        sys.exit(f'この名前はコレクション名にできません {key}')
+                        raise EdmanFormatError(f'この名前はコレクション名にできません {key}')
 
                     tmp_list = []
                     for i in value:
@@ -272,7 +273,8 @@ class Convert:
 
                 else:
                     if not Utils.field_name_check(key):
-                        sys.exit(f'フィールド名に不備があります {key}')
+                        raise EdmanFormatError(f'フィールド名に不備があります {key}')
+
                     # oidを取得して追加(rootの場合、すでに作成されている場合がある？)
                     if '_id' not in output:
                         output.update({'_id': ref_list[my].id})
@@ -331,6 +333,7 @@ class Convert:
         :return: result
         :rtype: dict
         """
+
         def recursive(doc):
             output = {}
             for key, value in doc.items():
@@ -418,7 +421,7 @@ class Convert:
 
                 if isinstance(value, dict):
                     if not Utils.collection_name_check(key):
-                        sys.exit(f'この名前は使用できません {key}')
+                        raise EdmanFormatError(f'この名前は使用できません {key}')
 
                     converted_value = self._convert_datetime(value)
                     output.update({key: recursive(converted_value)})
@@ -430,19 +433,22 @@ class Convert:
                     # 通常のリストデータの場合
                     if Utils.item_literal_check(value):
                         if not Utils.field_name_check(key):
-                            sys.exit(f'フィールド名に不備があります {key}')
+                            raise EdmanFormatError(f'フィールド名に不備があります {key}')
+
                         list_tmp_data = value
                     # 子要素としてのリストデータの場合
                     else:
                         if not Utils.collection_name_check(key):
-                            sys.exit(f'この名前は使用できません {key}')
+                            raise EdmanFormatError(f'この名前は使用できません {key}')
+
                         list_tmp_data = [recursive(self._convert_datetime(i))
                                          for i in value]
                     output.update({key: list_tmp_data})
 
                 else:
                     if not Utils.field_name_check(key):
-                        sys.exit(f'フィールド名に不備があります {key}')
+                        raise EdmanFormatError(f'フィールド名に不備があります {key}')
+
                     output.update({key: value})
             return output
 
@@ -464,4 +470,4 @@ class Convert:
         elif mode == 'emb':
             return [self._attached_oid(self.emb(raw_data))]
         else:
-            sys.exit("投入モードは'ref'または'emb'です")
+            raise EdmanFormatError("投入モードは'ref'または'emb'です")

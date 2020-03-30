@@ -25,3 +25,10 @@ class EdmanInternalError(EdmanError):
     Edmanの処理に関するエラー
     """
     pass
+
+
+class EdmanFormatError(EdmanError):
+    """
+    Edmanの名称や決まりごとに関するエラー
+    """
+    pass
