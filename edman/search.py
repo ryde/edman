@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Union
 from bson import errors, ObjectId
 from edman.utils import Utils
+from edman.exceptions import EdmanDbProcessError
 from edman import Config
 
 
@@ -36,12 +37,14 @@ class Search:
         """
 
         coll_filter = {"name": {"$regex": r"^(?!system\.)"}}
-        if collection not in self.connected_db.list_collection_names(filter=coll_filter):
-            sys.exit('コレクションが存在しません')
+        if collection not in self.connected_db.list_collection_names(
+                filter=coll_filter):
+            raise EdmanDbProcessError('コレクションが存在しません')
 
         query = self._objectid_replacement(query)
         self_result = self._get_self(query, collection)
-        reference_point_result = self.db.get_reference_point(self_result[collection])
+        reference_point_result = self.db.get_reference_point(
+            self_result[collection])
 
         parent_result = None
         if reference_point_result[self.parent]:
@@ -111,7 +114,7 @@ class Search:
             try:
                 query['_id'] = ObjectId(query['_id'])
             except errors.InvalidId:
-                sys.exit('ObjectIdが正しくありません')
+                raise
         return query
 
     def _get_self(self, query: dict, collection: str) -> dict:
@@ -126,6 +129,7 @@ class Search:
         docs = list(self.connected_db[collection].find(query))
 
         if not len(docs):
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('ドキュメントが見つかりませんでした')
         else:
             if len(docs) == 1:
@@ -139,6 +143,7 @@ class Search:
         """
         ドキュメント選択
 
+        TODO このメソッドはcli専用モジュールへ移動予定
         :param list docs:
         :return:
         :rtype: dict
@@ -241,7 +246,7 @@ class Search:
                     try:  # 型変換
                         data[key] = self._format_datetime(data[key])
                     except Exception as e:
-                        sys.exit(e)
+                        raise
 
         recursive(result_dict)
         return result_dict
