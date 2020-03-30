@@ -132,11 +132,10 @@ class Search:
             # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('ドキュメントが見つかりませんでした')
         else:
-            if len(docs) == 1:
-                doc = docs[0]
-            else:  # 複数ドキュメントの場合は選択処理へ
-                doc = self._self_data_select(docs)
-            return {collection: doc}
+            # 複数ドキュメントの場合は選択処理へ
+            doc = docs[0] if len(docs) == 1 else self._self_data_select(docs)
+
+        return {collection: doc}
 
     @staticmethod
     def _self_data_select(docs: list) -> dict:

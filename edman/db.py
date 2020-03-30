@@ -289,21 +289,16 @@ class DB:
         if isinstance(amend, dict):
             try:
                 for key, value in amend.items():
-                    # TODO result.updateはあとで行う形にする
                     if isinstance(value, dict) and self.date in value:
-                        result.update(
-                            {
-                                key: Utils.to_datetime(
-                                    amend[key][self.date])
-                            })
+                        buff = Utils.to_datetime(amend[key][self.date])
                     elif isinstance(value, list):
                         buff = [Utils.to_datetime(i[self.date])
                                 if isinstance(i, dict) and self.date in i
                                 else i
                                 for i in value]
-                        result.update({key: buff})
                     else:
-                        result.update({key: value})
+                        buff = value
+                    result.update({key: buff})
             except AttributeError:
                 raise EdmanInternalError(f'日付変換に失敗しました.構造に問題があります. {amend}')
         return result
@@ -424,7 +419,8 @@ class DB:
                             db_result, self.file_ref)], []))
                     return True
                 else:
-                    raise EdmanDbProcessError('指定のドキュメントは削除できませんでした' + str(oid))
+                    raise EdmanDbProcessError(
+                        '指定のドキュメントは削除できませんでした' + str(oid))
             except ValueError:
                 raise
 
@@ -453,9 +449,8 @@ class DB:
         """
         delete_doc_id_dict = {}
         delete_file_ref_list = []
-        for element in [i for i in
-                        self._recursive_extract_elements_from_doc(db_result,
-                                                                  collection)]:
+        for element in self._recursive_extract_elements_from_doc(db_result,
+                                                                 collection):
             doc_collection = list(element.keys())[0]
             id_and_refs = list(element.values())[0]
 

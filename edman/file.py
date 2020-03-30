@@ -23,6 +23,7 @@ class File:
             self.db = db
             self.fs = gridfs.GridFS(self.db)
         self.file_ref = Config.file
+        self.comp_level = Config.gzip_compress_level
 
     @staticmethod
     def file_gen(files: Tuple[Path]) -> Iterator:
@@ -80,7 +81,8 @@ class File:
             metadata = {'filename': file[0]}
 
             if compress:
-                file_obj = gzip.compress(file_obj, compresslevel=6)
+                file_obj = gzip.compress(file_obj,
+                                         compresslevel=self.comp_level)
                 metadata.update({'compress': 'gzip'})
 
             inserted_file_oids.append(self.fs.put(file_obj, **metadata))
@@ -107,8 +109,7 @@ class File:
             return False
 
     def delete(self, delete_oid: ObjectId, collection: str,
-               oid: Union[ObjectId, str],
-               structure: str, query=None) -> bool:
+               oid: Union[ObjectId, str], structure: str, query=None) -> bool:
         """
         該当のoidをファイルリファレンスから削除し、GridFSからファイルを削除
 
@@ -121,7 +122,6 @@ class File:
         :return:
         :rtype: bool
         """
-
         oid = Utils.conv_objectid(oid)
 
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
