@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest import TestCase
 from pymongo import errors, MongoClient
 from edman import DB
+from edman.exceptions import EdmanDbConnectError
 
 
 class TestMultiUser(TestCase):
@@ -148,5 +149,5 @@ class TestMultiUser(TestCase):
             for dbname in tmp_dbnames:
                 tmp_connection = copy.deepcopy(connection)
                 tmp_connection['database'] = dbname
-                with self.assertRaises(SystemExit):
+                with self.assertRaises(EdmanDbConnectError):
                     _ = DB(tmp_connection)
