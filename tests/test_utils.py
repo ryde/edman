@@ -125,7 +125,7 @@ class TestUtils(TestCase):
         # 異常系 oidにならない文字列
         oid = str(ObjectId())
         oid = oid[:-1]
-        with self.assertRaises((SystemExit, errors.InvalidId)) as cm:
+        with self.assertRaises(errors.InvalidId) as cm:
             _ = Utils.conv_objectid(oid)
 
     def test__to_datetime(self):
