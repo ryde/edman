@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Union
 from bson.json_util import dumps
+from edman.exceptions import EdmanFormatError
 
 
 class JsonManager:
@@ -25,8 +26,7 @@ class JsonManager:
         :return: None
         """
         if not isinstance(report_data, dict):
-            e = Exception("Not Dict Data")
-            raise e
+            raise EdmanFormatError('Not Dict Data')
 
         date_str = ''
         if date:
