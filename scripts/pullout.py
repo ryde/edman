@@ -18,6 +18,11 @@ parser.add_argument('-i', '--inifile', help='DB connect file path.')
 # parser.add_argument('-d', '--dir',
 #                     help='Dir of report files.',
 #                     default=None)
+
+# 引数を付けなかった場合はヘルプを表示して終了する
+if len(sys.argv) == 1:
+    parser.parse_args(["-h"])
+    sys.exit(0)
 args = parser.parse_args()
 
 # 結果を記録する場合はパスの存在を調べる
@@ -26,15 +31,20 @@ args = parser.parse_args()
 #     if not p.exists() and not p.is_dir():
 #         sys.exit('パスが不正です')
 
-# iniファイル読み込み
-con = Action.reading_config_file(args.inifile)
+try:
+    # iniファイル読み込み
+    con = Action.reading_config_file(args.inifile)
 
-db = DB(con)
-exclusion = tuple(args.exclusion_keys if args.exclusion_keys is not None else [])
-result = db.loop_exclusion_key_and_ref(args.collection, args.pullout_key, exclusion)
+    db = DB(con)
+    exclusion = tuple(args.exclusion_keys if args.exclusion_keys is not None else [])
+    result = db.loop_exclusion_key_and_ref(args.collection, args.pullout_key, exclusion)
 
-# 結果を保存する
-# if args.dir is not None:
-#     jm = JsonManager()
-#     jm.save(result, args.dir, 'pullout', date=True)
+    # 結果を保存する
+    # if args.dir is not None:
+    #     jm = JsonManager()
+    #     jm.save(result, args.dir, 'pullout', date=True)
 
+except Exception as e:
+    tb = sys.exc_info()[2]
+    sys.stderr.write(f'{type(e).__name__}: {e.with_traceback(tb)}\n')
+    sys.exit(1)

@@ -1,5 +1,4 @@
 import re
-import sys
 from collections import defaultdict
 from typing import Union, Callable
 from datetime import datetime
@@ -146,7 +145,7 @@ class Utils:
             try:
                 result = ObjectId(oid)
             except errors.InvalidId:
-                sys.exit('無効なObjectIdです.')
+                raise
         else:
             result = oid
         return result

@@ -8,6 +8,7 @@ import gridfs
 import jmespath
 from bson import ObjectId
 from edman.utils import Utils
+from edman.exceptions import (EdmanFormatError, EdmanDbProcessError)
 from edman import Config
 
 
@@ -22,6 +23,7 @@ class File:
             self.db = db
             self.fs = gridfs.GridFS(self.db)
         self.file_ref = Config.file
+        self.comp_level = Config.gzip_compress_level
 
     @staticmethod
     def file_gen(files: Tuple[Path]) -> Iterator:
@@ -37,8 +39,8 @@ class File:
                 with file.open('rb') as f:
                     fp = f.read()
             except IOError:
-                sys.exit(f'ファイル読み込みできませんでした {file}')
-            yield (file.name, fp)
+                raise
+            yield file.name, fp
 
     def add_file_reference(self, collection: str, oid: Union[ObjectId, str],
                            file_path: Tuple[Path], structure: str,
@@ -64,12 +66,13 @@ class File:
         # ドキュメント存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('対象のドキュメントが存在しません')
 
         if structure == 'emb':
             # クエリーがドキュメントのキーとして存在するかチェック
             if not Utils.query_check(query, doc):
-                sys.exit('対象のドキュメントに対してクエリーが一致しません.')
+                raise EdmanFormatError('対象のドキュメントに対してクエリーが一致しません.')
 
         # ファイルのインサート
         inserted_file_oids = []
@@ -78,7 +81,8 @@ class File:
             metadata = {'filename': file[0]}
 
             if compress:
-                file_obj = gzip.compress(file_obj, compresslevel=6)
+                file_obj = gzip.compress(file_obj,
+                                         compresslevel=self.comp_level)
                 metadata.update({'compress': 'gzip'})
 
             inserted_file_oids.append(self.fs.put(file_obj, **metadata))
@@ -90,10 +94,10 @@ class File:
             try:
                 new_doc = Utils.doc_traverse(doc, inserted_file_oids, query,
                                              self._file_list_attachment)
-            except Exception as e:
-                sys.exit(e)
+            except Exception:
+                raise
         else:
-            sys.exit('構造はrefかembが必要です')
+            raise EdmanFormatError('構造はrefかembが必要です')
 
         # ドキュメント差し替え
         replace_result = self.db[collection].replace_one({'_id': oid}, new_doc)
@@ -105,8 +109,7 @@ class File:
             return False
 
     def delete(self, delete_oid: ObjectId, collection: str,
-               oid: Union[ObjectId, str],
-               structure: str, query=None) -> bool:
+               oid: Union[ObjectId, str], structure: str, query=None) -> bool:
         """
         該当のoidをファイルリファレンスから削除し、GridFSからファイルを削除
 
@@ -119,12 +122,12 @@ class File:
         :return:
         :rtype: bool
         """
-
         oid = Utils.conv_objectid(oid)
 
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('対象のコレクション、またはドキュメントが存在しません')
 
         # ファイルリスト取得
@@ -136,22 +139,23 @@ class File:
             files_list = list(set(files_list))
             files_list.remove(delete_oid)
         else:
-            sys.exit('ファイルが存在しません')
+            raise EdmanDbProcessError('ファイルが存在しません')
 
         # ドキュメントを新しいファイルリファレンスに置き換える
         if structure == 'ref':
             try:
                 new_doc = self._file_list_replace(doc, files_list)
-            except Exception as e:
-                sys.exit(e)
+            except Exception:
+                raise
+
         elif structure == 'emb':
             try:
                 new_doc = Utils.doc_traverse(doc, files_list, query,
                                              self._file_list_replace)
-            except Exception as e:
-                sys.exit(e)
+            except Exception:
+                raise
         else:
-            sys.exit('structureはrefまたはembの指定が必要です')
+            raise EdmanFormatError('structureはrefまたはembの指定が必要です')
 
         replace_result = self.db[collection].replace_one({'_id': oid}, new_doc)
 
@@ -189,9 +193,9 @@ class File:
         :rtype: list
         """
         if structure == 'emb' and query is None:
-            sys.exit('embにはクエリが必要です')
+            raise EdmanFormatError('embにはクエリが必要です')
         if structure != 'emb' and structure != 'ref':
-            sys.exit('構造の選択はembまたはrefが必要です')
+            raise EdmanFormatError('構造の選択はembまたはrefが必要です')
 
         files_list = []
         if structure == 'ref':
@@ -199,14 +203,15 @@ class File:
                 files_list = doc[self.file_ref]
         else:
             if not Utils.query_check(query, doc):
-                sys.exit('対象のドキュメントに対してクエリーが一致しません.')
+                EdmanFormatError('対象のドキュメントに対してクエリーが一致しません.')
             # docから対象クエリを利用してファイルのリストを取得
             # deepcopyを使用しないとなぜか子のスコープのqueryがクリヤーされる
             query_c = copy.deepcopy(query)
             try:
                 files_list = self._get_emb_files_list(doc, query_c)
-            except Exception as e:
-                sys.exit(e)
+            except Exception:
+                raise
+
         return files_list
 
     def get_file_names(self, collection: str, oid: Union[ObjectId, str],
@@ -228,6 +233,7 @@ class File:
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
+            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('対象のコレクション、またはドキュメントが存在しません')
 
         # ファイルリスト取得
@@ -240,7 +246,8 @@ class File:
                 fs_out = self.fs.get(file_oid)
                 result.update({file_oid: fs_out.filename})
         else:
-            sys.exit('関連ファイルはありません')
+            # TODO 想定される挙動なので正常終了として改修する予定
+            raise EdmanDbProcessError('関連ファイルはありません')
 
         return result
 
@@ -262,7 +269,7 @@ class File:
 
         # パスが正しいか検証
         if not p.exists():
-            sys.exit('パスが正しくないです')
+            raise FileNotFoundError
 
         # ダウンロード処理
         if self.fs.exists(oid):
@@ -278,13 +285,13 @@ class File:
                     f.flush()
                     os.fsync(f.fileno())
             except IOError:
-                sys.exit('ファイルに書き込めませんでした')
+                raise
 
             if save_path.exists():
                 result = True
 
         else:
-            sys.exit('指定のファイルはDBに存在しません')
+            raise EdmanDbProcessError('指定のファイルはDBに存在しません')
 
         return result
 

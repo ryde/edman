@@ -406,7 +406,7 @@ class Action:
         パス文字列からパスオブジェクト生成
         パス文字列がなければデフォルトのiniディレクトリパスを返す
 
-        :param str filepath:
+        :param str or None filepath:
         :return: result
         :rtype: Path
         """
@@ -427,12 +427,10 @@ class Action:
         """
         設定ファイルを読み込み、辞書として返す
 
-        :param str input_file:
-        :return: con
-        :rtype: Path
+        :param str or None input_file:
+        :return:
+        :rtype: dict
         """
-        p = Action.generate_config_path(input_file)
         settings = configparser.ConfigParser()
-        settings.read(p)
-        con = dict([i for i in settings['DB'].items()])
-        return con
+        settings.read(Action.generate_config_path(input_file))
+        return dict([i for i in settings['DB'].items()])

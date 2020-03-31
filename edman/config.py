@@ -15,6 +15,9 @@ class Config:
     file = '_ed_file'  # Grid.fsのリファレンス情報
     date = '#date'  # 日付に変換する場合のタグ
 
+    # Gzip 圧縮レベル (ファイル圧縮時に使用)
+    gzip_compress_level = 6
+
     # 再帰で回数の上限に達した場合、下記を適切な値で設定
     # import sys
     # sys.setrecursionlimit(1000)  # pythonのデフォルトは1000

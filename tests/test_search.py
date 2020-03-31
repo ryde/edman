@@ -138,7 +138,7 @@ class TestSearch(TestCase):
 
         # 異常系
         query = {'_id': 'dragon'}
-        with self.assertRaises((errors.InvalidId, SystemExit)) as cm:
+        with self.assertRaises(errors.InvalidId) as cm:
             _ = self.search._objectid_replacement(query)
 
     def test__get_self(self):
