@@ -32,8 +32,9 @@ class JsonManager:
         if date:
             date_str = datetime.today().strftime("%Y%m%d%H%M%S%f") + '_'
 
+        filename = date_str + name + '.json'
         p = path if isinstance(path, Path) else Path(path)
-        savepath = p / date_str + name + '.json'
+        savepath = p / filename
 
         with savepath.open("w", encoding='utf8') as file:
             file.write(dumps(report_data, ensure_ascii=False, indent=4))
