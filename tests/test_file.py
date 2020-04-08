@@ -7,6 +7,7 @@ import gridfs
 from pymongo import errors, MongoClient
 from bson import ObjectId, DBRef
 from edman import Config, Convert, DB, File
+from edman.exceptions import EdmanDbProcessError
 
 
 class TestFile(TestCase):
@@ -507,6 +508,29 @@ class TestFile(TestCase):
                                               query)
             expected = dict(zip(files_oid, filename_list))
             self.assertDictEqual(actual, expected)
+
+            # 正常系 ファイルがなかった場合 →空のリストを出力
+            doc = {
+                'test1': {
+                    'test2': 'name2',
+                    'test3': {
+                        'test4': [
+                            {'test5': 'moon2'},
+                            {'test6': 'star2'}
+                        ]
+                    }
+                }
+            }
+            insert_result = self.testdb['structure_ref'].insert_one(doc)
+            oid = insert_result.inserted_id
+            actual = self.file.get_file_names('structure_ref', oid, 'ref')
+            self.assertDictEqual(actual, {})
+
+            # 異常系
+            # ドキュメントがなかった場合 →EdmanDbProcessErrorを補足
+            oid = ObjectId()
+            with self.assertRaises(EdmanDbProcessError):
+                _ = self.file.get_file_names('structure_ref', oid, 'ref')
 
     def test__get_file_ref(self):
         # 正常系(ref)

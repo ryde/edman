@@ -215,10 +215,10 @@ class File:
         return files_list
 
     def get_file_names(self, collection: str, oid: Union[ObjectId, str],
-                       structure: str,
-                       query: Union[list, None]) -> dict:
+                       structure: str, query=None) -> dict:
         """
         ファイル一覧を取得
+        ファイルが存在しなければ空の辞書を返す
 
         :param str collection:
         :param str oid:
@@ -229,26 +229,22 @@ class File:
         :rtype: dict
         """
         oid = Utils.conv_objectid(oid)
+        result = {}
 
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
-            # TODO resultはNoneのまま返却するように設計変更する予定
-            sys.exit('対象のコレクション、またはドキュメントが存在しません')
+            raise EdmanDbProcessError(
+                f'ドキュメントまたはコレクションが存在しません oid:{oid} collection:{collection}')
 
-        # ファイルリスト取得
-        files_list = self.get_file_ref(doc, structure, query)
-
-        result = {}
-        if files_list:
-            # ファイルリストを元にgridfsからファイル名を取り出す
-            for file_oid in files_list:
+        # gridfsからファイル名を取り出す
+        for file_oid in self.get_file_ref(doc, structure, query):
+            try:
                 fs_out = self.fs.get(file_oid)
+            except gridfs.errors.NoFile:
+                pass
+            else:
                 result.update({file_oid: fs_out.filename})
-        else:
-            # TODO 想定される挙動なので正常終了として改修する予定
-            raise EdmanDbProcessError('関連ファイルはありません')
-
         return result
 
     def download(self, oid: ObjectId, path: Union[str, Path]) -> bool:

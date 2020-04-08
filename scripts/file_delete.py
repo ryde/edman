@@ -40,7 +40,11 @@ try:
     query = Action.file_query_eval(args.query, structure)
 
     # ファイル名一覧を取得
-    file_names = file.get_file_names(collection, args.objectid, structure, query)
+    file_names = file.get_file_names(collection, args.objectid, structure,
+                                     query)
+    if not file_names:
+        sys.exit('ファイルは存在しません')
+
     file_oids = []
     # ファイル名一覧を画面表示&file_oid用リスト作成
     for idx, (oid, filename) in enumerate(file_names.items()):
