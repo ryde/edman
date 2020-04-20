@@ -24,7 +24,7 @@ class Search:
             self.connected_db = db.get_db
 
     def find(self, collection: str, query: dict, parent_depth: int,
-             child_depth: int) -> dict:
+             child_depth: int, exclusion=None) -> dict:
         """
         検索用メソッド
 
@@ -32,6 +32,7 @@ class Search:
         :param dict query: 検索クエリ
         :param int parent_depth: 親の指定深度
         :param int child_depth: 子の指定深度
+        :param None or list exclusion:除外するリファレンスキー 例 ['_ed_file']
         :return: result 親 + 自分 + 子の階層構造となった辞書データ
         :rtype: dict
         """
@@ -67,7 +68,8 @@ class Search:
             result = self._merge_parent(parent_result, result)
 
         # JSONデータ用に変換
-        result = self.process_data_derived_from_mongodb(result)
+        result = self.process_data_derived_from_mongodb(result,
+                                                        exclusion=exclusion)
 
         return result
 
