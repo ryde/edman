@@ -67,7 +67,7 @@ class Search:
             result = self._merge_parent(parent_result, result)
 
         # JSONデータ用に変換
-        result = self._process_data_derived_from_mongodb(result)
+        result = self.process_data_derived_from_mongodb(result)
 
         return result
 
@@ -217,7 +217,7 @@ class Search:
                 result = read_data
         return result
 
-    def _process_data_derived_from_mongodb(self, result_dict: dict) -> dict:
+    def process_data_derived_from_mongodb(self, result_dict: dict) -> dict:
         """
         MongoDB依存の項目を処理する::
           _idとrefの削除

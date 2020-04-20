@@ -230,7 +230,7 @@ class TestSearch(TestCase):
         expected = actual['parent_1']['parent_2']['car_name']
         self.assertEqual('STORATOS', expected)
 
-    def test__process_data_derived_from_mongodb(self):
+    def test_process_data_derived_from_mongodb(self):
 
         # 正常系
         data = {
@@ -303,7 +303,7 @@ class TestSearch(TestCase):
                 else:
                     detect_date(val)
 
-        actual = self.search._process_data_derived_from_mongodb(data)
+        actual = self.search.process_data_derived_from_mongodb(data)
         self.assertIsInstance(actual, dict)
         self.assertIsNone(rec(actual))
 
