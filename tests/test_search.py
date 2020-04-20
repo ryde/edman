@@ -1,4 +1,5 @@
 import configparser
+import copy
 from pathlib import Path
 from datetime import datetime
 from unittest import TestCase
@@ -230,7 +231,7 @@ class TestSearch(TestCase):
         expected = actual['parent_1']['parent_2']['car_name']
         self.assertEqual('STORATOS', expected)
 
-    def test__process_data_derived_from_mongodb(self):
+    def test_process_data_derived_from_mongodb(self):
 
         # 正常系
         data = {
@@ -303,9 +304,162 @@ class TestSearch(TestCase):
                 else:
                     detect_date(val)
 
-        actual = self.search._process_data_derived_from_mongodb(data)
+        actual = self.search.process_data_derived_from_mongodb(data)
         self.assertIsInstance(actual, dict)
         self.assertIsNone(rec(actual))
+
+        # 正常系 refsの指定 resultに_id, ed_parent, _ed_childを残す
+        data = {
+            'coll1': {
+                '_id': ObjectId(),
+                'data1': 1,
+                self.child: ['aa', 'bb'],
+                'coll2': {
+                    '_id': ObjectId(),
+                    'data2': 2,
+                    self.parent: 'cc',
+                    self.child: ['dd', 'ee'],
+                    'coll3': [
+                        {
+                            '_id': ObjectId(),
+                            'data3': 3,
+                            'list_data': [1, 3.24, 'string'],
+                            self.parent: 'ff',
+                            self.child: ['gg', 'hh'],
+                            self.file: [ObjectId(), ObjectId()]
+                        },
+                        {
+                            '_id': ObjectId(),
+                            'data4': 4,
+                            self.parent: 'ii',
+                            self.child: ['jj', 'kk']
+                        }
+                    ]
+                }
+            }
+        }
+        expected = copy.deepcopy(data)
+        del expected['coll1']['coll2']['coll3'][0][self.file]
+        refs = ['_id', self.parent, self.child]
+        actual = self.search.process_data_derived_from_mongodb(data,
+                                                               exclusion=refs)
+        self.assertDictEqual(actual, expected)
+
+        # 正常系 refsに設定するが空リストの場合
+        data = {
+            'coll1': {
+                '_id': ObjectId(),
+                'data1': 1,
+                self.child: ['aa', 'bb'],
+                'coll2': {
+                    '_id': ObjectId(),
+                    'data2': 2,
+                    self.parent: 'cc',
+                    self.child: ['dd', 'ee'],
+                    'coll3': [
+                        {
+                            '_id': ObjectId(),
+                            'data3': 3,
+                            'list_data': [1, 3.24, 'string'],
+                            self.parent: 'ff',
+                            self.child: ['gg', 'hh'],
+                            self.file: [ObjectId(), ObjectId()]
+                        },
+                        {
+                            '_id': ObjectId(),
+                            'data4': 4,
+                            self.parent: 'ii',
+                            self.child: ['jj', 'kk']
+                        }
+                    ]
+                }
+            }
+        }
+        expected = copy.deepcopy(data)
+        del expected['coll1']['_id']
+        del expected['coll1'][self.child]
+        del expected['coll1']['coll2']['_id']
+        del expected['coll1']['coll2'][self.parent]
+        del expected['coll1']['coll2'][self.child]
+        del expected['coll1']['coll2']['coll3'][0]['_id']
+        del expected['coll1']['coll2']['coll3'][0][self.parent]
+        del expected['coll1']['coll2']['coll3'][0][self.child]
+        del expected['coll1']['coll2']['coll3'][0][self.file]
+        del expected['coll1']['coll2']['coll3'][1]['_id']
+        del expected['coll1']['coll2']['coll3'][1][self.parent]
+        del expected['coll1']['coll2']['coll3'][1][self.child]
+        actual = self.search.process_data_derived_from_mongodb(data,
+                                                               exclusion=[])
+        self.assertDictEqual(actual, expected)
+
+        # 異常系 リファレンス系以外のキーを指定した場合
+        data_e1 = {
+            'coll1': {
+                '_id': ObjectId(),
+                'data1': 1,
+                self.child: ['aa', 'bb'],
+                'coll2': {
+                    '_id': ObjectId(),
+                    'data2': 2,
+                    self.parent: 'cc',
+                    self.child: ['dd', 'ee'],
+                    'coll3': [
+                        {
+                            '_id': ObjectId(),
+                            'data3': 3,
+                            'list_data': [1, 3.24, 'string'],
+                            self.parent: 'ff',
+                            self.child: ['gg', 'hh'],
+                            self.file: [ObjectId(), ObjectId()]
+                        },
+                        {
+                            '_id': ObjectId(),
+                            'data4': 4,
+                            self.parent: 'ii',
+                            self.child: ['jj', 'kk']
+                        }
+                    ]
+                }
+            }
+        }
+        with self.assertRaises(ValueError):
+            _ = self.search.process_data_derived_from_mongodb(data_e1,
+                                                              exclusion=[
+                                                                  'test'])
+
+        # 異常系 exclusionにリストとNone以外の値が入力された場合
+        data_e2 = {
+            'coll1': {
+                '_id': ObjectId(),
+                'data1': 1,
+                self.child: ['aa', 'bb'],
+                'coll2': {
+                    '_id': ObjectId(),
+                    'data2': 2,
+                    self.parent: 'cc',
+                    self.child: ['dd', 'ee'],
+                    'coll3': [
+                        {
+                            '_id': ObjectId(),
+                            'data3': 3,
+                            'list_data': [1, 3.24, 'string'],
+                            self.parent: 'ff',
+                            self.child: ['gg', 'hh'],
+                            self.file: [ObjectId(), ObjectId()]
+                        },
+                        {
+                            '_id': ObjectId(),
+                            'data4': 4,
+                            self.parent: 'ii',
+                            self.child: ['jj', 'kk']
+                        }
+                    ]
+                }
+            }
+        }
+        with self.assertRaises(ValueError):
+            _ = self.search.process_data_derived_from_mongodb(data_e2,
+                                                              exclusion=(1, 2))
 
     def test__format_datetime(self):
         # 正常系

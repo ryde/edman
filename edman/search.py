@@ -67,7 +67,7 @@ class Search:
             result = self._merge_parent(parent_result, result)
 
         # JSONデータ用に変換
-        result = self._process_data_derived_from_mongodb(result)
+        result = self.process_data_derived_from_mongodb(result)
 
         return result
 
@@ -217,17 +217,33 @@ class Search:
                 result = read_data
         return result
 
-    def _process_data_derived_from_mongodb(self, result_dict: dict) -> dict:
+    def process_data_derived_from_mongodb(self, result_dict: dict,
+                                          exclusion=None) -> dict:
         """
         MongoDB依存の項目を処理する::
           _idとrefの削除
           型をJSONに合わせる
 
         :param dict result_dict:
+        :param List or None exclusion:
+            default ['_id', self.parent, self.child, self.file]
         :return: result_dict
         :rtype: dict
         """
-        refs = ('_id', self.parent, self.child, self.file)
+        default_refs = ['_id', self.parent, self.child, self.file]
+        if exclusion is None:
+            refs = tuple(default_refs)
+        else:
+            if not isinstance(exclusion, list):
+                raise ValueError('listもしくはNoneが必要です')
+            else:
+                for i in exclusion:
+                    if i not in default_refs:
+                        raise ValueError(
+                            f"{['_id', self.parent, self.child, self.file]}"
+                            'の中から選択する必要があります')
+            # デフォルトの値からexclusionを差し引く
+            refs = tuple(set(default_refs) - set(exclusion))
 
         def recursive(data: dict):
             # idとrefの削除
