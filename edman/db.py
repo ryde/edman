@@ -1,6 +1,5 @@
 import sys
 import copy
-import traceback
 from typing import Union
 import jmespath
 from pymongo import MongoClient, errors
@@ -85,49 +84,63 @@ class DB:
 
         return edman_db
 
-    def insert(self, insert_data: list) -> list:
+    def insert(self, insert_data: list, cmd=True) -> list:
         """
         インサート実行
 
         :param list insert_data: バルクインサート対応のリストデータ
+        :param bool cmd: default True プログレスバーを標準出力するかどうかのフラグ
         :return: results
         :rtype: list
         """
         results = []
 
-        # tqdm用のドキュメントの合計数を取得
-        total_bulk_lists = sum(
-            (len(i[collection_name]) for i in insert_data for
-             collection_name, bulk_list in i.items() if
-             isinstance(bulk_list, list)))
-        if not total_bulk_lists:  # embの場合
-            total_bulk_lists = 1
+        if cmd:
+            # tqdm用のドキュメントの合計数を取得
+            total_bulk_lists = sum(
+                (len(i[collection_name]) for i in insert_data for
+                 collection_name, bulk_list in i.items() if
+                 isinstance(bulk_list, list)))
+            if not total_bulk_lists:  # embの場合
+                total_bulk_lists = 1
 
-        for i in insert_data:
-            collection_bar = tqdm(i.keys(), desc='collections', position=0)
-            doc_bar = tqdm(total=total_bulk_lists, desc='documents',
-                           position=1)
-            for collection, bulk_list in i.items():
+            for i in insert_data:
+                collection_bar = tqdm(i.keys(), desc='collections', position=0)
+                doc_bar = tqdm(total=total_bulk_lists, desc='documents',
+                               position=1)
+                for collection, bulk_list in i.items():
 
-                # データによっては
-                # 単一のドキュメントの時にリストで囲まれていない場合がある
-                if isinstance(bulk_list, dict):
-                    bulk_list = [bulk_list]
+                    # データによっては
+                    # 単一のドキュメントの時にリストで囲まれていない場合がある
+                    if isinstance(bulk_list, dict):
+                        bulk_list = [bulk_list]
 
-                try:
-                    result = self.db[collection].insert_many(bulk_list)
-                except errors.BulkWriteError as e:
-                    raise EdmanDbProcessError(
-                        f'インサートに失敗しました:{e.details}\nインサート結果:{results}')
+                    try:
+                        result = self.db[collection].insert_many(bulk_list)
+                    except errors.BulkWriteError as e:
+                        raise EdmanDbProcessError(
+                            f'インサートに失敗しました:{e.details}\nインサート結果:{results}')
 
-                results.append({collection: result.inserted_ids})
-                # プログレスバー表示関係
-                doc_bar.update(len(bulk_list))
-                collection_bar.set_description(f'Processing {collection}')
-                collection_bar.update(1)
+                    results.append({collection: result.inserted_ids})
+                    # プログレスバー表示関係
+                    doc_bar.update(len(bulk_list))
+                    collection_bar.set_description(f'Processing {collection}')
+                    collection_bar.update(1)
 
-            doc_bar.close()
-            collection_bar.close()
+                doc_bar.close()
+                collection_bar.close()
+        else:
+            for i in insert_data:
+                for collection, bulk_list in i.items():
+                    if isinstance(bulk_list, dict):
+                        bulk_list = [bulk_list]
+                    try:
+                        result = self.db[collection].insert_many(bulk_list)
+                    except errors.BulkWriteError as e:
+                        raise EdmanDbProcessError(
+                            f'インサートに失敗しました:{e.details}\nインサート結果:{results}')
+                    results.append({collection: result.inserted_ids})
+
         return results
 
     def find_collection_from_objectid(self,

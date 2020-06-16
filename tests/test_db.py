@@ -127,10 +127,39 @@ class TestDB(TestCase):
                     find_result = self.testdb[collection].find_one(query)
                     buff.append(find_result)
                 actual.append({collection: buff})
-
         for idx, i in enumerate(data):
             with self.subTest(i=i, idx=idx):
                 self.assertDictEqual(i, actual[idx])
+
+        data2 = [
+            {'collection1': [
+                {'name': 'IBM 5100', 'value': 100},
+                {'name': 'Apple II', 'value': 200}
+            ]
+            },
+            {'collection2': [
+                {'maker': 'HONDA', 'car': 'S600'},
+                {'maker': 'SUZUKI', 'car': 'Cappuccino'},
+            ]
+            }
+        ]
+        print('プログレスバー非表示 ここから')
+        insert_result2 = self.db.insert(data2, cmd=False)
+        print('プログレスバー非表示 ここまで')
+        self.assertIsInstance(insert_result2, list)
+
+        actual2 = []
+        for i in insert_result2:
+            for collection, oids in i.items():
+                buff = []
+                for idx, oid in enumerate(oids):
+                    query = {'_id': oid}
+                    find_result = self.testdb[collection].find_one(query)
+                    buff.append(find_result)
+                actual2.append({collection: buff})
+        for idx, i in enumerate(data2):
+            with self.subTest(i=i, idx=idx):
+                self.assertDictEqual(i, actual2[idx])
 
     def test_doc(self):
         if not self.db_server_connect:
