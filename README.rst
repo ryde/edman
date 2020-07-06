@@ -128,12 +128,12 @@ Json Format
     }
 
 | #date{}で囲むと日付書式がdatetime型に変換されます。書式はdateutilと同等。
-| 使用できる型はjsonに準拠。整数、浮動小数点数、ブール値、null型、配列も使用可。
 |     https://dateutil.readthedocs.io/en/stable/parser.html#module-dateutil.parser
+| 使用できる型はjsonに準拠。整数、浮動小数点数、ブール値、null型、配列も使用可。
 | jsonのオブジェクト型はEdmanでは階層構造として認識されます。
 |
 | 使ってはいけないコレクション名
-|   ・親子関係のリファレンスと同じ名前(_ed_parent,_ed_child) ※システム構築時にのみ変更可
+|   ・他ドキュメントのリファレンスと同じ名前(_ed_parent,_ed_child,_ed_file) ※システム構築時にのみ変更可
 | 使ってはいけないキー名
 |   ・日付表現の変換に使用(#date) ※システム構築時にのみ変更可
 |   ・ObjectIdと同じフィールド名(_id)
@@ -231,8 +231,6 @@ Author
 [yuskyamada](https://github.com/yuskyamada)
 
 [ryde](https://github.com/ryde)
-
-✨🍰✨
 
 .. |py_version| image:: https://img.shields.io/badge/python-3.6-blue.svg
     :alt: Use python
