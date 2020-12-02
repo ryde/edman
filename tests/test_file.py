@@ -315,11 +315,8 @@ class TestFile(TestCase):
             query = ['structure_2', '1']
 
             # メソッド実行
-            insert_file_emb_result = self.file.add_file_reference(collection,
-                                                                  oid,
-                                                                  files, 'emb',
-                                                                  query,
-                                                                  compress=True)
+            insert_file_emb_result = self.file.add_file_reference(
+                collection, oid, files, 'emb', query, compress=True)
             # ドキュメントをfindして出す
             result = self.testdb[collection].find_one({'_id': oid})
 
@@ -340,12 +337,12 @@ class TestFile(TestCase):
             # メソッド成功時のフラグ
             self.assertTrue(insert_file_emb_result)
 
-    def test__file_list_attachment(self):
+    def test_file_list_attachment(self):
 
         # _ed_fileがなかった場合
         doc = {'name': 'NSX', 'ddd': 'aaa'}
         files_oid = [ObjectId(), ObjectId()]
-        actual = self.file._file_list_attachment(doc, files_oid)
+        actual = self.file.file_list_attachment(doc, files_oid)
         expected = {'name': 'NSX', 'ddd': 'aaa', self.config.file: files_oid}
         self.assertDictEqual(expected, actual)
 
@@ -356,26 +353,26 @@ class TestFile(TestCase):
         files_oid = [oid1, oid2]
         doc = {'abc': '123', self.config.file: files_oid}
         at_files_oid = [ObjectId(), ObjectId()]
-        actual = self.file._file_list_attachment(doc, at_files_oid)
+        actual = self.file.file_list_attachment(doc, at_files_oid)
 
         files_oid2 = [oid1, oid2]
         expected = {'abc': '123', self.config.file: files_oid2 + at_files_oid}
 
         self.assertDictEqual(actual, expected)
 
-    def test__file_list_replace(self):
+    def test_file_list_replace(self):
         # _ed_fileがある場合
         files_oid = [ObjectId(), ObjectId()]
         doc = {'name': 'NSX', self.config.file: files_oid}
         rep_files_oid = [ObjectId(), ObjectId()]
-        actual = self.file._file_list_replace(doc, rep_files_oid)
+        actual = self.file.file_list_replace(doc, rep_files_oid)
         expected = {'name': 'NSX', self.config.file: rep_files_oid}
         self.assertDictEqual(expected, actual)
 
         # 空リストの場合
         doc = {'name': 'NSX', self.config.file: [ObjectId(), ObjectId()]}
         rep_files_oid = []
-        actual = self.file._file_list_replace(doc, rep_files_oid)
+        actual = self.file.file_list_replace(doc, rep_files_oid)
         expected = {'name': 'NSX'}
         self.assertDictEqual(expected, actual)
 
@@ -383,7 +380,7 @@ class TestFile(TestCase):
         doc = {'name': 'NSX'}
         rep_files_oid = [ObjectId(), ObjectId()]
         with self.assertRaises(ValueError):
-            _ = self.file._file_list_replace(doc, rep_files_oid)
+            _ = self.file.file_list_replace(doc, rep_files_oid)
 
     def test_fs_delete(self):
         if not self.db_server_connect:

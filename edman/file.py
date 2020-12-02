@@ -66,7 +66,6 @@ class File:
         # ドキュメント存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
-            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('対象のドキュメントが存在しません')
 
         if structure == 'emb':
@@ -88,12 +87,12 @@ class File:
             inserted_file_oids.append(self.fs.put(file_obj, **metadata))
 
         if structure == 'ref':
-            new_doc = self._file_list_attachment(doc, inserted_file_oids)
+            new_doc = self.file_list_attachment(doc, inserted_file_oids)
 
         elif structure == 'emb':
             try:
                 new_doc = Utils.doc_traverse(doc, inserted_file_oids, query,
-                                             self._file_list_attachment)
+                                             self.file_list_attachment)
             except Exception:
                 raise
         else:
@@ -127,7 +126,6 @@ class File:
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
-            # TODO resultはNoneのまま返却するように設計変更する予定
             sys.exit('対象のコレクション、またはドキュメントが存在しません')
 
         # ファイルリスト取得
@@ -144,14 +142,14 @@ class File:
         # ドキュメントを新しいファイルリファレンスに置き換える
         if structure == 'ref':
             try:
-                new_doc = self._file_list_replace(doc, files_list)
+                new_doc = self.file_list_replace(doc, files_list)
             except Exception:
                 raise
 
         elif structure == 'emb':
             try:
                 new_doc = Utils.doc_traverse(doc, files_list, query,
-                                             self._file_list_replace)
+                                             self.file_list_replace)
             except Exception:
                 raise
         else:
@@ -291,8 +289,8 @@ class File:
 
         return result
 
-    def _file_list_attachment(self, doc: dict,
-                              files_oid: List[ObjectId]) -> dict:
+    def file_list_attachment(self, doc: dict,
+                             files_oid: List[ObjectId]) -> dict:
         """
         辞書データにファイルのoidを挿入する
         docにself.file_refがあれば、追加する処理
@@ -304,17 +302,15 @@ class File:
         :return: doc
         :rtype: dict
         """
-
         if self.file_ref in doc:
             doc[self.file_ref].extend(files_oid)
             files_oid = sorted(list(set(doc[self.file_ref])))
         # self.file_refがなければ作成してfiles_oidを値として更新
-        if len(files_oid) != 0:
+        if len(files_oid):
             doc.update({self.file_ref: files_oid})
-
         return doc
 
-    def _file_list_replace(self, doc: dict, files_oid: list) -> dict:
+    def file_list_replace(self, doc: dict, files_oid: list) -> dict:
         """
         ドキュメントのファイルリファレンスを入力されたリストに置き換える
         もし空リストならファイルリファレンス自体を削除する
@@ -327,13 +323,12 @@ class File:
         :rtype: dict
         """
         if self.file_ref in doc:
-            if len(files_oid) == 0:
-                del doc[self.file_ref]
-            else:
+            if len(files_oid):
                 doc[self.file_ref] = files_oid
+            else:
+                del doc[self.file_ref]
         else:
             raise ValueError(f'{self.file_ref}がないか削除された可能性があります')
-
         return doc
 
     def _get_emb_files_list(self, doc: dict, query: list) -> list:

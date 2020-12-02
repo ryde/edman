@@ -160,6 +160,11 @@ class TestSearch(TestCase):
         self.assertEqual(sorted(list(data.keys())),
                          sorted(list(actual[test_collection].keys())))
 
+        # 存在しないデータの時はNoneを返す
+        query = {'_id': insert_result.inserted_id, 'test_data': 'foo'}
+        actual = self.search._get_self(query, test_collection)
+        self.assertIsNone(actual)
+
     def test__get_parent(self):
         if not self.db_server_connect:
             return
