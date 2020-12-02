@@ -363,19 +363,19 @@ class TestFile(TestCase):
 
         self.assertDictEqual(actual, expected)
 
-    def test__file_list_replace(self):
+    def test_file_list_replace(self):
         # _ed_fileがある場合
         files_oid = [ObjectId(), ObjectId()]
         doc = {'name': 'NSX', self.config.file: files_oid}
         rep_files_oid = [ObjectId(), ObjectId()]
-        actual = self.file._file_list_replace(doc, rep_files_oid)
+        actual = self.file.file_list_replace(doc, rep_files_oid)
         expected = {'name': 'NSX', self.config.file: rep_files_oid}
         self.assertDictEqual(expected, actual)
 
         # 空リストの場合
         doc = {'name': 'NSX', self.config.file: [ObjectId(), ObjectId()]}
         rep_files_oid = []
-        actual = self.file._file_list_replace(doc, rep_files_oid)
+        actual = self.file.file_list_replace(doc, rep_files_oid)
         expected = {'name': 'NSX'}
         self.assertDictEqual(expected, actual)
 
@@ -383,7 +383,7 @@ class TestFile(TestCase):
         doc = {'name': 'NSX'}
         rep_files_oid = [ObjectId(), ObjectId()]
         with self.assertRaises(ValueError):
-            _ = self.file._file_list_replace(doc, rep_files_oid)
+            _ = self.file.file_list_replace(doc, rep_files_oid)
 
     def test_fs_delete(self):
         if not self.db_server_connect:

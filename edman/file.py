@@ -142,14 +142,14 @@ class File:
         # ドキュメントを新しいファイルリファレンスに置き換える
         if structure == 'ref':
             try:
-                new_doc = self._file_list_replace(doc, files_list)
+                new_doc = self.file_list_replace(doc, files_list)
             except Exception:
                 raise
 
         elif structure == 'emb':
             try:
                 new_doc = Utils.doc_traverse(doc, files_list, query,
-                                             self._file_list_replace)
+                                             self.file_list_replace)
             except Exception:
                 raise
         else:
@@ -310,7 +310,7 @@ class File:
             doc.update({self.file_ref: files_oid})
         return doc
 
-    def _file_list_replace(self, doc: dict, files_oid: list) -> dict:
+    def file_list_replace(self, doc: dict, files_oid: list) -> dict:
         """
         ドキュメントのファイルリファレンスを入力されたリストに置き換える
         もし空リストならファイルリファレンス自体を削除する
@@ -323,13 +323,12 @@ class File:
         :rtype: dict
         """
         if self.file_ref in doc:
-            if len(files_oid) == 0:
-                del doc[self.file_ref]
-            else:
+            if len(files_oid):
                 doc[self.file_ref] = files_oid
+            else:
+                del doc[self.file_ref]
         else:
             raise ValueError(f'{self.file_ref}がないか削除された可能性があります')
-
         return doc
 
     def _get_emb_files_list(self, doc: dict, query: list) -> list:
