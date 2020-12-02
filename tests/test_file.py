@@ -340,12 +340,12 @@ class TestFile(TestCase):
             # メソッド成功時のフラグ
             self.assertTrue(insert_file_emb_result)
 
-    def test__file_list_attachment(self):
+    def test_file_list_attachment(self):
 
         # _ed_fileがなかった場合
         doc = {'name': 'NSX', 'ddd': 'aaa'}
         files_oid = [ObjectId(), ObjectId()]
-        actual = self.file._file_list_attachment(doc, files_oid)
+        actual = self.file.file_list_attachment(doc, files_oid)
         expected = {'name': 'NSX', 'ddd': 'aaa', self.config.file: files_oid}
         self.assertDictEqual(expected, actual)
 
@@ -356,7 +356,7 @@ class TestFile(TestCase):
         files_oid = [oid1, oid2]
         doc = {'abc': '123', self.config.file: files_oid}
         at_files_oid = [ObjectId(), ObjectId()]
-        actual = self.file._file_list_attachment(doc, at_files_oid)
+        actual = self.file.file_list_attachment(doc, at_files_oid)
 
         files_oid2 = [oid1, oid2]
         expected = {'abc': '123', self.config.file: files_oid2 + at_files_oid}
