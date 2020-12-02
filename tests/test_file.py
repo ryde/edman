@@ -315,11 +315,8 @@ class TestFile(TestCase):
             query = ['structure_2', '1']
 
             # メソッド実行
-            insert_file_emb_result = self.file.add_file_reference(collection,
-                                                                  oid,
-                                                                  files, 'emb',
-                                                                  query,
-                                                                  compress=True)
+            insert_file_emb_result = self.file.add_file_reference(
+                collection, oid, files, 'emb', query, compress=True)
             # ドキュメントをfindして出す
             result = self.testdb[collection].find_one({'_id': oid})
 
