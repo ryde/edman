@@ -1,6 +1,6 @@
-import sys
 from datetime import datetime
 from typing import Union
+from pymongo import errors
 from bson import errors, ObjectId
 from edman.utils import Utils
 from edman.exceptions import EdmanDbProcessError
@@ -20,7 +20,7 @@ class Search:
         self.file = config.file
         self.db = db
 
-        if db is not None:
+        if self.db is not None:
             self.connected_db = db.get_db
 
     def find(self, collection: str, query: dict, parent_depth: int,
@@ -44,6 +44,8 @@ class Search:
 
         query = self._objectid_replacement(query)
         self_result = self._get_self(query, collection)
+        if self_result is None:
+            raise EdmanDbProcessError('データを取得できませんでした')
         reference_point_result = self.db.get_reference_point(
             self_result[collection])
 
@@ -119,32 +121,33 @@ class Search:
                 raise
         return query
 
-    def _get_self(self, query: dict, collection: str) -> dict:
+    def _get_self(self, query: dict, collection: str) -> Union[dict, None]:
         """
         自分自身のドキュメント取得
 
         :param dict query:
         :param str collection:
         :return:
-        :rtype: dict
+        :rtype: dict or None
         """
-        docs = list(self.connected_db[collection].find(query))
-
-        if not len(docs):
-            # TODO resultはNoneのまま返却するように設計変更する予定
-            sys.exit('ドキュメントが見つかりませんでした')
+        result = None
+        try:
+            docs = list(self.connected_db[collection].find(query))
+        except errors.OperationFailure:
+            raise EdmanDbProcessError('ドキュメントが取得できませんでした')
         else:
-            # 複数ドキュメントの場合は選択処理へ
-            doc = docs[0] if len(docs) == 1 else self._self_data_select(docs)
-
-        return {collection: doc}
+            if len(docs):
+                # 複数ドキュメントの場合は選択処理へ
+                doc = docs[0] if len(docs) == 1 else self._self_data_select(docs)
+                result = {collection: doc}
+        return result
 
     @staticmethod
     def _self_data_select(docs: list) -> dict:
         """
         ドキュメント選択
 
-        TODO このメソッドはcli専用モジュールへ移動予定
+        TODO このメソッドはcli専用モジュールへ移動予定(find()をwebで使用する機会ある？)
         :param list docs:
         :return:
         :rtype: dict
