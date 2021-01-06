@@ -175,7 +175,7 @@ class TestUtils(TestCase):
         self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
 
-    def test__reference_item_delete(self):
+    def test_item_delete(self):
         # 正常系
         doc = {
             self.parent: ObjectId(),
@@ -183,7 +183,7 @@ class TestUtils(TestCase):
             self.file: [ObjectId(), ObjectId()],
             'param': 'OK'
         }
-        actual = Utils.reference_item_delete(
+        actual = Utils.item_delete(
             doc, ('_id', self.parent, self.child, self.file))
         expected = {'param': 'OK'}
         self.assertDictEqual(actual, expected)
