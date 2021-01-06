@@ -254,14 +254,14 @@ class Search:
             # idとrefの削除
             for key, val in data.items():
                 if isinstance(data[key], dict):
-                    recursive(Utils.reference_item_delete(data[key], refs))
+                    recursive(Utils.item_delete(data[key], refs))
                 # リストデータは中身を型変換する
                 elif isinstance(data[key], list) and Utils.item_literal_check(
                         data[key]):
                     data[key] = [self._format_datetime(i) for i in data[key]]
                 elif isinstance(data[key], list):
                     for item in data[key]:
-                        recursive(Utils.reference_item_delete(item, refs))
+                        recursive(Utils.item_delete(item, refs))
                 else:
                     try:  # 型変換
                         data[key] = self._format_datetime(data[key])

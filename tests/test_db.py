@@ -700,22 +700,6 @@ class TestDB(TestCase):
         actual = self.db.find_collection_from_objectid(str_oid)
         self.assertEqual(actual, collection)
 
-    def test__delete_execute(self):
-
-        # 正常系
-        doc = {'A': '1', 'B': '2', 'C': '3', 'D': '4'}
-        keys = ['A', 'C']
-        expected = {'B': '2', 'D': '4'}
-        self.db._delete_execute(doc, keys)
-        self.assertDictEqual(doc, expected)
-
-        # 正常系 キーが存在しなかった場合
-        doc = {'A': '1', 'B': '2', 'C': '3', 'D': '4'}
-        keys = ['E']
-        expected = {'A': '1', 'B': '2', 'C': '3', 'D': '4'}
-        self.db._delete_execute(doc, keys)
-        self.assertDictEqual(doc, expected)
-
     def test__convert_datetime_dict(self):
 
         # 正常系
