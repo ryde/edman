@@ -200,7 +200,7 @@ class DB:
         if not isinstance(doc_result, dict):
             raise EdmanInternalError(f'指定されたクエリはドキュメントではありません {query}')
 
-        result = Utils.reference_item_delete(
+        result = Utils.item_delete(
             doc_result, ('_id', self.parent, self.child, self.file_ref)
         ) if reference_delete else doc_result
 
@@ -255,7 +255,7 @@ class DB:
         if query is not None:  # emb
             try:
                 doc = Utils.doc_traverse(doc, [delete_key], query,
-                                         self._delete_execute)
+                                         Utils.item_delete)
             except Exception:
                 raise
         else:  # ref
@@ -269,20 +269,6 @@ class DB:
         result = True if replace_result.modified_count == 1 else False
 
         return result
-
-    @staticmethod
-    def _delete_execute(doc: dict, keys: list):
-        """
-        ドキュメントの削除処理
-        _doc_traverse()のコールバック関数
-
-        :param dict doc:
-        :param list keys:
-        :return:
-        """
-        for key in keys:
-            if key in doc:
-                del doc[key]
 
     def _convert_datetime_dict(self, amend: dict) -> dict:
         """

@@ -61,11 +61,11 @@ class Utils:
         """
         query.reverse()  # リストの削除処理速度向上のため、逆リストにする
 
-        def rec(doc):
+        def rec(document):
             """
             再帰中にクエリを一つづつ消費し、最後のクエリに到達したら更新
             """
-            for key, value in doc.items():
+            for key, value in document.items():
 
                 # クエリを全て消費しているなら終了
                 if len(query) == 0:
@@ -192,18 +192,18 @@ class Utils:
         return result
 
     @staticmethod
-    def reference_item_delete(doc: dict, del_keys: tuple) -> dict:
+    def item_delete(doc: dict, del_keys: tuple) -> dict:
         """
-        _id、親と子のリファレンス、ファイルリファレンスなどを削除
+        特定のキーの項目を削除
+        _id、親と子のリファレンス、ファイルリファレンスなど
 
         :param dict doc:
         :param tuple del_keys:
         :return: item
         :rtype: dict
         """
-        for key in del_keys:
-            if key in doc:
-                del doc[key]
+        for key in (i for i in del_keys if i in doc):
+            del doc[key]
         return doc
 
     @staticmethod
@@ -231,7 +231,7 @@ class Utils:
         """
         | MongoDBの命名規則チェック(フィールド名)
         | void, None(Null), 文字列先頭に($ .)は使用不可
-
+        |
         | https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names
 
         :param str field_name:
