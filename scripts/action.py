@@ -163,7 +163,7 @@ class Action:
 
         try:
             client = MongoClient(host, port)
-            client[admindb].command('ismaster')
+            client[admindb].command('hello')
         except errors.ConnectionFailure:
             sys.exit('DB server not exists.')
 
