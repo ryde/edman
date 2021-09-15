@@ -27,7 +27,7 @@ class TestDB(TestCase):
 
         # 接続確認
         try:
-            cls.client.admin.command('ismaster')
+            cls.client.admin.command('hello')
             cls.db_server_connect = True
             print('Use DB.')
         except errors.ConnectionFailure:
