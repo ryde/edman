@@ -65,7 +65,7 @@ class DB:
         client = MongoClient(statement)
 
         try:  # サーバの接続確認
-            client.admin.command('ismaster')
+            client.admin.command('hello')
         except errors.OperationFailure:
             raise EdmanDbConnectError('Invalid account.')
         except errors.ConnectionFailure:
