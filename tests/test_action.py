@@ -58,7 +58,7 @@ class TestAction(TestCase):
         # 正常系 json
         json_data = ('{"Sport":[{"D1":"Japan"},'
                      '{"WRC":"Safari","F1":"Monaco"}]}')
-        expected = json.loads(json_data, encoding='utf8')
+        expected = json.loads(json_data)
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as fp:
             fp.write(json_data)
             fp.seek(0)
