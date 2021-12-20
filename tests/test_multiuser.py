@@ -11,12 +11,17 @@ from edman.exceptions import EdmanDbConnectError
 
 class TestMultiUser(TestCase):
 
+    db_server_connect = False
+    test_ini = []
+    client = None
+    connections = []
+
     @classmethod
     def setUpClass(cls):
         # 設定読み込み
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
-        cls.test_ini = dict([i for i in settings['DB'].items()])
+        cls.test_ini = dict(settings.items('DB'))
         cls.test_ini['port'] = int(cls.test_ini['port'])
 
         # DB作成のため、pymongoから接続
@@ -28,7 +33,6 @@ class TestMultiUser(TestCase):
             cls.db_server_connect = True
             print('Use DB.')
         except errors.ConnectionFailure:
-            cls.db_server_connect = False
             print('Do not use DB.')
 
         # 作成するユーザ及びDBの数
@@ -51,9 +55,9 @@ class TestMultiUser(TestCase):
 
         if cls.db_server_connect:
             # adminで認証
-            cls.client[cls.test_ini['admin_db']].authenticate(
-                cls.test_ini['admin_user'],
-                cls.test_ini['admin_password'])
+            cls.client = MongoClient(
+                username=cls.test_ini['admin_user'],
+                password=cls.test_ini['admin_password'])
 
             connections = []
             for account in test_account:
@@ -69,10 +73,6 @@ class TestMultiUser(TestCase):
                         },
                     ],
                 )
-                # # ユーザ側認証 このauthenticate()は非推奨なので後々変更
-                cls.client[account['db_name']].authenticate(
-                    account['username'],
-                    account['password'])
 
                 # edmanのDB接続オブジェクト作成
                 con = {
@@ -85,7 +85,6 @@ class TestMultiUser(TestCase):
                 }
                 connections.append(con)
             cls.connections = connections
-            # print(connections)  #debug
 
     @classmethod
     def tearDownClass(cls):

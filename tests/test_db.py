@@ -13,13 +13,17 @@ from edman import Config, DB, Convert, File
 
 class TestDB(TestCase):
 
+    db_server_connect = False
+    test_ini = []
+    client = None
+
     @classmethod
     def setUpClass(cls):
 
         # 設定読み込み
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
-        cls.test_ini = dict([i for i in settings['DB'].items()])
+        cls.test_ini = dict(settings.items('DB'))
         cls.test_ini['port'] = int(cls.test_ini['port'])
 
         # DB作成のため、pymongoから接続
@@ -31,14 +35,14 @@ class TestDB(TestCase):
             cls.db_server_connect = True
             print('Use DB.')
         except errors.ConnectionFailure:
-            cls.db_server_connect = False
             print('Do not use DB.')
 
         if cls.db_server_connect:
             # adminで認証
-            cls.client[cls.test_ini['admin_db']].authenticate(
-                cls.test_ini['admin_user'],
-                cls.test_ini['admin_password'])
+            cls.client = MongoClient(
+                username=cls.test_ini['admin_user'],
+                password=cls.test_ini['admin_password'])
+
             # DB作成
             cls.client[cls.test_ini['db']].command(
                 "createUser",
@@ -51,12 +55,8 @@ class TestDB(TestCase):
                     },
                 ],
             )
-            # ユーザ側認証 このauthenticate()は非推奨なので後々変更
-            cls.client[cls.test_ini['db']].authenticate(cls.test_ini['user'],
-                                                        cls.test_ini[
-                                                            'password'])
             # edmanのDB接続オブジェクト作成
-            cls.con = {
+            con = {
                 'host': cls.test_ini['host'],
                 'port': cls.test_ini['port'],
                 'database': cls.test_ini['db'],
@@ -64,7 +64,7 @@ class TestDB(TestCase):
                 'user': cls.test_ini['user'],
                 'password': cls.test_ini['password']
             }
-            cls.db = DB(cls.con)
+            cls.db = DB(con)
             cls.testdb = cls.db.get_db
         else:
             cls.db = DB()
@@ -75,7 +75,6 @@ class TestDB(TestCase):
             # cls.clientはpymongo経由でDB削除
             # cls.testdb.dbはedman側の接続オブジェクト経由でユーザ(自分自身)の削除
             cls.client.drop_database(cls.test_ini['db'])
-            # cls.client[cls.admindb].authenticate(cls.adminid, cls.adminpasswd)
             cls.testdb.command("dropUser", cls.test_ini['user'])
 
     def tearDown(self) -> None:

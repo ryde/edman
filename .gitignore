@@ -90,7 +90,8 @@ ENV/
 # Rope project settings
 .ropeproject
 
-/scripts/ini/db.ini
+scripts/ini/db.ini
+tests/ini/test_db.ini
 
 # circleci
 .circleci/config.yml.bak
