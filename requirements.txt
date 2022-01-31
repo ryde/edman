@@ -1,0 +1,4 @@
+jmespath==0.10.0
+pymongo==4.0.1
+python-dateutil==2.8.2
+six==1.16.0
