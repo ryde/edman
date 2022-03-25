@@ -829,7 +829,7 @@ class DB:
         :rtype: dict
         """
 
-        if self.db[collection].count_documents() == 0:
+        if self.db[collection].estimated_document_count() == 0:
             raise EdmanInternalError('該当するドキュメントは存在しません')
 
         id_list = [doc['_id'] for doc in self.db[collection].find() if
