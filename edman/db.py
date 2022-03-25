@@ -678,7 +678,7 @@ class DB:
                 tmp = []
                 # ここでデータを取得する
                 for doc in doc_list:
-                    if tmp:= self._child_storaged(doc):
+                    if tmp := self._child_storaged(doc):
                         result.append(tmp)
                 depth -= 1
 
@@ -752,7 +752,8 @@ class DB:
             except ValueError:
                 raise
             return parent_id
-        return {foo(bros):bros for bros in find_result}
+
+        return {foo(bros): bros for bros in find_result}
 
     def _get_uni_parent(self, bros: dict) -> ObjectId:
         """
@@ -827,35 +828,33 @@ class DB:
         :return: result
         :rtype: dict
         """
-        docs = self.db[collection].find()
-        if docs.count() == 0:
+
+        if self.db[collection].count_documents() == 0:
             raise EdmanInternalError('該当するドキュメントは存在しません')
-        id_list = []
-        for doc in docs:
-            if self.get_structure(collection, doc['_id']) == 'emb':
-                id_list.append(doc['_id'])
+
+        id_list = [doc['_id'] for doc in self.db[collection].find() if
+                   self.get_structure(collection, doc['_id']) == 'emb']
 
         result_list = []
-        if len(id_list) != 0:
-            for oid in id_list:
-                emb_result = self.db[collection].find_one({'_id': oid})
-                del emb_result['_id']
-                convert = Convert()
-                pull_result = convert.pullout_key(emb_result, key)
-                if not pull_result:
-                    raise EdmanInternalError(f'{key}は存在しません')
+        for oid in id_list:
+            emb_result = self.db[collection].find_one({'_id': oid})
+            del emb_result['_id']
+            convert = Convert()
+            pull_result = convert.pullout_key(emb_result, key)
+            if not pull_result:
+                raise EdmanInternalError(f'{key}は存在しません')
 
-                if exclusion:
-                    result = convert.exclusion_key(pull_result, exclusion)
-                    if pull_result == result:
-                        raise EdmanInternalError(f'{list(exclusion)}は存在しません')
-                else:
-                    result = pull_result
+            if exclusion:
+                result = convert.exclusion_key(pull_result, exclusion)
+                if pull_result == result:
+                    raise EdmanInternalError(f'{list(exclusion)}は存在しません')
+            else:
+                result = pull_result
 
-                converted_edman = convert.dict_to_edman(result)
-                structured_result = self.insert(converted_edman)
-                structured_result.reverse()
-                result_list.append(structured_result)
+            converted_edman = convert.dict_to_edman(result)
+            structured_result = self.insert(converted_edman)
+            structured_result.reverse()
+            result_list.append(structured_result)
 
         result = {}
         if len(result_list):
