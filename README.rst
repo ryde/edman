@@ -157,7 +157,7 @@ Scripts Usage
 -------------
 
 |  scriptsはedman_cliを利用してください
-|  TODO url
+|  https://github.com/ryde/edman_cli
 
 Install
 -------
