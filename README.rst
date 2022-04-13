@@ -1,10 +1,6 @@
 edman
 =====
 
-
-|  EDMAN
-=====
-
 |py_version|
 
 |  KEK IMSS SBRC/PF Experimental Data Management System.
