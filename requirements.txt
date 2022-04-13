@@ -1,4 +1,13 @@
+attrs==21.4.0
+iniconfig==1.1.1
 jmespath==1.0.0
-pymongo==4.0.2
+packaging==21.3
+pluggy==1.0.0
+py==1.11.0
+pymongo==4.1.0
+pyparsing==3.0.8
+pytest==7.1.1
 python-dateutil==2.8.2
 six==1.16.0
+toml==0.10.2
+tomli==2.0.1
