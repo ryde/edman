@@ -142,3 +142,5 @@ tests/ini/test_db.ini
 
 # circleci
 .circleci/config.yml.bak
+
+.idea
