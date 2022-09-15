@@ -1,4 +1,5 @@
 import copy
+import urllib.parse
 from typing import Union
 from jmespath import exceptions as jms_exceptions, search as jms_search
 from pymongo import MongoClient, errors
@@ -47,18 +48,43 @@ class DB:
         """
         | DBに接続
         | self.edman_dbというメンバ変数には、このメソッドでDBオブジェクトが入る
+        |
+        | auth enabled example
+        | kwargs = {
+        |   'user':'user_name',
+        |   'host':'127.0.0.1',
+        |   'port':'27017',
+        |   'database':'db_name',
+        |   'password':'password',
+        |   'options':['authSource=db_name']
+        | }
+        | auth enabled and LDAP connection example
+        | kwargs = {
+        |   'user':'ldap_user_name',
+        |   'host':'127.0.0.1',
+        |   'port':'27017',
+        |   'database':'db_name',
+        |   'password':'password',
+        |   'options':['authMechanism=PLAIN']
+        | }
 
         :param dict kwargs: DB接続情報の辞書
         :return: DB接続インスタンス(self.edman_db)
         """
         host = kwargs['host']
         port = kwargs['port']
-        database = kwargs['database']
-        auth_database = kwargs['auth_database']
-        user = kwargs['user']
-        password = kwargs['password']
-        statement = f'mongodb://{user}:{password}@{host}:{port}/{auth_database}'
-        client = MongoClient(statement)
+        database = str(kwargs['database'])
+        user = urllib.parse.quote_plus(str(kwargs['user']))
+        password = urllib.parse.quote_plus(str(kwargs['password']))
+
+        statement = ""
+        if kwargs.get('options'):
+            for option in kwargs['options']:
+                connector = '&' if len(statement) else '?'
+                statement += connector + option
+
+        mongo_uri = f'mongodb://{user}:{password}@{host}:{port}/{statement}'
+        client = MongoClient(mongo_uri)
 
         try:  # サーバの接続確認
             client.admin.command('hello')

@@ -32,7 +32,7 @@ Modules Usage
     converted_edman = convert.dict_to_edman(json_dict)
 
     # insert
-    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'auth_database':'auth_database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    con = {'port':'27017', 'host':'localhost', 'user':'mongodb_user_name', 'password':'monogodb_user_password', 'database':'database_name', 'options':['authSource=auth_database_name']}
     db = DB(con)
     result = db.insert(converted_edman)
 
@@ -43,7 +43,7 @@ Modules Usage
     from path import Path
     from edman import DB, JsonManager, Search
 
-    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'auth_database':'auth_database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    con = {'port':'27017', 'host':'localhost', 'user':'mongodb_user_name', 'password':'monogodb_user_password', 'database':'database_name', 'options':['authSource=auth_database_name']}
     db = DB(con)
     search = Search(db)
     collection = 'target_collection'
@@ -76,7 +76,7 @@ Modules Usage
     # Same key will be modified, new key will be added
     # modified_data = {'key': 'modified value', 'new_key': 'value'}
 
-    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'auth_database':'auth_database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    con = {'port':'27017', 'host':'localhost', 'user':'mongodb_user_name', 'password':'monogodb_user_password', 'database':'database_name', 'options':['authSource=auth_database_name']}
     db = DB(con)
     result = db.update(collection, objectid, modified_data, structure='ref')
 
@@ -86,7 +86,7 @@ Modules Usage
 
     from edman import DB
 
-    con = {'port':'27017', 'host':'localhost', 'database':'database_name', 'auth_database':'auth_database_name', 'user':'mongodb_user_name', 'password':'monogodb_user_password'}
+    con = {'port':'27017', 'host':'localhost', 'user':'mongodb_user_name', 'password':'monogodb_user_password', 'database':'database_name', 'options':['authSource=auth_database_name']}
     db = DB(con)
     result = db.delete(objectid, collection, structure='ref')
 

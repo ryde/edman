@@ -197,12 +197,13 @@ class TestAction(TestCase):
             actual_db = dict([i for i in a['DB'].items()])
 
             expected_db = {
-                'port': '27017',
-                'host': '127.0.0.1',
-                'database': 'userdb',
-                'auth_database': 'userdb',
                 'user': 'username',
-                'password': 'userpwd'}
+                'password': 'userpwd',
+                'host': '127.0.0.1',
+                'port': '27017',
+                'database': 'userdb',
+                'options':['authSource=userdb']
+            }
 
             self.assertDictEqual(actual_db, expected_db)
 

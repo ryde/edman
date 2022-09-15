@@ -59,10 +59,10 @@ class TestDB(TestCase):
             con = {
                 'host': cls.test_ini['host'],
                 'port': cls.test_ini['port'],
-                'database': cls.test_ini['db'],
-                'auth_database': cls.test_ini['db'],
                 'user': cls.test_ini['user'],
-                'password': cls.test_ini['password']
+                'password': cls.test_ini['password'],
+                'database': cls.test_ini['db'],
+                'options': [f"authSource={cls.test_ini['db']}"]
             }
             cls.db = DB(con)
             cls.testdb = cls.db.get_db
