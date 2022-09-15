@@ -78,10 +78,10 @@ class TestMultiUser(TestCase):
                 con = {
                     'host': cls.test_ini['host'],
                     'port': cls.test_ini['port'],
-                    'database': account['db_name'],
-                    'auth_database': account['db_auth'],
                     'user': account['username'],
-                    'password': account['password']
+                    'password': account['password'],
+                    'database': account['db_name'],
+                    'options':[f"authSource={account['db_auth']}"]
                 }
                 connections.append(con)
             cls.connections = connections
