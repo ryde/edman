@@ -87,7 +87,7 @@ class DB:
         client = MongoClient(mongo_uri)
 
         try:  # サーバの接続確認
-            client.admin.command('hello')
+            client.admin.command('ping')
         except errors.OperationFailure:
             raise EdmanDbConnectError('Invalid account.')
         except errors.ConnectionFailure:
@@ -97,7 +97,7 @@ class DB:
 
         edman_db = client[database]
 
-        try:  # 現状、認証を確認する方法がないため、これで代用
+        try:  # 現状、承認を確認する方法がないため、これで代用
             edman_db.list_collection_names()
         except errors.OperationFailure:
             raise EdmanDbConnectError('Authentication failed.')

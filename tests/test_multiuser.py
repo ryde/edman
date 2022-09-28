@@ -106,7 +106,7 @@ class TestMultiUser(TestCase):
         connections = copy.deepcopy(self.connections)
         test_results = {}
         for connection in connections:
-            connection['auth_database'] = 'admin'
+            connection['options'] = ['authSource=admin']
             connection['user'] = 'admin'
             connection['password'] = 'admin'
             db = DB(connection)
