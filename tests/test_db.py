@@ -9,10 +9,10 @@ import dateutil.parser
 from pymongo import errors, MongoClient
 from bson import ObjectId, DBRef
 from edman import Config, DB, Convert, File
+from edman.exceptions import EdmanDbProcessError
 
 
 class TestDB(TestCase):
-
     db_server_connect = False
     test_ini = []
     client = None
@@ -31,7 +31,7 @@ class TestDB(TestCase):
 
         # 接続確認
         try:
-            cls.client.admin.command('hello')
+            cls.client.admin.command('ping')
             cls.db_server_connect = True
             print('Use DB.')
         except errors.ConnectionFailure:
@@ -42,6 +42,16 @@ class TestDB(TestCase):
             cls.client = MongoClient(
                 username=cls.test_ini['admin_user'],
                 password=cls.test_ini['admin_password'])
+
+            admin_conn = {
+                'host': cls.test_ini['host'],
+                'port': cls.test_ini['port'],
+                'user': cls.test_ini['admin_user'],
+                'password': cls.test_ini['admin_password'],
+                'database': cls.test_ini['admin_db'],
+                'options': [f"authSource={cls.test_ini['admin_db']}"]
+            }
+            cls.admin_db = DB(admin_conn)
 
             # DB作成
             cls.client[cls.test_ini['db']].command(
@@ -1977,6 +1987,159 @@ class TestDB(TestCase):
                     'list_data3': ['1', 2, '3', 4, 5, 6],
                     'list_data4': [1, 2, 3, 4, 5, 6]}
         self.assertDictEqual(actual, expected)
+
+    def test_create_user_and_db(self):
+        if not self.db_server_connect:
+            return
+
+        test_db_name = 'test_create_user_and_db'
+        test_user_name = 'test_create_user_and_db_user'
+
+        # 正常系
+        self.assertIsNone(
+            self.admin_db.create_user_and_db(user_name=test_user_name,
+                                             db_name=test_db_name, pwd='pwd'))
+        # 後始末
+        c = MongoClient(host=self.test_ini['host'],
+                        port=self.test_ini['port'],
+                        username=self.test_ini['admin_user'],
+                        password=self.test_ini['admin_password'],
+                        authSource=self.test_ini['admin_db'])
+        c[self.test_ini['admin_db']].command("dropUser", test_user_name)
+        c.drop_database(test_db_name)
+
+        # 異常系
+        # 接続していない
+        a = DB()
+        with self.assertRaises(EdmanDbProcessError):
+            a.create_user_and_db(test_db_name, test_user_name, 'pwd')
+        # adminじゃない
+        with self.assertRaises(EdmanDbProcessError):
+            self.db.create_user_and_db(test_db_name, test_user_name, 'pwd')
+        # パラメータが足りない
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.create_user_and_db('', test_user_name, 'pwd')
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.create_user_and_db(test_db_name, '', 'pwd')
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.create_user_and_db(test_db_name, test_user_name, '')
+
+    def test_create_role_and_db(self):
+        if not self.db_server_connect:
+            return
+
+        test_db_name = 'test_create_user_and_db'
+        test_role_name = 'test_create_user_and_db_role'
+
+        # 正常系
+        self.assertIsNone(
+            self.admin_db.create_role_and_db(test_db_name, test_role_name))
+        # 後始末
+        c = MongoClient(host=self.test_ini['host'],
+                        port=self.test_ini['port'],
+                        username=self.test_ini['admin_user'],
+                        password=self.test_ini['admin_password'],
+                        authSource=self.test_ini['admin_db'])
+        c[self.test_ini['admin_db']].command("dropRole", test_role_name)
+        c.drop_database(test_db_name)
+
+        # 異常系
+        # 接続していない
+        a = DB()
+        with self.assertRaises(EdmanDbProcessError):
+            a.create_role_and_db(test_db_name, test_role_name)
+        # adminじゃない
+        with self.assertRaises(EdmanDbProcessError):
+            self.db.create_role_and_db(test_db_name, test_role_name)
+        # パラメータが足りない
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.create_role_and_db('', test_role_name)
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.create_role_and_db(test_db_name, '')
+
+    def test_delete_user_and_db(self):
+        if not self.db_server_connect:
+            return
+
+        test_db_name = 'delete_user_testdb'
+        test_user_name = 'delete_user_and_db_testuser'
+        # テスト用ユーザ＆DB作成 テストのために手動で作成
+        c = MongoClient(host=self.test_ini['host'],
+                        port=self.test_ini['port'],
+                        username=self.test_ini['admin_user'],
+                        password=self.test_ini['admin_password'],
+                        authSource=self.test_ini['admin_db'])
+        c[self.test_ini['admin_db']].command(
+            "createUser",
+            test_user_name,
+            pwd=test_user_name,
+            roles=[
+                {
+                    'role': 'dbOwner',
+                    'db': test_db_name,
+                },
+            ],
+        )
+
+        # 正常
+        self.assertIsNone(
+            self.admin_db.delete_user_and_db(test_db_name, test_user_name))
+
+        # 異常
+        # 接続していない
+        a = DB()
+        with self.assertRaises(EdmanDbProcessError):
+            a.delete_user_and_db(test_db_name, test_user_name)
+        # adminじゃない
+        with self.assertRaises(EdmanDbProcessError):
+            self.db.delete_user_and_db(test_db_name, test_user_name)
+        # パラメータが足りない
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.delete_user_and_db('', test_user_name)
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.delete_user_and_db(test_db_name, '')
+
+    def test_delete_role_and_db(self):
+        if not self.db_server_connect:
+            return
+
+        test_db_name = 'delete_role_testdb'
+        test_role_name = 'test_role'
+        # テストロール作成 メソッドのテストのために手動で作成
+        c = MongoClient(host=self.test_ini['host'],
+                        port=self.test_ini['port'],
+                        username=self.test_ini['admin_user'],
+                        password=self.test_ini['admin_password'],
+                        authSource=self.test_ini['admin_db'])
+        c[self.test_ini['admin_db']].command(
+            "createRole",
+            test_role_name,
+            privileges=[],
+            roles=[
+                {
+                    'role': 'dbOwner',
+                    'db': test_db_name,
+                },
+            ],
+        )
+
+        # 正常系
+        self.assertIsNone(
+            self.admin_db.delete_role_and_db(test_db_name, test_role_name))
+
+        # 異常系
+        # 接続していない
+        a = DB()
+        with self.assertRaises(EdmanDbProcessError):
+            a.delete_role_and_db(test_db_name, test_role_name)
+        # adminじゃない
+        with self.assertRaises(EdmanDbProcessError):
+            self.db.delete_role_and_db(test_db_name, test_role_name)
+        # パラメータが足りない
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.delete_role_and_db('', test_role_name)
+        with self.assertRaises(EdmanDbProcessError):
+            self.admin_db.delete_role_and_db(test_db_name, '')
 
 # def test__generate_parent_id_dict(self):
 #     pass
