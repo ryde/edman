@@ -20,7 +20,8 @@ class DB:
 
         if con is not None:
             try:
-                self.db = self._connect(**con)
+                self.db, self.client = self._connect(**con)
+
             except EdmanDbConnectError:
                 raise
             except Exception:
@@ -104,7 +105,108 @@ class DB:
         except Exception as e:
             raise EdmanDbConnectError(e)
 
-        return edman_db
+        return edman_db, client
+
+    def create_user_and_db(self, db_name: str, user_name: str, pwd: str,
+                           role='dbOwner') -> None:
+        """
+        指定のDBとユーザを作成
+
+        admin権限のみ使える
+        DB内部ユーザのみ対象
+
+        :param str db_name:
+        :param str user_name:
+        :param str pwd:
+        :param str role: default 'dbOwner'
+        :return:
+        """
+        try:
+            self.db.command(
+                "createUser",
+                user_name,
+                pwd=pwd,
+                roles=[
+                    {
+                        'role': role,
+                        'db': db_name,
+                    },
+                ],
+            )
+        except AttributeError:
+            raise EdmanDbProcessError('接続処理されていません')
+        except errors.OperationFailure:
+            raise EdmanDbProcessError('DBの作成処理でエラーが起きました')
+
+    def create_role_and_db(self, db_name: str, role_name: str,
+                           role='dbOwner') -> None:
+        """
+        ロールを作成
+
+        dbはデータを入れないと実際には作成されない
+        admin権限のみ使える
+        LDAPユーザを想定(role_nameはグループのdnになる)
+
+        :param str db_name:
+        :param str role_name:
+        :param str role: default 'dbOwner'
+        :return:
+        """
+        try:
+            self.db.command(
+                "createRole",
+                role_name,
+                privileges=[],
+                roles=[
+                    {
+                        'role': role,
+                        'db': db_name,
+                    },
+                ],
+            )
+        except AttributeError:
+            raise EdmanDbProcessError('接続処理されていません')
+        except errors.OperationFailure:
+            raise EdmanDbProcessError('ロール作成処理でエラーが起きました')
+
+    def delete_user_and_db(self, db_name: str, user_name: str) -> None:
+        """
+        ユーザとDBを削除
+
+        adminでDBクラスをインスタンス化する
+
+        :param str db_name:
+        :param str user_name:
+        :return:
+        """
+        try:
+            cl = self.client
+            self.db.command("dropUser", user_name)
+            cl.drop_database(db_name)
+        except AttributeError:
+            raise EdmanDbProcessError('接続処理されていません')
+        except errors.OperationFailure:
+            raise EdmanDbProcessError('ユーザ及びDBの削除処理でエラーが起きました')
+
+    def delete_role_and_db(self, delete_db_name: str, role_name: str) -> None:
+        """
+        ロールとDBを削除
+
+        adminでDBクラスをインスタンス化する
+        LDAPユーザを想定
+
+        :param str delete_db_name:
+        :param str role_name:
+        :return:
+        """
+        try:
+            cl = self.client
+            self.db.command("dropRole", role_name)
+            cl.drop_database(delete_db_name)
+        except AttributeError:
+            raise EdmanDbProcessError('接続処理されていません')
+        except errors.OperationFailure:
+            raise EdmanDbProcessError('ロール及びDBの削除処理でエラーが起きました')
 
     def insert(self, insert_data: list) -> list:
         """
@@ -276,7 +378,8 @@ class DB:
                         buff = value
                     result.update({key: buff})
             except AttributeError:
-                raise EdmanInternalError(f'日付変換に失敗しました.構造に問題があります. {amend}')
+                raise EdmanInternalError(
+                    f'日付変換に失敗しました.構造に問題があります. {amend}')
         return result
 
     def update(self, collection: str, oid: Union[str, ObjectId],
@@ -478,7 +581,7 @@ class DB:
                 break
         if target is None:
             raise ValueError(
-                '親となる' + parent_doc['id'] + 'に' + str(del_oid) + 'が登録されていません')
+                f'親となる{parent_doc["id"]}に{str(del_oid)}が登録されていません')
         else:
             children.remove(target)
 
@@ -494,7 +597,7 @@ class DB:
                     {'_id': ref.id}, parent_doc)
 
         if not result.modified_count:
-            raise ValueError('親となる' + parent_doc['id'] + 'は変更できませんでした')
+            raise ValueError(f'親となる{parent_doc["id"]}は変更できませんでした')
 
     def _extract_elements_from_doc(self, doc: dict, collection: str) -> dict:
         """
