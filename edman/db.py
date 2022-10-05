@@ -181,11 +181,11 @@ class DB:
         """
         try:
             cl = self.client
-            self.db.command("dropUser", user_name)
+            cl[db_name].command("dropUser", user_name)
             cl.drop_database(db_name)
         except AttributeError:
             raise EdmanDbProcessError('接続処理されていません')
-        except errors.OperationFailure:
+        except (errors.OperationFailure, errors.InvalidName):
             raise EdmanDbProcessError('ユーザ及びDBの削除処理でエラーが起きました')
 
     def delete_role_and_db(self, delete_db_name: str, role_name: str) -> None:

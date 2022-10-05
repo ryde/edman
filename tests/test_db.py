@@ -2070,7 +2070,7 @@ class TestDB(TestCase):
                         username=self.test_ini['admin_user'],
                         password=self.test_ini['admin_password'],
                         authSource=self.test_ini['admin_db'])
-        c[self.test_ini['admin_db']].command(
+        c[test_db_name].command(
             "createUser",
             test_user_name,
             pwd=test_user_name,
