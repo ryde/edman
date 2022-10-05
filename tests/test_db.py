@@ -2005,7 +2005,8 @@ class TestDB(TestCase):
                         username=self.test_ini['admin_user'],
                         password=self.test_ini['admin_password'],
                         authSource=self.test_ini['admin_db'])
-        c[self.test_ini['admin_db']].command("dropUser", test_user_name)
+
+        c[test_db_name].command("dropUser", test_user_name)
         c.drop_database(test_db_name)
 
         # 異常系

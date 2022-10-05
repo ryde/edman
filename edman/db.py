@@ -122,7 +122,7 @@ class DB:
         :return:
         """
         try:
-            self.db.command(
+            self.client[db_name].command(
                 "createUser",
                 user_name,
                 pwd=pwd,
@@ -135,7 +135,7 @@ class DB:
             )
         except AttributeError:
             raise EdmanDbProcessError('接続処理されていません')
-        except errors.OperationFailure:
+        except (errors.OperationFailure, errors.InvalidName):
             raise EdmanDbProcessError('DBの作成処理でエラーが起きました')
 
     def create_role_and_db(self, db_name: str, role_name: str,
