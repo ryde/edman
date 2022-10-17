@@ -202,7 +202,9 @@ class DB:
         try:
             cl = self.client
             self.db.command("dropRole", role_name)
-            cl.drop_database(delete_db_name)
+            # DBが存在したら削除
+            if delete_db_name in cl.list_database_names():
+                cl.drop_database(delete_db_name)
         except AttributeError:
             raise EdmanDbProcessError('接続処理されていません')
         except errors.OperationFailure:
