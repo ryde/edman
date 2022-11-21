@@ -107,25 +107,66 @@ class DB:
 
         return edman_db, client
 
-    def create_user_and_db(self, db_name: str, user_name: str, pwd: str,
-                           role='dbOwner') -> None:
+    def create_user_and_role(self, db_name: str, user_name: str, pwd: str,
+                             role='readWrite', role_name='edman') -> None:
         """
-        指定のDBとユーザを作成
-
-        admin権限のみ使える
+        指定のロールとユーザを作成
         DB内部ユーザのみ対象
+        DB内部ユーザを作成するメソッドなので、各ユーザのDBにロールとユーザ情報を作成する
+        admin権限のみ使える
 
         :param str db_name:
         :param str user_name:
         :param str pwd:
-        :param str role: default 'dbOwner'
+        :param str role: default 'readWrite'
+        :param str role_name: default 'edman'
         :return:
         """
+        # ロール作成
+        try:
+            self.create_role_for_dbuser(db_name, role_name, role)
+        except EdmanDbProcessError:
+            raise
+
+        # ユーザ作成とロール適応
         try:
             self.client[db_name].command(
                 "createUser",
                 user_name,
                 pwd=pwd,
+                roles=[role_name]
+            )
+        except AttributeError:
+            raise EdmanDbProcessError('接続処理されていません')
+        except (errors.OperationFailure, errors.InvalidName):
+            self.client[db_name].command('dropRole', role_name)
+            raise EdmanDbProcessError('ユーザの作成処理でエラーが起きました')
+        except:
+            raise
+
+    def create_role_for_dbuser(self, db_name: str, role_name: str,
+                               role='readWrite') -> None:
+        """
+        ロールを作成
+
+        admin権限のみ使える
+        ユーザDBにロールを作成
+
+        :param str db_name:
+        :param str role_name:
+        :param str role: default 'readWrite'
+        :return:
+        """
+        try:
+            self.client[db_name].command(
+                "createRole",
+                role_name,
+                privileges=[
+                    {
+                        "resource": {"db": db_name, "collection": ""},
+                        "actions": ["changeOwnPassword"]
+                    }
+                ],
                 roles=[
                     {
                         'role': role,
@@ -136,27 +177,33 @@ class DB:
         except AttributeError:
             raise EdmanDbProcessError('接続処理されていません')
         except (errors.OperationFailure, errors.InvalidName):
-            raise EdmanDbProcessError('DBの作成処理でエラーが起きました')
+            raise EdmanDbProcessError('ロール作成処理でエラーが起きました')
+        except:
+            raise
 
-    def create_role_and_db(self, db_name: str, role_name: str,
-                           role='dbOwner') -> None:
+    def create_role(self, db_name: str, role_name: str,
+                    role='readWrite') -> None:
         """
         ロールを作成
 
-        dbはデータを入れないと実際には作成されない
         admin権限のみ使える
-        LDAPユーザを想定(role_nameはグループのdnになる)
+        LDAPユーザ用　admin DBにロールを作成、role_nameはグループのdn
 
         :param str db_name:
         :param str role_name:
-        :param str role: default 'dbOwner'
+        :param str role: default 'readWrite'
         :return:
         """
         try:
             self.db.command(
                 "createRole",
                 role_name,
-                privileges=[],
+                privileges=[
+                    {
+                        "resource": {"db": db_name, "collection": ""},
+                        "actions": ["changeOwnPassword"]
+                    }
+                ],
                 roles=[
                     {
                         'role': role,
@@ -166,49 +213,77 @@ class DB:
             )
         except AttributeError:
             raise EdmanDbProcessError('接続処理されていません')
-        except errors.OperationFailure:
+        except (errors.OperationFailure, errors.InvalidName):
             raise EdmanDbProcessError('ロール作成処理でエラーが起きました')
+        except:
+            raise
 
-    def delete_user_and_db(self, db_name: str, user_name: str) -> None:
+    def delete_user_and_role(self, user_name: str, db_name: str,
+                             role_name='edman', admin_name='admin') -> None:
         """
-        ユーザとDBを削除
+        ユーザ削除
+        adminのみ実行可能
 
-        adminでDBクラスをインスタンス化する
-
-        :param str db_name:
         :param str user_name:
+        :param str db_name:
+        :param str role_name: default 'edman'
+        :param str admin_name: default 'admin'
         :return:
         """
+        if user_name == admin_name:
+            raise EdmanDbProcessError(f"{admin_name}は管理者なので削除できません")
         try:
             cl = self.client
             cl[db_name].command("dropUser", user_name)
-            cl.drop_database(db_name)
+            self.delete_role(role_name, db_name)
         except AttributeError:
             raise EdmanDbProcessError('接続処理されていません')
         except (errors.OperationFailure, errors.InvalidName):
-            raise EdmanDbProcessError('ユーザ及びDBの削除処理でエラーが起きました')
+            raise EdmanDbProcessError('ユーザ及びロールの削除処理でエラーが起きました')
+        except:
+            raise
 
-    def delete_role_and_db(self, delete_db_name: str, role_name: str) -> None:
+    def delete_db(self, delete_db_name: str, admin_db='admin') -> None:
         """
-        ロールとDBを削除
-
-        adminでDBクラスをインスタンス化する
-        LDAPユーザを想定
+        DBの削除
 
         :param str delete_db_name:
-        :param str role_name:
+        :param str admin_db:
         :return:
         """
+        if delete_db_name == admin_db:
+            raise EdmanDbProcessError('管理者DBは削除できません')
         try:
             cl = self.client
-            self.db.command("dropRole", role_name)
-            # DBが存在したら削除
             if delete_db_name in cl.list_database_names():
                 cl.drop_database(delete_db_name)
         except AttributeError:
             raise EdmanDbProcessError('接続処理されていません')
         except errors.OperationFailure:
-            raise EdmanDbProcessError('ロール及びDBの削除処理でエラーが起きました')
+            raise EdmanDbProcessError('DBの削除処理でエラーが起きました')
+        except:
+            raise
+
+    def delete_role(self, role_name: str, target_db: str) -> None:
+        """
+        指定されたDB内のロールの削除
+        admin権限のみ
+
+        :param str role_name:
+        :param str target_db:
+        :return:
+        """
+        try:
+            cl = self.client
+            cl[target_db].command("dropRole", role_name)
+        except AttributeError:
+            raise EdmanDbProcessError('接続処理されていません')
+        except errors.InvalidName:
+            raise EdmanDbProcessError('ロール名が不正です')
+        except errors.OperationFailure:
+            raise EdmanDbProcessError('ロール削除処理でエラーが起きました')
+        except:
+            raise
 
     def insert(self, insert_data: list) -> list:
         """
