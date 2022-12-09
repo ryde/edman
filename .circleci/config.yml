@@ -6,13 +6,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: python:3.9.5
+      - image: python:3.10
         working_dir: '/root/'
         environment:
           TZ: "Asia/Tokyo"
           PYTHONDONTWRITEBYTECODE: 1
 
-      - image: mongo:5.0.5
+      - image: mongo:5.0
         environment:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: admin
