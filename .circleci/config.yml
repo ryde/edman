@@ -64,7 +64,7 @@ jobs:
           command: |
             source ~/venv/bin/activate
             mkdir ~/docs
-            sphinx-apidoc -f -o ./ ~/edman/edman/
+            sphinx-apidoc -F -o ~/edman/docs ~/edman/edman/
             make html
             cp -r _build/html ~/docs/
           working_directory: ~/edman/docs
