@@ -55,6 +55,7 @@ jobs:
           command: |
             source ~/venv/bin/activate
             mkdir ~/test-reports
+            cp ./ini/test_db.ini.sample ./ini/test_db.ini
             pytest --junitxml=~/test-reports/junit.xml
           working_directory: ~/edman/tests
 
