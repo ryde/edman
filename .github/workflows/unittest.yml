@@ -1,0 +1,73 @@
+name: edman Unittest
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  say_hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cat /etc/os-release
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          check-latest: true
+      - run: python -m venv venv
+      - run: source ./venv/bin/activate
+      - run: pip install -U pip
+      - run: pip install -U setuptools
+      - run: pip install sphinx pytest
+      - run: pip install ./edman/
+      - run: python --version
+      - run: mkdir ./test-reports
+      - run: cp ./edman/edman/tests/ini/test_db.ini.sample ./edman/edman/tests/ini/test_db.ini
+      - uses: docker://mongo:5.0
+        environment:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: admin
+          TZ: "Asia/Tokyo"
+        command: --auth
+      - run: pytest --junitxml=test-reports/junit.xml
+
+#          - run:
+#              command: |
+#                source ~/venv/bin/activate
+#                mkdir ~/test-reports
+#                cp ./ini/test_db.ini.sample ./ini/test_db.ini
+#                pytest --junitxml=~/test-reports/junit.xml
+#              working_directory: ~/edman/tests
+#
+#          - run:
+#              name: make docs
+#              command: |
+#                source ~/venv/bin/activate
+#                mkdir ~/docs
+#                sphinx-apidoc -F -o ~/edman/docs ~/edman/edman/
+#                make html
+#                cp -r _build/html ~/docs/
+#              working_directory: ~/edman/docs
+#
+#          - run:
+#              name: make docs repo and github push
+#              command: |
+#                cd html
+#                touch .nojekyll
+#                ls -la
+#                git init
+#                git config user.email "310414+ryde@users.noreply.github.com"
+#                git config user.name "actions"
+#                git add .
+#                git commit -m "apidoc html renew"
+#                git remote -v
+#                git remote add origin git@github.com:ryde/edman.git
+#                git push -f origin master:gh-pages
+#              working_directory: ~/docs
+#
+#          - store_artifacts:
+#              path: ~/test-reports
+#              destination: ~/test-reports
+#
+#          - store_artifacts:
+#              path: ~/docs/html
