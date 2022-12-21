@@ -5,7 +5,7 @@ on:
     branches: [ develop ]
 
 jobs:
-  edman unittest:
+  edman_unittest:
     runs-on: ubuntu-latest
     strategy:
       matrix:
