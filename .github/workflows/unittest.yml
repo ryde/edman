@@ -2,7 +2,7 @@ name: edman Unittest
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
 
 jobs:
   say_hello:
