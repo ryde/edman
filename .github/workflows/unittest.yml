@@ -37,5 +37,5 @@ jobs:
           mongodb-db: admin
 
       - name: run unittest
-      - run: cd ./edman
+        run: cd ./edman
       - run: pytest --junitxml=test-reports/junit.xml
