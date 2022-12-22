@@ -40,4 +40,5 @@ jobs:
 
       - name: run unittest
         run: cd ./tests
+      - run: pwd
       - run: pytest --junitxml=test-reports/junit.xml
