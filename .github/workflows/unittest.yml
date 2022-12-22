@@ -39,4 +39,4 @@ jobs:
           mongodb-db: admin
 
       - name: run unittest
-      - run: pytest --junitxml=test-reports/junit.xml
+        run: pytest --junitxml=test-reports/junit.xml
