@@ -49,4 +49,4 @@ jobs:
       - run: |
           cd ./api_docs
           make html
-      - run: ls -la ./api_docs/_build/
+      - run: ls -la ./api_docs/_build/html/
