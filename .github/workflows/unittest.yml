@@ -42,7 +42,7 @@ jobs:
           pwd
           pytest
 
-      - name: API doc output
+      - name: API doc output and push gh-pages
         run: |
           mkdir ./api_docs
           sphinx-apidoc -F -o ./api_docs ./edman/
