@@ -28,7 +28,7 @@ jobs:
       - run: pip install .
       - run: mkdir ./test-reports
       - run: cp ./tests/ini/test_db.ini.sample ./tests/ini/test_db.ini
-      - run: ls -la
+      - run: ls -la ./tests
 
       - name: setup DB
         uses: supercharge/mongodb-github-action@1.8.0
