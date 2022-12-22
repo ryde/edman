@@ -55,6 +55,7 @@ jobs:
           command: |
             source ~/venv/bin/activate
             mkdir ~/test-reports
+            cp ./ini/test_db.ini.sample ./ini/test_db.ini
             pytest --junitxml=~/test-reports/junit.xml
           working_directory: ~/edman/tests
 
@@ -63,7 +64,7 @@ jobs:
           command: |
             source ~/venv/bin/activate
             mkdir ~/docs
-            sphinx-apidoc -f -o ./ ~/edman/edman/
+            sphinx-apidoc -F -o ~/edman/docs ~/edman/edman/
             make html
             cp -r _build/html ~/docs/
           working_directory: ~/edman/docs

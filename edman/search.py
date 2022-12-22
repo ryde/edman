@@ -10,6 +10,7 @@ from edman import Config
 class Search:
     """
     検索関連クラス
+
     """
 
     def __init__(self, db=None) -> None:
