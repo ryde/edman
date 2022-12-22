@@ -43,9 +43,9 @@ jobs:
           pwd
           pytest
 
-      - name: API doc output
-        run: |
-          mkdir ./api_docs
-          sphinx-apidoc -F -o ./api_docs ./edman/
-          make html
-          cat ./api_docs/html/
+#      - name: API doc output
+#        run: |
+#          mkdir ./api_docs
+#          sphinx-apidoc -F -o ./api_docs ./edman/
+#          make html
+#          cat ./api_docs/html/
