@@ -39,6 +39,6 @@ jobs:
           mongodb-db: admin
 
       - name: run unittest
-        run: cd ./tests
+        working-directory: ./tests
       - run: pwd
       - run: pytest --junitxml=test-reports/junit.xml
