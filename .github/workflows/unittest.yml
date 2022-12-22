@@ -41,8 +41,8 @@ jobs:
         run: |
           cd ./tests
           pwd
-          pytest          
-          # pytest --junitxml=test-reports/junit.xml
+          pytest
+        # pytest --junitxml=test-reports/junit.xml
 
 #      - name: test-reports output
 #        run:
