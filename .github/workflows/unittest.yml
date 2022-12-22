@@ -25,6 +25,7 @@ jobs:
       - run: pip install -U pip setuptools
       - run: pip install sphinx pytest
       - run: pwd
+      - run: ls -la
       - run: pip install ./edman/
       - run: mkdir ./edman/test-reports
       - run: cp ./edman/edman/tests/ini/test_db.ini.sample ./edman/edman/tests/ini/test_db.ini
