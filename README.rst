@@ -169,7 +169,7 @@ MIT
 
 API Document
 ------------
-https://yuskyamada.github.io/EDMAN/
+https://ryde.github.io/edman/
 
 Author
 ------
