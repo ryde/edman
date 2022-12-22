@@ -28,7 +28,7 @@ jobs:
       - run: pip install .
       - run: mkdir ./test-reports
       - run: cp ./tests/ini/test_db.ini.sample ./tests/ini/test_db.ini
-      - run: ls -la ./tests/ini
+      # - run: ls -la ./tests/ini
 
       - name: setup DB
         uses: supercharge/mongodb-github-action@1.8.0
@@ -39,4 +39,5 @@ jobs:
           mongodb-db: admin
 
       - name: run unittest
-        run: pytest --junitxml=test-reports/junit.xml
+        run: cd ./tests
+      - run: pytest --junitxml=test-reports/junit.xml
