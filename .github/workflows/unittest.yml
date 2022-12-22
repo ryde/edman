@@ -26,9 +26,9 @@ jobs:
       - run: pip install sphinx pytest
       - run: pwd
       - run: ls -la
-      - run: pip install ./edman/
-      - run: mkdir ./edman/test-reports
-      - run: cp ./edman/edman/tests/ini/test_db.ini.sample ./edman/edman/tests/ini/test_db.ini
+      - run: pip install .
+      - run: mkdir ./test-reports
+      - run: cp ./tests/ini/test_db.ini.sample ./tests/ini/test_db.ini
 
       - name: setup DB
         uses: supercharge/mongodb-github-action@1.8.0
@@ -39,5 +39,4 @@ jobs:
           mongodb-db: admin
 
       - name: run unittest
-        run: cd ./edman
       - run: pytest --junitxml=test-reports/junit.xml
