@@ -49,4 +49,4 @@ jobs:
       - run: |
           cd ./api_docs
           make html
-      - run: cat ./api_docs/html/
+      - run: cat ./api_doc/_build/html/
