@@ -1,0 +1,77 @@
+edman package
+=============
+
+Submodules
+----------
+
+edman.config module
+-------------------
+
+.. automodule:: edman.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+edman.convert module
+--------------------
+
+.. automodule:: edman.convert
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+edman.db module
+---------------
+
+.. automodule:: edman.db
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+edman.exceptions module
+-----------------------
+
+.. automodule:: edman.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+edman.file module
+-----------------
+
+.. automodule:: edman.file
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+edman.json\_manager module
+--------------------------
+
+.. automodule:: edman.json_manager
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+edman.search module
+-------------------
+
+.. automodule:: edman.search
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+edman.utils module
+------------------
+
+.. automodule:: edman.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: edman
+   :members:
+   :undoc-members:
+   :show-inheritance:

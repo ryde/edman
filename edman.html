@@ -1,0 +1,1453 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>edman package &#8212; edman  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to edman’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="edman-package">
+<h1>edman package<a class="headerlink" href="#edman-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-edman.config">
+<span id="edman-config-module"></span><h2>edman.config module<a class="headerlink" href="#module-edman.config" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edman.config.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><a class="reference internal" href="_modules/edman/config.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.config.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>このパッケージを利用したシステム上での共通の定義</p>
+<p><strong>デフォルトのままをおすすめする</strong></p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">定義を変更した場合、このパッケージを利用している他のシステムと、データ交換ができなくなる</div>
+<div class="line">DBにデータが入っている状態で、この定義を変更した場合、データが破壊される可能性が高い</div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">それでも変更したい場合は、単一、もしくは同じシステム内で定義を統一すること</div>
+<div class="line">その場合、他のシステムとデータ交換したくなった場合は独自に変換スクリプトを作成すること</div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.config.Config.child">
+<span class="sig-name descname"><span class="pre">child</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_ed_child'</span></em><a class="headerlink" href="#edman.config.Config.child" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.config.Config.date">
+<span class="sig-name descname"><span class="pre">date</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#date'</span></em><a class="headerlink" href="#edman.config.Config.date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.config.Config.file">
+<span class="sig-name descname"><span class="pre">file</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_ed_file'</span></em><a class="headerlink" href="#edman.config.Config.file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.config.Config.gzip_compress_level">
+<span class="sig-name descname"><span class="pre">gzip_compress_level</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#edman.config.Config.gzip_compress_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.config.Config.parent">
+<span class="sig-name descname"><span class="pre">parent</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_ed_parent'</span></em><a class="headerlink" href="#edman.config.Config.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edman.convert">
+<span id="edman-convert-module"></span><h2>edman.convert module<a class="headerlink" href="#module-edman.convert" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edman.convert.Convert">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.convert.</span></span><span class="sig-name descname"><span class="pre">Convert</span></span><a class="reference internal" href="_modules/edman/convert.html#Convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>研究データをEdman用にコンバートするクラス</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.convert.Convert.dict_to_edman">
+<span class="sig-name descname"><span class="pre">dict_to_edman</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ref'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/edman/convert.html#Convert.dict_to_edman"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert.dict_to_edman" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">json辞書からedman用に変換する</div>
+<div class="line">embはobjectIdを付与したり、辞書からリストに変換している</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_data</strong> (<em>dict</em>) – JSONを辞書にしたデータ</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – ref(reference) or emb(embedded) データ構造の選択肢</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>インサート用のリストデータ</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.convert.Convert.emb">
+<span class="sig-name descname"><span class="pre">emb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/convert.html#Convert.emb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert.emb" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">エンベデッドモードでedman用の変換を行う</div>
+<div class="line">主に日付の変換</div>
+<div class="line">update処理でも使用している</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>raw_data</strong> (<em>dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.convert.Convert.exclusion_key">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exclusion_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ex_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/convert.html#Convert.exclusion_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert.exclusion_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>指定のキーの要素を除外する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>ex_keys</strong> (<em>tuple</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.convert.Convert.pullout_key">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pullout_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pull_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/convert.html#Convert.pullout_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert.pullout_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>最初に発見した指定のキーの要素を、子要素を含めて抜き出す</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>pull_key</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>output</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edman.db">
+<span id="edman-db-module"></span><h2>edman.db module<a class="headerlink" href="#module-edman.db" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edman.db.DB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.db.</span></span><span class="sig-name descname"><span class="pre">DB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">con</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/db.html#DB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<div class="line-block">
+<div class="line">DB関連クラス</div>
+<div class="line">MongoDBへの接続や各種チェック、インサート、作成や破棄など</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.bson_type">
+<span class="sig-name descname"><span class="pre">bson_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bson_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.bson_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.bson_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>DB内のデータをJSONに従って型変更をする
+DBにあってJSONにないキーは無視
+スペルミスも含め型一覧にない型を指定した時はstrに変換
+|
+|   JSON例:
+|   {
+|       “コレクション名”:{
+|           “キー”: “変更する型”,
+|           “キー2”: “変更する型”,
+|       },
+|       “コレクション名2”:{
+|           “キー”: [“変更する型”,”変更する型”],
+|       }
+|   }</p>
+<div class="line-block">
+<div class="line">値がリストの時</div>
+<div class="line-block">
+<div class="line">・双方どちらかがリストでない時は無視</div>
+<div class="line">・JSON側が単一、DB側が複数の時は単一の型で全て変換する</div>
+<div class="line-block">
+<div class="line">JSON:[‘str’]</div>
+<div class="line">DB:[‘1’,’2’,’3’]</div>
+</div>
+<div class="line">・JSON側よりDB側が少ない時はJSON側は切り捨て</div>
+<div class="line-block">
+<div class="line">JSON:[‘str’、’int’, ‘int’]</div>
+<div class="line">DB:[‘1’,2]</div>
+</div>
+<div class="line">・DB側よりJSON側が少ない時は、リストの最後の型で繰り返す</div>
+<div class="line-block">
+<div class="line">JSON:[‘str’、’int’]</div>
+<div class="line">DB:[‘1’,2,3,4,5]</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">型一覧:</div>
+<div class="line">[int,float,bool,str,datetime]</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bson_data</strong> (<em>dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.create_role">
+<span class="sig-name descname"><span class="pre">create_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'readWrite'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.create_role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.create_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>ロールを作成</p>
+<p>admin権限のみ使える
+LDAPユーザ用　admin DBにロールを作成、role_nameはグループのdn</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>role_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>role</strong> (<em>str</em>) – default ‘readWrite’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.create_role_for_dbuser">
+<span class="sig-name descname"><span class="pre">create_role_for_dbuser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'readWrite'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.create_role_for_dbuser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.create_role_for_dbuser" title="Permalink to this definition">¶</a></dt>
+<dd><p>ロールを作成</p>
+<p>admin権限のみ使える
+ユーザDBにロールを作成</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>role_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>role</strong> (<em>str</em>) – default ‘readWrite’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.create_user_and_role">
+<span class="sig-name descname"><span class="pre">create_user_and_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pwd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'readWrite'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'edman'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.create_user_and_role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.create_user_and_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>指定のロールとユーザを作成
+DB内部ユーザのみ対象
+DB内部ユーザを作成するメソッドなので、各ユーザのDBにロールとユーザ情報を作成する
+admin権限のみ使える</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>user_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>pwd</strong> (<em>str</em>) – </p></li>
+<li><p><strong>role</strong> (<em>str</em>) – default ‘readWrite’</p></li>
+<li><p><strong>role_name</strong> (<em>str</em>) – default ‘edman’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ObjectId</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.delete" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">ドキュメントを削除する</div>
+<div class="line">指定のoidを含む下位のドキュメントを全削除</div>
+<div class="line">refで親が存在する時は親のchildリストから指定のoidを取り除く</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oid</strong> (<em>str</em><em> or </em><em>ObjectId</em>) – </p></li>
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.delete_db">
+<span class="sig-name descname"><span class="pre">delete_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delete_db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'admin'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.delete_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.delete_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>DBの削除</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delete_db_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>admin_db</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.delete_reference">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emb_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.delete_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.delete_reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>ドキュメント内の特定の項目(リファレンスも)を削除する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>emb_data</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>reference</strong> (<em>tuple</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.delete_role">
+<span class="sig-name descname"><span class="pre">delete_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.delete_role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.delete_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>指定されたDB内のロールの削除
+admin権限のみ</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>role_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>target_db</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.delete_user_and_role">
+<span class="sig-name descname"><span class="pre">delete_user_and_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'edman'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'admin'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.delete_user_and_role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.delete_user_and_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>ユーザ削除
+adminのみ実行可能</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>db_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>role_name</strong> (<em>str</em>) – default ‘edman’</p></li>
+<li><p><strong>admin_name</strong> (<em>str</em>) – default ‘admin’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.doc">
+<span class="sig-name descname"><span class="pre">doc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ObjectId</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_delete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.doc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.doc" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">refもしくはembのドキュメントを取得する</div>
+<div class="line">オプションでedman特有のデータ含んで取得することもできる</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em><em> or </em><em>str</em>) – </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) – </p></li>
+<li><p><strong>reference_delete</strong> (<em>bool</em>) – default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.find_collection_from_objectid">
+<span class="sig-name descname"><span class="pre">find_collection_from_objectid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ObjectId</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.find_collection_from_objectid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.find_collection_from_objectid" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">DB内のコレクションから指定のObjectIDを探し、所属しているコレクションを返す</div>
+<div class="line">DBに負荷がかかるので使用は注意が必要</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>oid</strong> (<em>ObjectId</em><em> or </em><em>str</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>collection</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.get_child">
+<span class="sig-name descname"><span class="pre">get_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_child"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_child" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">子のドキュメントを取得</div>
+<div class="line"><br /></div>
+<div class="line">depthで深度を設定し、階層分取得する</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self_doc</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>depth</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.get_child_all">
+<span class="sig-name descname"><span class="pre">get_child_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_child_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_child_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>子のドキュメントを再帰で全部取得</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self_doc</strong> (<em>dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.get_collections">
+<span class="sig-name descname"><span class="pre">get_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gf_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_collections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_collections" title="Permalink to this definition">¶</a></dt>
+<dd><p>コレクションを取得</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coll_filter</strong> (<em>dict</em><em> or </em><em>None</em>) – </p></li>
+<li><p><strong>gf_filter</strong> (<em>bool</em>) – default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edman.db.DB.get_db">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_db</span></span><a class="headerlink" href="#edman.db.DB.get_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>プロパティ</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DB接続インスタンス(self.db)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.get_reference_point">
+<span class="sig-name descname"><span class="pre">get_reference_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self_result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_reference_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_reference_point" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">ドキュメントに親や子のリファレンス項目名が含まれているか調べる</div>
+<div class="line"><br /></div>
+<div class="line">片方しかない場合は末端(親、または一番下の子)となる</div>
+<div class="line">両方含まれていればこのドキュメントには親と子が存在する</div>
+<div class="line">両方含まれていなければ、単独のドキュメント</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self_result</strong> (<em>dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.get_structure">
+<span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>対象のドキュメントの構造を取得する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ref or emb</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.insert">
+<span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">insert_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.insert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>インサート実行</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>insert_data</strong> (<em>list</em>) – バルクインサート対応のリストデータ</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.item_delete">
+<span class="sig-name descname"><span class="pre">item_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ObjectId</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.item_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.item_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>ドキュメントの項目を削除する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>str</em><em> or </em><em>ObjectId</em>) – </p></li>
+<li><p><strong>delete_key</strong> (<em>str</em>) – </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.loop_exclusion_key_and_ref">
+<span class="sig-name descname"><span class="pre">loop_exclusion_key_and_ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.loop_exclusion_key_and_ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.loop_exclusion_key_and_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>対象のコレクション内のドキュメントを全て、指定のキーの要素を抜き出してrefに変換してDBに入れる
+また、取り出したデータ内の指定の要素を除外することもできる</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – 変換対象のコレクション</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – refに変換開始する対象のキー</p></li>
+<li><p><strong>exclusion</strong> (<em>tuple</em>) – 除外するキーの設定</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.pack_list">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pack_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.pack_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.pack_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>typesが少ない時に、最後の値で足りない分を埋める
+例
+types = [str, int, int, str]
+target = [‘1’, ‘2’, ‘3’, ‘4’, ‘5’]
+出力は [str, int, int, str, str]</p>
+<p>types = [int]
+target = [‘1’, ‘2’, ‘3’, ‘4’, ‘5’]
+出力は [int, int, int, int, int]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>types</strong> – </p></li>
+<li><p><strong>target</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>types</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.structure">
+<span class="sig-name descname"><span class="pre">structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>構造をrefからembへ、またはembからrefへ変更する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em>) – </p></li>
+<li><p><strong>structure_mode</strong> (<em>str</em>) – </p></li>
+<li><p><strong>new_collection</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>structured_result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ObjectId</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amend_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>修正データを用いてDBデータをアップデート</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>str</em><em> or </em><em>ObjectId</em>) – </p></li>
+<li><p><strong>amend_data</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edman.exceptions">
+<span id="edman-exceptions-module"></span><h2>edman.exceptions module<a class="headerlink" href="#module-edman.exceptions" title="Permalink to this heading">¶</a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="edman.exceptions.EdmanDbConnectError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.exceptions.</span></span><span class="sig-name descname"><span class="pre">EdmanDbConnectError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/exceptions.html#EdmanDbConnectError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.exceptions.EdmanDbConnectError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edman.exceptions.EdmanError" title="edman.exceptions.EdmanError"><code class="xref py py-class docutils literal notranslate"><span class="pre">EdmanError</span></code></a></p>
+<p>DB接続に関するエラー</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="edman.exceptions.EdmanDbProcessError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.exceptions.</span></span><span class="sig-name descname"><span class="pre">EdmanDbProcessError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/exceptions.html#EdmanDbProcessError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.exceptions.EdmanDbProcessError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edman.exceptions.EdmanError" title="edman.exceptions.EdmanError"><code class="xref py py-class docutils literal notranslate"><span class="pre">EdmanError</span></code></a></p>
+<p>DB実行処理に関するエラー</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="edman.exceptions.EdmanError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.exceptions.</span></span><span class="sig-name descname"><span class="pre">EdmanError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/exceptions.html#EdmanError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.exceptions.EdmanError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="edman.exceptions.EdmanFormatError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.exceptions.</span></span><span class="sig-name descname"><span class="pre">EdmanFormatError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/exceptions.html#EdmanFormatError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.exceptions.EdmanFormatError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edman.exceptions.EdmanError" title="edman.exceptions.EdmanError"><code class="xref py py-class docutils literal notranslate"><span class="pre">EdmanError</span></code></a></p>
+<p>Edmanの名称や決まりごとに関するエラー</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="edman.exceptions.EdmanInternalError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.exceptions.</span></span><span class="sig-name descname"><span class="pre">EdmanInternalError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/exceptions.html#EdmanInternalError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.exceptions.EdmanInternalError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edman.exceptions.EdmanError" title="edman.exceptions.EdmanError"><code class="xref py py-class docutils literal notranslate"><span class="pre">EdmanError</span></code></a></p>
+<p>Edmanの処理に関するエラー</p>
+</dd></dl>
+
+</section>
+<section id="module-edman.file">
+<span id="edman-file-module"></span><h2>edman.file module<a class="headerlink" href="#module-edman.file" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edman.file.File">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.file.</span></span><span class="sig-name descname"><span class="pre">File</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/file.html#File"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ファイル取扱クラス</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.add_file_reference">
+<span class="sig-name descname"><span class="pre">add_file_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ObjectId</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.add_file_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.add_file_reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>ドキュメントにファイルリファレンスを追加する
+ファイルのインサート処理、圧縮処理なども行う</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em><em> or </em><em>str</em>) – </p></li>
+<li><p><strong>file_path</strong> (<em>tuple</em>) – </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) – </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) – </p></li>
+<li><p><strong>compress</strong> (<em>bool</em>) – default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delete_oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ObjectId</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>該当のoidをファイルリファレンスから削除し、GridFSからファイルを削除</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delete_oid</strong> (<em>ObjectId</em>) – </p></li>
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>str</em>) – </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) – </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.download">
+<span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gridfsからデータをダウンロードし、ファイルに保存
+metadataに圧縮指定があれば伸長する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oid</strong> (<em>ObjectId</em>) – </p></li>
+<li><p><strong>path</strong> (<em>str</em><em> or </em><em>Path</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.file_gen">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">file_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.file_gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.file_gen" title="Permalink to this definition">¶</a></dt>
+<dd><p>ファイルタプルからファイルを取り出すジェネレータ</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>files</strong> (<em>tuple</em>) – 中身はPathオブジェクト</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ファイル名と内容(str)のタプル</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.file_list_attachment">
+<span class="sig-name descname"><span class="pre">file_list_attachment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files_oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ObjectId</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.file_list_attachment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.file_list_attachment" title="Permalink to this definition">¶</a></dt>
+<dd><p>辞書データにファイルのoidを挿入する
+docにself.file_refがあれば、追加する処理
+oidが重複していないものだけ追加
+ファイルが同じでも別のoidが与えられていれば追加される</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>files_oid</strong> (<em>list</em>) – ObjectIdのリスト</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>doc</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.file_list_replace">
+<span class="sig-name descname"><span class="pre">file_list_replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files_oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.file_list_replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.file_list_replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>ドキュメントのファイルリファレンスを入力されたリストに置き換える
+もし空リストならファイルリファレンス自体を削除する
+すでにファイルリファレンスデータが存在していることを前提としているため、
+docにファイルリファレンスデータが無かった場合は例外を発生する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>files_oid</strong> (<em>list</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>doc</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.fs_delete">
+<span class="sig-name descname"><span class="pre">fs_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.fs_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.fs_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>fsからファイル削除</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>oids</strong> (<em>list</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.get_file_names">
+<span class="sig-name descname"><span class="pre">get_file_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ObjectId</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.get_file_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.get_file_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>ファイル一覧を取得
+ファイルが存在しなければ空の辞書を返す</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>str</em>) – </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) – </p></li>
+<li><p><strong>query</strong> (<em>list</em><em> or </em><em>None</em>) – embの時だけ必要. refの時はNone</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.get_file_ref">
+<span class="sig-name descname"><span class="pre">get_file_ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.get_file_ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.get_file_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>ファイルリファレンス情報を取得</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>structure</strong> (<em>str</em>) – </p></li>
+<li><p><strong>query</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list or None</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>files_list</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edman.json_manager">
+<span id="edman-json-manager-module"></span><h2>edman.json_manager module<a class="headerlink" href="#module-edman.json_manager" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edman.json_manager.JsonManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.json_manager.</span></span><span class="sig-name descname"><span class="pre">JsonManager</span></span><a class="reference internal" href="_modules/edman/json_manager.html#JsonManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.json_manager.JsonManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>JSONファイルの取扱いクラス</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.json_manager.JsonManager.save">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/json_manager.html#JsonManager.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.json_manager.JsonManager.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>JSONファイルに書き出し</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>report_data</strong> (<em>dict</em>) – 対象の辞書データ</p></li>
+<li><p><strong>path</strong> (<em>str</em><em> or </em><em>Path</em>) – ファイルパス</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – ファイル名</p></li>
+<li><p><strong>date</strong> (<em>bool</em>) – 日付 ファイル名先頭に追加</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edman.search">
+<span id="edman-search-module"></span><h2>edman.search module<a class="headerlink" href="#module-edman.search" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edman.search.Search">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.search.</span></span><span class="sig-name descname"><span class="pre">Search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/search.html#Search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>検索関連クラス</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.search.Search.find">
+<span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.find"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>検索用メソッド</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – 対象コレクション</p></li>
+<li><p><strong>query</strong> (<em>dict</em>) – 検索クエリ</p></li>
+<li><p><strong>parent_depth</strong> (<em>int</em>) – 親の指定深度</p></li>
+<li><p><strong>child_depth</strong> (<em>int</em>) – 子の指定深度</p></li>
+</ul>
+</dd>
+</dl>
+<p>:param None or list exclusion:除外するリファレンスキー 例 [‘_ed_file’]
+:return: result 親 + 自分 + 子の階層構造となった辞書データ
+:rtype: dict</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.search.Search.process_data_derived_from_mongodb">
+<span class="sig-name descname"><span class="pre">process_data_derived_from_mongodb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.process_data_derived_from_mongodb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.process_data_derived_from_mongodb" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>MongoDB依存の項目を処理する::</dt><dd><p>_idとrefの削除
+型をJSONに合わせる</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result_dict</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>exclusion</strong> (<em>List</em><em> or </em><em>None</em>) – default [‘_id’, self.parent, self.child, self.file]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result_dict</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edman.utils">
+<span id="edman-utils-module"></span><h2>edman.utils module<a class="headerlink" href="#module-edman.utils" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edman.utils.Utils">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.utils.</span></span><span class="sig-name descname"><span class="pre">Utils</span></span><a class="reference internal" href="_modules/edman/utils.html#Utils"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<div class="line-block">
+<div class="line">各クラス共通の静的メソッド</div>
+<div class="line">インスタンス化禁止</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.child_combine">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">child_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rec_result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.child_combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.child_combine" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">同じコレクションのデータをリストでまとめるジェネレータ</div>
+<div class="line"><br /></div>
+<div class="line">コレクション:ドキュメントのリストを作成</div>
+<div class="line">{collection:[{key:value},{key:value}…]}</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rec_result</strong> (<em>list</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.collection_name_check">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collection_name_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.collection_name_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.collection_name_check" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">MongoDBの命名規則チェック(コレクション名)
+| # $ None(null) ‘’ system.</div>
+<div class="line">最初がアンスコか文字</div>
+<div class="line">mongoの制約の他に頭文字に#もNG</div>
+<div class="line"><br /></div>
+<div class="line">コレクション名空間の最大長は、データベース名、ドット（.）区切り文字</div>
+<div class="line">およびコレクション名（つまり &lt;database&gt;.&lt;collection&gt;）を合わせて</div>
+<div class="line">120バイトを超えないこと</div>
+<div class="line">ただし、子のメソッド利用時はDB名を取得するタイミングではないため、</div>
+<div class="line">文字数のチェックは行えないことを留意すること</div>
+<div class="line"><br /></div>
+<div class="line"><a class="reference external" href="https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names">https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names</a></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>collection_name</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.conv_objectid">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conv_objectid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ObjectId</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ObjectId</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.conv_objectid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.conv_objectid" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">文字列だった場合ObjectIdを変換する</div>
+<div class="line">元々ObjectIdならそのまま</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>oid</strong> (<em>ObjectId</em><em> or </em><em>str</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ObjectId</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.doc_traverse">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">doc_traverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.doc_traverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.doc_traverse" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">ドキュメントを走査し、クエリで指定した階層に指定の関数オブジェクトを適応</div>
+<div class="line">関数適応後のドキュメントを返す</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>target_keys</strong> (<em>list</em>) – コールバック関数の適応対象の辞書のキーのリスト</p></li>
+<li><p><strong>query</strong> (<em>list</em>) – </p></li>
+<li><p><strong>f</strong> (<em>Callable</em>) – コールバック関数</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>doc</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.field_name_check">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_name_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.field_name_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.field_name_check" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">MongoDBの命名規則チェック(フィールド名)</div>
+<div class="line">void, None(Null), 文字列先頭に($ .)は使用不可</div>
+<div class="line"><br /></div>
+<div class="line"><a class="reference external" href="https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names">https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names</a></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>field_name</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.generate_jms_query">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_jms_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/utils.html#Utils.generate_jms_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.generate_jms_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.item_delete">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">item_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">del_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.item_delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.item_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>特定のキーの項目を削除
+_id、親と子のリファレンス、ファイルリファレンスなど</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>del_keys</strong> (<em>tuple</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>item</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.item_literal_check">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">item_literal_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_child</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.item_literal_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.item_literal_check" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">リストデータ内にリテラルやオブジェクトのデータだけあればTrue</div>
+<div class="line">それ以外はFalse</div>
+<div class="line"><br /></div>
+<div class="line">OKパターン</div>
+<div class="line">list_child = [1,2,3]</div>
+<div class="line">list_child = [1,2,objectId()]</div>
+<div class="line"><br /></div>
+<div class="line">NGパターン</div>
+<div class="line">list_child = {‘A’:’B’}</div>
+<div class="line">list_child = [‘A’:[1,2,3]]</div>
+<div class="line">list_child = [1,2,{‘A’:’B’}]</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list_child</strong> (<em>dict</em><em> or </em><em>list</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.query_check">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">query_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.query_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.query_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>クエリーが正しいか評価</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>list</em>) – </p></li>
+<li><p><strong>doc</strong> (<em>dict</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.to_datetime">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.to_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.to_datetime" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">日付もしくは日付時間をdatetimeオブジェクトに変換</div>
+<div class="line">日付や日付時間にならないものは文字列に変換</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime or str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.utils.Utils.type_cast_conv">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type_cast_conv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datatype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">parse</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.type_cast_conv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.type_cast_conv" title="Permalink to this definition">¶</a></dt>
+<dd><p>データタイプに合わせて型を選択する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>datatype</strong> (<em>int</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool or int or float or str or dateutil.parser.parse</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edman">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-edman" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">edman</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">edman package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.config">edman.config module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.child"><code class="docutils literal notranslate"><span class="pre">Config.child</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.date"><code class="docutils literal notranslate"><span class="pre">Config.date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.file"><code class="docutils literal notranslate"><span class="pre">Config.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.gzip_compress_level"><code class="docutils literal notranslate"><span class="pre">Config.gzip_compress_level</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.parent"><code class="docutils literal notranslate"><span class="pre">Config.parent</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.convert">edman.convert module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.convert.Convert"><code class="docutils literal notranslate"><span class="pre">Convert</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.convert.Convert.dict_to_edman"><code class="docutils literal notranslate"><span class="pre">Convert.dict_to_edman()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.convert.Convert.emb"><code class="docutils literal notranslate"><span class="pre">Convert.emb()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.convert.Convert.exclusion_key"><code class="docutils literal notranslate"><span class="pre">Convert.exclusion_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.convert.Convert.pullout_key"><code class="docutils literal notranslate"><span class="pre">Convert.pullout_key()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.db">edman.db module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.db.DB"><code class="docutils literal notranslate"><span class="pre">DB</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.bson_type"><code class="docutils literal notranslate"><span class="pre">DB.bson_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.create_role"><code class="docutils literal notranslate"><span class="pre">DB.create_role()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.create_role_for_dbuser"><code class="docutils literal notranslate"><span class="pre">DB.create_role_for_dbuser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.create_user_and_role"><code class="docutils literal notranslate"><span class="pre">DB.create_user_and_role()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.delete"><code class="docutils literal notranslate"><span class="pre">DB.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.delete_db"><code class="docutils literal notranslate"><span class="pre">DB.delete_db()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.delete_reference"><code class="docutils literal notranslate"><span class="pre">DB.delete_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.delete_role"><code class="docutils literal notranslate"><span class="pre">DB.delete_role()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.delete_user_and_role"><code class="docutils literal notranslate"><span class="pre">DB.delete_user_and_role()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.doc"><code class="docutils literal notranslate"><span class="pre">DB.doc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.find_collection_from_objectid"><code class="docutils literal notranslate"><span class="pre">DB.find_collection_from_objectid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_child"><code class="docutils literal notranslate"><span class="pre">DB.get_child()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_child_all"><code class="docutils literal notranslate"><span class="pre">DB.get_child_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_collections"><code class="docutils literal notranslate"><span class="pre">DB.get_collections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_db"><code class="docutils literal notranslate"><span class="pre">DB.get_db</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_reference_point"><code class="docutils literal notranslate"><span class="pre">DB.get_reference_point()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_structure"><code class="docutils literal notranslate"><span class="pre">DB.get_structure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.insert"><code class="docutils literal notranslate"><span class="pre">DB.insert()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.item_delete"><code class="docutils literal notranslate"><span class="pre">DB.item_delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.loop_exclusion_key_and_ref"><code class="docutils literal notranslate"><span class="pre">DB.loop_exclusion_key_and_ref()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.pack_list"><code class="docutils literal notranslate"><span class="pre">DB.pack_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.structure"><code class="docutils literal notranslate"><span class="pre">DB.structure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.update"><code class="docutils literal notranslate"><span class="pre">DB.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.exceptions">edman.exceptions module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.exceptions.EdmanDbConnectError"><code class="docutils literal notranslate"><span class="pre">EdmanDbConnectError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edman.exceptions.EdmanDbProcessError"><code class="docutils literal notranslate"><span class="pre">EdmanDbProcessError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edman.exceptions.EdmanError"><code class="docutils literal notranslate"><span class="pre">EdmanError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edman.exceptions.EdmanFormatError"><code class="docutils literal notranslate"><span class="pre">EdmanFormatError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edman.exceptions.EdmanInternalError"><code class="docutils literal notranslate"><span class="pre">EdmanInternalError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.file">edman.file module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.file.File"><code class="docutils literal notranslate"><span class="pre">File</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.add_file_reference"><code class="docutils literal notranslate"><span class="pre">File.add_file_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.delete"><code class="docutils literal notranslate"><span class="pre">File.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.download"><code class="docutils literal notranslate"><span class="pre">File.download()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.file_gen"><code class="docutils literal notranslate"><span class="pre">File.file_gen()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.file_list_attachment"><code class="docutils literal notranslate"><span class="pre">File.file_list_attachment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.file_list_replace"><code class="docutils literal notranslate"><span class="pre">File.file_list_replace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.fs_delete"><code class="docutils literal notranslate"><span class="pre">File.fs_delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_file_names"><code class="docutils literal notranslate"><span class="pre">File.get_file_names()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_file_ref"><code class="docutils literal notranslate"><span class="pre">File.get_file_ref()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.json_manager">edman.json_manager module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.json_manager.JsonManager"><code class="docutils literal notranslate"><span class="pre">JsonManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.json_manager.JsonManager.save"><code class="docutils literal notranslate"><span class="pre">JsonManager.save()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.search">edman.search module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.search.Search"><code class="docutils literal notranslate"><span class="pre">Search</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.find"><code class="docutils literal notranslate"><span class="pre">Search.find()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.process_data_derived_from_mongodb"><code class="docutils literal notranslate"><span class="pre">Search.process_data_derived_from_mongodb()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman.utils">edman.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.utils.Utils"><code class="docutils literal notranslate"><span class="pre">Utils</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.child_combine"><code class="docutils literal notranslate"><span class="pre">Utils.child_combine()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.collection_name_check"><code class="docutils literal notranslate"><span class="pre">Utils.collection_name_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.conv_objectid"><code class="docutils literal notranslate"><span class="pre">Utils.conv_objectid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.doc_traverse"><code class="docutils literal notranslate"><span class="pre">Utils.doc_traverse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.field_name_check"><code class="docutils literal notranslate"><span class="pre">Utils.field_name_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.generate_jms_query"><code class="docutils literal notranslate"><span class="pre">Utils.generate_jms_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.item_delete"><code class="docutils literal notranslate"><span class="pre">Utils.item_delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.item_literal_check"><code class="docutils literal notranslate"><span class="pre">Utils.item_literal_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.query_check"><code class="docutils literal notranslate"><span class="pre">Utils.query_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.to_datetime"><code class="docutils literal notranslate"><span class="pre">Utils.to_datetime()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.utils.Utils.type_cast_conv"><code class="docutils literal notranslate"><span class="pre">Utils.type_cast_conv()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edman">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to edman’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/edman.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
