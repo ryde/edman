@@ -20,15 +20,14 @@ jobs:
         with:
           python-version: '3.10'
           check-latest: true
-      - run: python -m venv venv
-      - run: source ./venv/bin/activate
-      - run: pip install -U pip setuptools
-      - run: pip install sphinx pytest
-      # - run: pwd
-      - run: pip install .
-      - run: mkdir ./test-reports
-      - run: cp ./tests/ini/test_db.ini.sample ./tests/ini/test_db.ini
-      # - run: ls -la ./tests/ini
+        run: |
+          python -m venv venv
+          source ./venv/bin/activate
+          pip install -U pip setuptools
+          pip install sphinx pytest
+          pip install .
+          mkdir ./test-reports
+          cp ./tests/ini/test_db.ini.sample ./tests/ini/test_db.ini
 
       - name: setup DB
         uses: supercharge/mongodb-github-action@1.8.0
@@ -42,4 +41,15 @@ jobs:
         run: |
           cd ./tests
           pwd
-          pytest --junitxml=test-reports/junit.xml
+          pytest          
+          # pytest --junitxml=test-reports/junit.xml
+
+#      - name: test-reports output
+#        run:
+
+      - name: API doc output
+        run: |
+          mkdir ./api_docs
+          sphinx-apidoc -F -o ./api_docs ./edman/
+          make html
+          cat ./api_docs/html/
