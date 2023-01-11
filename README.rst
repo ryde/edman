@@ -152,7 +152,7 @@ Json Format
 Scripts Usage
 -------------
 
-|  scriptsはedman_cliを利用してください
+|  コマンドライン用実行スクリプトはedman_cliを利用してください
 |  https://github.com/ryde/edman_cli
 
 Install
@@ -174,9 +174,9 @@ https://ryde.github.io/edman/
 Author
 ------
 
-[yuskyamada](https://github.com/yuskyamada)
-
 [ryde](https://github.com/ryde)
+
+[yuskyamada](https://github.com/yuskyamada)
 
 .. |py_version| image:: https://img.shields.io/badge/python-3.10-blue.svg
     :alt: Use python
