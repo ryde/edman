@@ -9,9 +9,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -42,7 +39,7 @@
 
 
 <div class="viewcode-block" id="Utils"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils">[docs]</a><span class="k">class</span> <span class="nc">Utils</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    | 各クラス共通の静的メソッド</span>
 <span class="sd">    | インスタンス化禁止</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -52,7 +49,7 @@
 
 <div class="viewcode-block" id="Utils.item_literal_check"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.item_literal_check">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">item_literal_check</span><span class="p">(</span><span class="n">list_child</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | リストデータ内にリテラルやオブジェクトのデータだけあればTrue</span>
 <span class="sd">        | それ以外はFalse</span>
 <span class="sd">        |</span>
@@ -83,7 +80,7 @@
 <div class="viewcode-block" id="Utils.doc_traverse"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.doc_traverse">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">doc_traverse</span><span class="p">(</span><span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">target_keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
                      <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | ドキュメントを走査し、クエリで指定した階層に指定の関数オブジェクトを適応</span>
 <span class="sd">        | 関数適応後のドキュメントを返す</span>
 
@@ -97,7 +94,7 @@
         <span class="n">query</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>  <span class="c1"># リストの削除処理速度向上のため、逆リストにする</span>
 
         <span class="k">def</span> <span class="nf">rec</span><span class="p">(</span><span class="n">document</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            再帰中にクエリを一つづつ消費し、最後のクエリに到達したら更新</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">document</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -166,7 +163,7 @@
 
 <div class="viewcode-block" id="Utils.conv_objectid"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.conv_objectid">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ObjectId</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ObjectId</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | 文字列だった場合ObjectIdを変換する</span>
 <span class="sd">        | 元々ObjectIdならそのまま</span>
 
@@ -187,7 +184,7 @@
 
 <div class="viewcode-block" id="Utils.to_datetime"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.to_datetime">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">to_datetime</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | 日付もしくは日付時間をdatetimeオブジェクトに変換</span>
 <span class="sd">        | 日付や日付時間にならないものは文字列に変換</span>
 
@@ -204,7 +201,7 @@
 
 <div class="viewcode-block" id="Utils.query_check"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.query_check">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">query_check</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        クエリーが正しいか評価</span>
 
 <span class="sd">        :param list query:</span>
@@ -228,7 +225,7 @@
 
 <div class="viewcode-block" id="Utils.item_delete"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.item_delete">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">item_delete</span><span class="p">(</span><span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">del_keys</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        特定のキーの項目を削除</span>
 <span class="sd">        _id、親と子のリファレンス、ファイルリファレンスなど</span>
 
@@ -243,7 +240,7 @@
 
 <div class="viewcode-block" id="Utils.child_combine"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.child_combine">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">child_combine</span><span class="p">(</span><span class="n">rec_result</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | 同じコレクションのデータをリストでまとめるジェネレータ</span>
 <span class="sd">        |</span>
 <span class="sd">        | コレクション:ドキュメントのリストを作成</span>
@@ -263,7 +260,7 @@
 
 <div class="viewcode-block" id="Utils.field_name_check"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.field_name_check">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">field_name_check</span><span class="p">(</span><span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | MongoDBの命名規則チェック(フィールド名)</span>
 <span class="sd">        | void, None(Null), 文字列先頭に($ .)は使用不可</span>
 <span class="sd">        |</span>
@@ -289,7 +286,7 @@
 
 <div class="viewcode-block" id="Utils.collection_name_check"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.collection_name_check">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">collection_name_check</span><span class="p">(</span><span class="n">collection_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | MongoDBの命名規則チェック(コレクション名)</span>
 <span class="sd">                | # $ None(null) &#39;&#39; system.</span>
 <span class="sd">        | 最初がアンスコか文字</span>
@@ -333,7 +330,7 @@
 <div class="viewcode-block" id="Utils.type_cast_conv"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.type_cast_conv">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">type_cast_conv</span><span class="p">(</span><span class="n">datatype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span>
                                                <span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        データタイプに合わせて型を選択する</span>
 
 <span class="sd">        :param int datatype:</span>
@@ -415,10 +412,10 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2022, Author.
+      &copy;2023, Author.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
