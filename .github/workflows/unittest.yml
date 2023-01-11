@@ -9,13 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        mongodb-version: [ '5.0' ]
+        mongodb-version: [ '6.0' ]
 
     steps:
       - name: setup
         uses: actions/checkout@v3
 
-      - name: setup python and sources
+      - name: setup python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -25,7 +25,6 @@ jobs:
       - run:  pip install -U pip setuptools
       - run:  pip install sphinx pytest
       - run:  pip install .
-      - run:  mkdir ./test-reports
       - run:  cp ./tests/ini/test_db.ini.sample ./tests/ini/test_db.ini
 
       - name: setup DB
@@ -39,7 +38,6 @@ jobs:
       - name: run unittest
         run: |
           cd ./tests
-          pwd
           pytest
 
       - name: API doc output and push gh-pages
