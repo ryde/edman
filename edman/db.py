@@ -1220,3 +1220,34 @@ class DB:
                     result.update({collection: out_buff})
 
         return result
+
+    def get_ref_depth(self, current_doc: dict, reference_key: str) -> int:
+
+        """
+        要素への階層の数を取得する
+
+        :param dict current_doc:
+        :param str reference_key: DBRefが格納されているキー名 例:_ed_parent, _ed_child
+        :return:
+        :rtype: int
+        """
+
+        def recursive(doc):
+            result = 0
+            if reference_key in doc:
+                # 子要素の場合はリストで入っている
+                # 各枝の中で一番多い数を取得する=最大の世代数
+                if isinstance(doc[reference_key], list):
+                    result_list = []
+                    for i, dbref_doc in enumerate(doc[reference_key]):
+                        tmp = 1
+                        tmp += recursive(self.db.dereference(dbref_doc))
+                        result_list.append(tmp)
+                    result = max(result_list)
+                else:
+                    # 親要素はツリーを遡っていくだけ
+                    result = 1
+                    result += recursive(self.db.dereference(doc[reference_key]))
+            return result
+
+        return recursive(current_doc)

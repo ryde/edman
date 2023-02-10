@@ -2193,6 +2193,85 @@ class TestDB(TestCase):
         with self.assertRaises(EdmanDbProcessError):
             self.admin_db.delete_role(test_role_name, '')
 
+    def test_get_ref_depth(self):
+        if not self.db_server_connect:
+            return
+
+        # 正常系
+        test_parent_doc_id = ObjectId()
+        test_doc_id = ObjectId()
+        test_parent_col = 'col1'
+        test_current_col = 'col2'
+        self.testdb[test_parent_col].insert_one({
+            '_id': test_parent_doc_id,
+            'data': 'test1',
+            self.child: [DBRef(test_current_col, test_doc_id)]
+        })
+        self.testdb[test_current_col].insert_one({
+            '_id': test_doc_id,
+            'data': 'test2',
+            self.parent: DBRef(test_parent_col, test_parent_doc_id)
+        })
+
+        # 上に登る
+        test_get_doc = self.testdb[test_current_col].find_one(
+            {'_id': test_doc_id})
+        actual = self.db.get_ref_depth(test_get_doc, "_ed_parent")
+        expected = 1
+        self.assertEqual(expected, actual)
+
+        # 下に下る
+        test_get_doc = self.testdb[test_parent_col].find_one(
+            {'_id': test_parent_doc_id})
+        actual = self.db.get_ref_depth(test_get_doc, "_ed_child")
+        expected = 1
+        self.assertEqual(expected, actual)
+
+        # 正常系 ドキュメント 上なし
+        test_doc_id = ObjectId()
+        test_doc_id_child = ObjectId()
+        test_parent_col = 'col3'
+        test_current_col_2 = 'col4'
+        self.testdb[test_parent_col].insert_one({
+            '_id': test_doc_id,
+            'data': 'test3',
+            self.child: [DBRef(test_current_col_2, test_doc_id_child)]
+        })
+        test_get_doc = self.testdb[test_parent_col].find_one(
+            {'_id': test_doc_id})
+        actual = self.db.get_ref_depth(test_get_doc, "_ed_parent")
+        expected = 0
+        self.assertEqual(expected, actual)
+
+        # 正常系 ドキュメント 下なし
+        test_doc_id = ObjectId()
+        test_doc_id_parent = ObjectId()
+        test_parent_col = 'col5'
+        test_current_col_2 = 'col6'
+        self.testdb[test_current_col_2].insert_one({
+            '_id': test_doc_id,
+            'data': 'test4',
+            self.parent: DBRef(test_parent_col, test_doc_id_parent)
+        })
+        test_get_doc = self.testdb[test_current_col_2].find_one(
+            {'_id': test_doc_id})
+        actual = self.db.get_ref_depth(test_get_doc, "_ed_child")
+        expected = 0
+        self.assertEqual(expected, actual)
+
+        # 単発のドキュメント 動作はするが本来は存在しないデータ
+        test_doc_id = ObjectId()
+        test_current_col = 'col8'
+        self.testdb[test_current_col].insert_one({
+            '_id': test_doc_id,
+            'data': 'test5',
+        })
+        test_get_doc = self.testdb[test_current_col].find_one(
+            {'_id': test_doc_id})
+        actual = self.db.get_ref_depth(test_get_doc, "_ed_child")
+        expected = 0
+        self.assertEqual(expected, actual)
+
     # def test_delete_user_and_db(self):
     #     if not self.db_server_connect:
     #         return
