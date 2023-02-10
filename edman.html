@@ -522,6 +522,26 @@ adminのみ実行可能</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.get_ref_depth">
+<span class="sig-name descname"><span class="pre">get_ref_depth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_ref_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_ref_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>要素への階層の数を取得する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current_doc</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>reference_key</strong> (<em>str</em>) – DBRefが格納されているキー名 例:_ed_parent, _ed_child</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="edman.db.DB.get_reference_point">
 <span class="sig-name descname"><span class="pre">get_reference_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self_result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_reference_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_reference_point" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
@@ -1329,6 +1349,7 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_child_all"><code class="docutils literal notranslate"><span class="pre">DB.get_child_all()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_collections"><code class="docutils literal notranslate"><span class="pre">DB.get_collections()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_db"><code class="docutils literal notranslate"><span class="pre">DB.get_db</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_ref_depth"><code class="docutils literal notranslate"><span class="pre">DB.get_ref_depth()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_reference_point"><code class="docutils literal notranslate"><span class="pre">DB.get_reference_point()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_structure"><code class="docutils literal notranslate"><span class="pre">DB.get_structure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.insert"><code class="docutils literal notranslate"><span class="pre">DB.insert()</span></code></a></li>
