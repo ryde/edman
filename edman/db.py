@@ -309,8 +309,8 @@ class DB:
 
     def find_collection_from_objectid(self,
                                       oid: Union[str,
-                                                 ObjectId]) -> Union[str,
-                                                                     None]:
+                                      ObjectId]) -> Union[str,
+    None]:
         """
         | DB内のコレクションから指定のObjectIDを探し、所属しているコレクションを返す
         | DBに負荷がかかるので使用は注意が必要
@@ -1221,13 +1221,15 @@ class DB:
 
         return result
 
-    def get_ref_depth(self, current_doc: dict, reference_key: str) -> int:
+    def get_ref_depth(self, current_doc: dict, reference_key: str,
+                      selected_db=None) -> int:
 
         """
         要素への階層の数を取得する
 
         :param dict current_doc:
         :param str reference_key: DBRefが格納されているキー名 例:_ed_parent, _ed_child
+        :param MongoClient or None selected_db:
         :return:
         :rtype: int
         """
@@ -1241,13 +1243,16 @@ class DB:
                     result_list = []
                     for i, dbref_doc in enumerate(doc[reference_key]):
                         tmp = 1
-                        tmp += recursive(self.db.dereference(dbref_doc))
+                        tmp += recursive(user_db.dereference(dbref_doc))
                         result_list.append(tmp)
                     result = max(result_list)
                 else:
                     # 親要素はツリーを遡っていくだけ
                     result = 1
-                    result += recursive(self.db.dereference(doc[reference_key]))
+                    result += recursive(
+                        user_db.dereference(doc[reference_key]))
             return result
+
+        user_db = selected_db if selected_db else self.db
 
         return recursive(current_doc)
