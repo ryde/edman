@@ -1253,15 +1253,13 @@
 
         <span class="k">return</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="DB.get_ref_depth"><a class="viewcode-back" href="../../edman.html#edman.db.DB.get_ref_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_ref_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">reference_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                      <span class="n">selected_db</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="DB.get_ref_depth"><a class="viewcode-back" href="../../edman.html#edman.db.DB.get_ref_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_ref_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">reference_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        要素への階層の数を取得する</span>
 
 <span class="sd">        :param dict current_doc:</span>
 <span class="sd">        :param str reference_key: DBRefが格納されているキー名 例:_ed_parent, _ed_child</span>
-<span class="sd">        :param MongoClient or None selected_db:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        :rtype: int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1275,17 +1273,15 @@
                     <span class="n">result_list</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dbref_doc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">reference_key</span><span class="p">]):</span>
                         <span class="n">tmp</span> <span class="o">=</span> <span class="mi">1</span>
-                        <span class="n">tmp</span> <span class="o">+=</span> <span class="n">recursive</span><span class="p">(</span><span class="n">user_db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">dbref_doc</span><span class="p">))</span>
+                        <span class="n">tmp</span> <span class="o">+=</span> <span class="n">recursive</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">dbref_doc</span><span class="p">))</span>
                         <span class="n">result_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
                     <span class="n">result</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">result_list</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># 親要素はツリーを遡っていくだけ</span>
                     <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span>
                     <span class="n">result</span> <span class="o">+=</span> <span class="n">recursive</span><span class="p">(</span>
-                        <span class="n">user_db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">reference_key</span><span class="p">]))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">reference_key</span><span class="p">]))</span>
             <span class="k">return</span> <span class="n">result</span>
-
-        <span class="n">user_db</span> <span class="o">=</span> <span class="n">selected_db</span> <span class="k">if</span> <span class="n">selected_db</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span>
 
         <span class="k">return</span> <span class="n">recursive</span><span class="p">(</span><span class="n">current_doc</span><span class="p">)</span></div></div>
 </pre></div>
