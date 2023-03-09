@@ -145,7 +145,8 @@
                         <span class="c1"># リスト内の辞書を先に入る時、</span>
                         <span class="c1"># 現在のクエリがインデックスでないのはおかしい</span>
                         <span class="c1"># したがって例外処理の対象になる</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;クエリが正しくありません.リストの場合、インデックスを指定してください&#39;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s1">&#39;クエリが正しくありません.リストの場合、インデックスを指定してください&#39;</span><span class="p">)</span>
 
                 <span class="k">else</span><span class="p">:</span>  <span class="c1"># 項目の部分は関係ないので繰り返す</span>
                     <span class="k">continue</span>
@@ -329,7 +330,7 @@
 
 <div class="viewcode-block" id="Utils.type_cast_conv"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.type_cast_conv">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">type_cast_conv</span><span class="p">(</span><span class="n">datatype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span>
-                                               <span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">]:</span>
+    <span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        データタイプに合わせて型を選択する</span>
 

@@ -32,15 +32,21 @@
   <h1>Source code for edman.file</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span><span class="p">,</span> <span class="n">NamedTemporaryFile</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">gridfs</span>
+<span class="kn">from</span> <span class="nn">gridfs.errors</span> <span class="kn">import</span> <span class="n">NoFile</span><span class="p">,</span> <span class="n">GridFSError</span>
 <span class="kn">import</span> <span class="nn">jmespath</span>
 <span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">ObjectId</span>
 <span class="kn">from</span> <span class="nn">edman.utils</span> <span class="kn">import</span> <span class="n">Utils</span>
-<span class="kn">from</span> <span class="nn">edman.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">EdmanFormatError</span><span class="p">,</span> <span class="n">EdmanDbProcessError</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">edman.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">EdmanFormatError</span><span class="p">,</span> <span class="n">EdmanDbProcessError</span><span class="p">,</span>
+                              <span class="n">EdmanInternalError</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">edman</span> <span class="kn">import</span> <span class="n">Config</span>
 
 
@@ -376,7 +382,179 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">generate_jms_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span> <span class="o">+</span> <span class="s1">&#39;[]&#39;</span>
-        <span class="k">return</span> <span class="n">jmespath</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">jmespath</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span>
+
+<div class="viewcode-block" id="File.generate_zip_filename"><a class="viewcode-back" href="../../edman.html#edman.file.File.generate_zip_filename">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">generate_zip_filename</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &#39;%Y%m%d%H%M%S&#39;.zipのファイル名を生成</span>
+<span class="sd">        任意の文字列を指定すると, &#39;%Y%m%d%H%M%S&#39; + 任意の文字列 + .zipを生成</span>
+
+<span class="sd">        :param None filename: strにキャストされる</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">%H%M%S&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span></div>
+
+<div class="viewcode-block" id="File.zipped_contents"><a class="viewcode-back" href="../../edman.html#edman.file.File.zipped_contents">[docs]</a>    <span class="k">def</span> <span class="nf">zipped_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">downloads</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">json_tree_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="n">encoded_json</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        jsonと添付ファイルを含むzipファイルを生成</span>
+<span class="sd">        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む</span>
+<span class="sd">        添付ファイルがなく、jsonファイルだけ取得したい場合はzipped_jsonを利用</span>
+
+<span class="sd">        :param dict downloads:</span>
+<span class="sd">        :param str json_tree_file_name:</span>
+<span class="sd">        :param bytes encoded_json:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">zip_suffix</span> <span class="o">=</span> <span class="s1">&#39;.zip&#39;</span>
+        <span class="n">json_suffix</span> <span class="o">=</span> <span class="s1">&#39;.json&#39;</span>
+
+        <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+            <span class="n">dir_path_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">doc_oid</span><span class="p">))</span> <span class="k">for</span>
+                             <span class="n">doc_oid</span> <span class="ow">in</span> <span class="n">downloads</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">dir_path</span> <span class="ow">in</span> <span class="n">dir_path_list</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+
+            <span class="n">filepath</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">file_refs</span><span class="p">,</span> <span class="n">dir_path</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">downloads</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span>
+                                           <span class="n">dir_path_list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">file_ref</span> <span class="ow">in</span> <span class="n">file_refs</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_ref</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">NoFile</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;指定の関連ファイルが存在しません&#39;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">GridFSError</span><span class="p">:</span>
+                        <span class="k">raise</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">content</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
+                        <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;ファイルを保存することが出来ませんでした&#39;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">GridFSError</span><span class="p">:</span>
+                        <span class="k">raise</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># jsonファイルとして一時ディレクトリに保存</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span>
+                                       <span class="n">json_tree_file_name</span> <span class="o">+</span> <span class="n">json_suffix</span><span class="p">),</span>
+                          <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
+                <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;ファイルを保存することが出来ませんでした&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># 最終的にDLするzipファイルを作成</span>
+                <span class="k">with</span> <span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                    <span class="n">zip_filepath</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">make_archive</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">zip_suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                                                       <span class="n">tmpdir</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">zip_filepath</span></div>
+
+<div class="viewcode-block" id="File.zipped_json"><a class="viewcode-back" href="../../edman.html#edman.file.File.zipped_json">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">zipped_json</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">json_tree_file_name</span><span class="p">:</span> <span class="nb">str</span>
+                    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        jsonファイルとzipファイルを名前付きテンポラリとして生成し、パスを生成</span>
+<span class="sd">        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む</span>
+<span class="sd">        添付ファイルがなく、jsonファイルだけ取得したい場合に使用する</span>
+<span class="sd">        # リファクタリング対象</span>
+
+<span class="sd">        :param bytes encoded_json: json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの</span>
+<span class="sd">        :param str json_tree_file_name: zipファイル内に配置するjsonファイルの名前</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype:tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">json_suffix</span> <span class="o">=</span> <span class="s1">&#39;.json&#39;</span>
+        <span class="n">zip_suffix</span> <span class="o">=</span> <span class="s1">&#39;.zip&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># jsonファイルとして一時ファイルに保存</span>
+            <span class="k">with</span> <span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="n">json_suffix</span><span class="p">,</span>
+                                    <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># jsonファイルをzipで圧縮して一時ファイルに保存</span>
+            <span class="k">with</span> <span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="n">zip_suffix</span><span class="p">,</span>
+                                    <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span>
+                                     <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span> <span class="k">as</span> <span class="n">archive</span><span class="p">:</span>
+                    <span class="n">zip_filepath</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">name</span>
+                    <span class="n">archive</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span>
+                                  <span class="n">arcname</span><span class="o">=</span><span class="n">json_tree_file_name</span> <span class="o">+</span> <span class="n">json_suffix</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">zip_filepath</span></div>
+
+<div class="viewcode-block" id="File.get_fileref_and_generate_dl_list"><a class="viewcode-back" href="../../edman.html#edman.file.File.get_fileref_and_generate_dl_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_fileref_and_generate_dl_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+                                         <span class="n">attach_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        json出力用の辞書内のファイルリファレンスをファイルパス文字列リストに置き換える</span>
+<span class="sd">        edmanへ移動予定</span>
+<span class="sd">            例:</span>
+<span class="sd">            {&quot;_ed_file&quot;:[ObjectId(&#39;file_oid_1&#39;),ObjectId(&#39;file_oid_2&#39;)]}</span>
+<span class="sd">            ↓</span>
+<span class="sd">            {&quot;_ed_attachment&quot;:[&quot;document_oid/sample.jpg&quot;,&quot;document_oid/sample2.jpg&quot;]}</span>
+<span class="sd">        同時にダウンロード処理用の辞書を作成する</span>
+<span class="sd">            {ObjectId(&#39;document_oid&#39;):[ObjectId(&#39;file_oid_1&#39;),ObjectId(&#39;file_oid_2&#39;)]}</span>
+
+<span class="sd">        :param dict docs:</span>
+<span class="sd">        :param str attach_key:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dl_list</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span> <span class="nf">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">doc_oid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">c_docs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="c1"># ドキュメントのoidを取得</span>
+                    <span class="k">if</span> <span class="s1">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                        <span class="n">doc_oid</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span>
+                    <span class="n">c_docs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">doc_oid</span><span class="p">)})</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_literal_check</span><span class="p">(</span>
+                        <span class="n">value</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">file</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                        <span class="c1"># ファイルリファレンスオブジェクト取得</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">file_out</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+                        <span class="k">except</span> <span class="n">NoFile</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;指定の関連ファイルが存在しません&#39;</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="n">GridFSError</span><span class="p">:</span>
+                            <span class="k">raise</span>
+                        <span class="c1"># ファイルパス生成</span>
+                        <span class="n">tmp</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="n">attach_key</span><span class="p">:</span> <span class="p">[</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">i</span><span class="o">.</span><span class="n">filename</span> <span class="k">for</span> <span class="n">i</span>
+                                <span class="ow">in</span> <span class="n">file_out</span><span class="p">]</span>
+                        <span class="p">}</span>
+                        <span class="n">dl_list</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]:</span> <span class="n">value</span><span class="p">})</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">tmp</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+                    <span class="n">c_docs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">c_docs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="p">[</span><span class="n">recursive</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">doc_oid</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span>
+                               <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]]})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">c_docs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+            <span class="k">return</span> <span class="n">c_docs</span>
+
+        <span class="n">new_docs</span> <span class="o">=</span> <span class="n">recursive</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_docs</span><span class="p">,</span> <span class="n">dl_list</span></div></div>
 </pre></div>
 
           </div>

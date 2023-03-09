@@ -565,6 +565,16 @@ adminのみ実行可能</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="edman.db.DB.get_root_dbref">
+<span class="sig-name descname"><span class="pre">get_root_dbref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DBRef</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_root_dbref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_root_dbref" title="Permalink to this definition">¶</a></dt>
+<dd><p>ref形式のドキュメントのルートのDBRef要素を取得する
+※root要素内にはparentのdbref要素は存在しないので、上から2階層目のparentのdbrefを取得する
+:param dict current_doc:
+:return:
+:rtype: None or DBRef</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="edman.db.DB.get_structure">
 <span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>対象のドキュメントの構造を取得する</p>
@@ -910,6 +920,24 @@ docにファイルリファレンスデータが無かった場合は例外を�
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.generate_zip_filename">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_zip_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/file.html#File.generate_zip_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.generate_zip_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>‘%Y%m%d%H%M%S’.zipのファイル名を生成
+任意の文字列を指定すると, ‘%Y%m%d%H%M%S’ + 任意の文字列 + .zipを生成</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>None</em>) – strにキャストされる</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.get_file_names">
 <span class="sig-name descname"><span class="pre">get_file_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.get_file_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.get_file_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>ファイル一覧を取得
@@ -956,11 +984,109 @@ docにファイルリファレンスデータが無かった場合は例外を�
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.get_fileref_and_generate_dl_list">
+<span class="sig-name descname"><span class="pre">get_fileref_and_generate_dl_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attach_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.get_fileref_and_generate_dl_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.get_fileref_and_generate_dl_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>json出力用の辞書内のファイルリファレンスをファイルパス文字列リストに置き換える
+edmanへ移動予定</p>
+<blockquote>
+<div><p>例:
+{“_ed_file”:[ObjectId(‘file_oid_1’),ObjectId(‘file_oid_2’)]}
+↓
+{“_ed_attachment”:[“document_oid/sample.jpg”,”document_oid/sample2.jpg”]}</p>
+</div></blockquote>
+<dl class="simple">
+<dt>同時にダウンロード処理用の辞書を作成する</dt><dd><p>{ObjectId(‘document_oid’):[ObjectId(‘file_oid_1’),ObjectId(‘file_oid_2’)]}</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>docs</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>attach_key</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.zipped_contents">
+<span class="sig-name descname"><span class="pre">zipped_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">downloads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_contents" title="Permalink to this definition">¶</a></dt>
+<dd><p>jsonと添付ファイルを含むzipファイルを生成
+zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
+添付ファイルがなく、jsonファイルだけ取得したい場合はzipped_jsonを利用</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>downloads</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>json_tree_file_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>encoded_json</strong> (<em>bytes</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.zipped_json">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zipped_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>jsonファイルとzipファイルを名前付きテンポラリとして生成し、パスを生成
+zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
+添付ファイルがなく、jsonファイルだけ取得したい場合に使用する
+# リファクタリング対象</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>encoded_json</strong> (<em>bytes</em>) – json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの</p></li>
+<li><p><strong>json_tree_file_name</strong> (<em>str</em>) – zipファイル内に配置するjsonファイルの名前</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+<p>:rtype:tuple</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
 <section id="module-edman.json_manager">
 <span id="edman-json-manager-module"></span><h2>edman.json_manager module<a class="headerlink" href="#module-edman.json_manager" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edman.json_manager.GetJsonStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.json_manager.</span></span><span class="sig-name descname"><span class="pre">GetJsonStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/json_manager.html#GetJsonStructure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.json_manager.GetJsonStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.json_manager.GetJsonStructure.all_doc">
+<span class="sig-name descname"><span class="pre">all_doc</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#edman.json_manager.GetJsonStructure.all_doc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.json_manager.GetJsonStructure.manual_select">
+<span class="sig-name descname"><span class="pre">manual_select</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#edman.json_manager.GetJsonStructure.manual_select" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.json_manager.GetJsonStructure.members">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">members</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/json_manager.html#GetJsonStructure.members"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.json_manager.GetJsonStructure.members" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.json_manager.GetJsonStructure.uni_doc">
+<span class="sig-name descname"><span class="pre">uni_doc</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#edman.json_manager.GetJsonStructure.uni_doc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="edman.json_manager.JsonManager">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edman.json_manager.</span></span><span class="sig-name descname"><span class="pre">JsonManager</span></span><a class="reference internal" href="_modules/edman/json_manager.html#JsonManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.json_manager.JsonManager" title="Permalink to this definition">¶</a></dt>
@@ -1011,6 +1137,20 @@ docにファイルリファレンスデータが無かった場合は例外を�
 </dl>
 <p>:param None or list exclusion:除外するリファレンスキー 例 [‘_ed_file’]
 :return: result 親 + 自分 + 子の階層構造となった辞書データ
+:rtype: dict</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.search.Search.get_documents">
+<span class="sig-name descname"><span class="pre">get_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dl_select</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.get_documents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.get_documents" title="Permalink to this definition">¶</a></dt>
+<dd><p>指定したドキュメントをDBから取得する
+:param int dl_select:
+:param str collection_name:
+:param ObjectId or str oid:
+:param int parent_depth:
+:param int child_depth:
+:param List or None exclusion:
+:return: result
 :rtype: dict</p>
 </dd></dl>
 
@@ -1351,6 +1491,7 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_db"><code class="docutils literal notranslate"><span class="pre">DB.get_db</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_ref_depth"><code class="docutils literal notranslate"><span class="pre">DB.get_ref_depth()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_reference_point"><code class="docutils literal notranslate"><span class="pre">DB.get_reference_point()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_root_dbref"><code class="docutils literal notranslate"><span class="pre">DB.get_root_dbref()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.get_structure"><code class="docutils literal notranslate"><span class="pre">DB.get_structure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.insert"><code class="docutils literal notranslate"><span class="pre">DB.insert()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.db.DB.item_delete"><code class="docutils literal notranslate"><span class="pre">DB.item_delete()</span></code></a></li>
@@ -1379,13 +1520,24 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.file_list_attachment"><code class="docutils literal notranslate"><span class="pre">File.file_list_attachment()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.file_list_replace"><code class="docutils literal notranslate"><span class="pre">File.file_list_replace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.fs_delete"><code class="docutils literal notranslate"><span class="pre">File.fs_delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.generate_zip_filename"><code class="docutils literal notranslate"><span class="pre">File.generate_zip_filename()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_file_names"><code class="docutils literal notranslate"><span class="pre">File.get_file_names()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_file_ref"><code class="docutils literal notranslate"><span class="pre">File.get_file_ref()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_fileref_and_generate_dl_list"><code class="docutils literal notranslate"><span class="pre">File.get_fileref_and_generate_dl_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_contents"><code class="docutils literal notranslate"><span class="pre">File.zipped_contents()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_json"><code class="docutils literal notranslate"><span class="pre">File.zipped_json()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-edman.json_manager">edman.json_manager module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edman.json_manager.GetJsonStructure"><code class="docutils literal notranslate"><span class="pre">GetJsonStructure</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.json_manager.GetJsonStructure.all_doc"><code class="docutils literal notranslate"><span class="pre">GetJsonStructure.all_doc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.json_manager.GetJsonStructure.manual_select"><code class="docutils literal notranslate"><span class="pre">GetJsonStructure.manual_select</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.json_manager.GetJsonStructure.members"><code class="docutils literal notranslate"><span class="pre">GetJsonStructure.members()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.json_manager.GetJsonStructure.uni_doc"><code class="docutils literal notranslate"><span class="pre">GetJsonStructure.uni_doc</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#edman.json_manager.JsonManager"><code class="docutils literal notranslate"><span class="pre">JsonManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#edman.json_manager.JsonManager.save"><code class="docutils literal notranslate"><span class="pre">JsonManager.save()</span></code></a></li>
 </ul>
@@ -1395,6 +1547,7 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l2"><a class="reference internal" href="#module-edman.search">edman.search module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#edman.search.Search"><code class="docutils literal notranslate"><span class="pre">Search</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.find"><code class="docutils literal notranslate"><span class="pre">Search.find()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.get_documents"><code class="docutils literal notranslate"><span class="pre">Search.get_documents()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.process_data_derived_from_mongodb"><code class="docutils literal notranslate"><span class="pre">Search.process_data_derived_from_mongodb()</span></code></a></li>
 </ul>
 </li>

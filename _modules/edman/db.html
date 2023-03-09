@@ -1283,6 +1283,26 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">reference_key</span><span class="p">]))</span>
             <span class="k">return</span> <span class="n">result</span>
 
+        <span class="k">return</span> <span class="n">recursive</span><span class="p">(</span><span class="n">current_doc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DB.get_root_dbref"><a class="viewcode-back" href="../../edman.html#edman.db.DB.get_root_dbref">[docs]</a>    <span class="k">def</span> <span class="nf">get_root_dbref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">DBRef</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ref形式のドキュメントのルートのDBRef要素を取得する</span>
+<span class="sd">        ※root要素内にはparentのdbref要素は存在しないので、上から2階層目のparentのdbrefを取得する</span>
+<span class="sd">        :param dict current_doc:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: None or DBRef</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">recursive</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+            <span class="n">parent_ref</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">parent</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+                <span class="n">parent_ref</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[</span><span class="n">Config</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">over_first_degree_ref</span> <span class="o">:=</span> <span class="n">recursive</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">Config</span><span class="o">.</span><span class="n">parent</span><span class="p">])))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">parent_ref</span> <span class="o">=</span> <span class="n">over_first_degree_ref</span>
+            <span class="k">return</span> <span class="n">parent_ref</span>
+
         <span class="k">return</span> <span class="n">recursive</span><span class="p">(</span><span class="n">current_doc</span><span class="p">)</span></div></div>
 </pre></div>
 
