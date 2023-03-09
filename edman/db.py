@@ -1252,3 +1252,23 @@ class DB:
             return result
 
         return recursive(current_doc)
+
+    def get_root_dbref(self, current_doc: dict) -> Union[None, DBRef]:
+        """
+        ref形式のドキュメントのルートのDBRef要素を取得する
+        ※root要素内にはparentのdbref要素は存在しないので、上から2階層目のparentのdbrefを取得する
+        :param dict current_doc:
+        :return:
+        :rtype: None or DBRef
+        """
+
+        def recursive(doc):
+            parent_ref = None
+            if Config.parent in doc:
+                parent_ref = doc[Config.parent]
+                if (over_first_degree_ref := recursive(
+                        self.db.dereference(doc[Config.parent]))) is not None:
+                    parent_ref = over_first_degree_ref
+            return parent_ref
+
+        return recursive(current_doc)

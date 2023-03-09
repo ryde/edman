@@ -113,7 +113,8 @@ class Utils:
                         # リスト内の辞書を先に入る時、
                         # 現在のクエリがインデックスでないのはおかしい
                         # したがって例外処理の対象になる
-                        raise ValueError('クエリが正しくありません.リストの場合、インデックスを指定してください')
+                        raise ValueError(
+                            'クエリが正しくありません.リストの場合、インデックスを指定してください')
 
                 else:  # 項目の部分は関係ないので繰り返す
                     continue
@@ -297,7 +298,7 @@ class Utils:
 
     @staticmethod
     def type_cast_conv(datatype: str) -> Union[bool, int, float, str,
-                                               dateutil.parser.parse]:
+    dateutil.parser.parse]:
         """
         データタイプに合わせて型を選択する
 

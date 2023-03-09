@@ -1,9 +1,11 @@
 import os
 from datetime import datetime
 from pathlib import Path
+from enum import Enum, auto
 from typing import Union
 from bson.json_util import dumps
 from edman.exceptions import EdmanFormatError
+
 
 class JsonManager:
     """
@@ -26,7 +28,8 @@ class JsonManager:
         if not isinstance(report_data, dict):
             raise EdmanFormatError('Not Dict Data')
 
-        date_str = datetime.today().strftime("%Y%m%d%H%M%S%f") + "_" if date else ""
+        date_str = datetime.today().strftime(
+            "%Y%m%d%H%M%S%f") + "_" if date else ""
         filename = date_str + name + '.json'
         p = path if isinstance(path, Path) else Path(path)
         savepath = p / filename
@@ -36,3 +39,13 @@ class JsonManager:
             file.write(dumps(report_data, ensure_ascii=False, indent=4))
             file.flush()
             os.fsync(file.fileno())
+
+
+class GetJsonStructure(Enum):
+    manual_select = auto()
+    all_doc = auto()
+    uni_doc = auto()
+
+    @staticmethod
+    def members():
+        return [*GetJsonStructure.__members__.values()]

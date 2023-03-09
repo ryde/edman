@@ -137,9 +137,9 @@ class Convert:
             # 子要素のデータを抽出
             key_list = [k for k, v in doc.items()
                         if self.parent != k and self.child != k and (
-                        isinstance(v, dict) or (
-                        isinstance(v, list) and (
-                        not Utils.item_literal_check(v))))]
+                                isinstance(v, dict) or (
+                                isinstance(v, list) and (
+                            not Utils.item_literal_check(v))))]
 
             # 該当データがtmpにあれば削除
             tmp = {k: v for k, v in tmp.items() if k not in key_list}

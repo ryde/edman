@@ -2272,129 +2272,61 @@ class TestDB(TestCase):
         expected = 0
         self.assertEqual(expected, actual)
 
-    # def test_delete_user_and_db(self):
-    #     if not self.db_server_connect:
-    #         return
-    #
-    #     test_db_name = 'delete_user_testdb'
-    #     test_user_name = 'delete_user_and_db_testuser'
-    #     test_role_name = 'delete_user_and_db_testrole'
-    #     # テスト用ユーザ＆DB作成 テストのために手動で作成
-    #     c = MongoClient(host=self.test_ini['host'],
-    #                     port=self.test_ini['port'],
-    #                     username=self.test_ini['admin_user'],
-    #                     password=self.test_ini['admin_password'],
-    #                     authSource=self.test_ini['admin_db'])
-    #     c[test_db_name].command(
-    #         "createRole",
-    #         test_role_name,
-    #         privileges=[
-    #             {
-    #                 "resource": {"db": test_db_name, "collection":""},
-    #                 "actions": ["changeOwnPassword"]
-    #             }
-    #         ],
-    #         roles=[
-    #             {
-    #                 'role': 'readWrite',
-    #                 'db': test_db_name,
-    #             },
-    #         ],
-    #     )
-    #     c[test_db_name].command(
-    #         "createUser",
-    #         test_user_name,
-    #         pwd=test_user_name,
-    #         roles=[test_role_name],
-    #     )
-    #
-    #     # 正常
-    #     self.assertIsNone(
-    #         self.admin_db.delete_user_and_db(test_db_name, test_user_name,
-    #                                          test_role_name))
-    #     # 異常
-    #     # 接続していない
-    #     a = DB()
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         a.delete_user_and_db(test_db_name, test_user_name)
-    #     # adminじゃない
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.db.delete_user_and_db(test_db_name, test_user_name)
-    #     # パラメータが足りない
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.admin_db.delete_user_and_db('', test_user_name)
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.admin_db.delete_user_and_db(test_db_name, '')
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.admin_db.delete_user_and_db(test_db_name, test_user_name, '')
-    #     # 管理者を削除しようとする
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.admin_db.delete_user_and_db(test_db_name, 'admin', admin_name="admin")
-    #     # 管理者のdbを削除しようとする
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.admin_db.delete_user_and_db('admin', test_user_name, admin_db="admin")
-    #
+    def test__get_root_dbref(self):
+        if not self.db_server_connect:
+            return
 
-    # def test_delete_role_and_db(self):
-    #     if not self.db_server_connect:
-    #         return
-    #
-    #     test_db_name = 'delete_role_testdb'
-    #     test_role_name = 'test_role'
-    #     # テストロール作成 メソッドのテストのために手動で作成
-    #     c = MongoClient(host=self.test_ini['host'],
-    #                     port=self.test_ini['port'],
-    #                     username=self.test_ini['admin_user'],
-    #                     password=self.test_ini['admin_password'],
-    #                     authSource=self.test_ini['admin_db'])
-    #     c[test_db_name].command(
-    #         "createRole",
-    #         test_role_name,
-    #         privileges=[],
-    #         roles=[
-    #             {
-    #                 'role': 'readWrite',
-    #                 'db': test_db_name,
-    #             },
-    #         ],
-    #     )
-    #
-    #     # 正常系
-    #     self.assertIsNone(
-    #         self.admin_db.delete_role_and_db(test_db_name, test_role_name))
-    #
-    #     # 異常系
-    #     # 接続していない
-    #     a = DB()
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         a.delete_role_and_db(test_db_name, test_role_name)
-    #     # adminじゃない
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.db.delete_role_and_db(test_db_name, test_role_name)
-    #     # パラメータが足りない
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.admin_db.delete_role_and_db('', test_role_name)
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.admin_db.delete_role_and_db(test_db_name, '')
-    #     # 管理者のdbを削除しようとする
-    #     with self.assertRaises(EdmanDbProcessError):
-    #         self.admin_db.delete_role_and_db('admin', test_role_name, admin_db='admin')
-    #
-    #     # TODO admin内のロールを削除する場合（LDAPユーザの時）
-    #     test_db_name = 'delete_role_testdb'
-    #     test_role_name = 'test_role'
-    #     c['admin'].command(
-    #         "createRole",
-    #         test_role_name,
-    #         privileges=[],
-    #         roles=[
-    #             {
-    #                 'role': 'readWrite',
-    #                 'db': test_db_name,
-    #             },
-    #         ],
-    #     )
-    #     # 正常系
-    #     self.assertIsNone(
-    #         self.admin_db.delete_role_and_db(test_db_name, test_role_name))
-    #
+        # docをDBに入れる
+        parent_id = ObjectId()
+        doc_id = ObjectId()
+        child_id = ObjectId()
+        parent_col = 'parent_col'
+        doc_col = 'doc_col'
+        child_col = 'child_col'
+        insert_docs = [
+            {
+                'col': parent_col,
+                'doc': {
+                    '_id': parent_id,
+                    'name': 'parent',
+                    Config.child: [DBRef(doc_col, doc_id)]
+                },
+            },
+            {
+                'col': doc_col,
+                'doc': {
+                    '_id': doc_id,
+                    'name': 'doc',
+                    Config.parent: DBRef(parent_col, parent_id),
+                    Config.child: [DBRef(child_col, child_id)]
+                }
+            },
+            {
+                'col': child_col,
+                'doc': {
+                    '_id': child_id,
+                    'name': 'child',
+                    Config.parent: DBRef(doc_col, doc_id),
+                }
+            }]
+
+        result = {}
+        for i in insert_docs:
+            insert_result = self.testdb[i['col']].insert_one(i['doc'])
+            result.update({i['col']: insert_result.inserted_id})
+
+        # 正常系
+        docs = self.db.doc(child_col, result[child_col], query=None,
+                           reference_delete=False)
+        # print('docs:', docs)
+        actual = self.db.get_root_dbref(docs)
+        expected = DBRef(parent_col, parent_id)
+        self.assertEqual(expected, actual)
+
+        # 正常系 doc要素がそもそもrootだった場合
+        docs = self.db.doc(parent_col, result[parent_col], query=None,
+                           reference_delete=False)
+        # print('docs:', docs)
+        actual = self.db.get_root_dbref(docs)
+        expected = None
+        self.assertEqual(expected, actual)

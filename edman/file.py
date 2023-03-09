@@ -1,14 +1,20 @@
 import sys
 import os
+import shutil
 import copy
 import gzip
+from tempfile import TemporaryDirectory, NamedTemporaryFile
+import datetime
+import zipfile
 from typing import Union, Tuple, Iterator, List
 from pathlib import Path
 import gridfs
+from gridfs.errors import NoFile, GridFSError
 import jmespath
 from bson import ObjectId
 from edman.utils import Utils
-from edman.exceptions import (EdmanFormatError, EdmanDbProcessError)
+from edman.exceptions import (EdmanFormatError, EdmanDbProcessError,
+                              EdmanInternalError)
 from edman import Config
 
 
@@ -345,3 +351,175 @@ class File:
         s = Utils.generate_jms_query(query)
         s += '.' + self.file_ref + '[]'
         return jmespath.search(s, doc)
+
+    @staticmethod
+    def generate_zip_filename(filename=None):
+        """
+        '%Y%m%d%H%M%S'.zipのファイル名を生成
+        任意の文字列を指定すると, '%Y%m%d%H%M%S' + 任意の文字列 + .zipを生成
+
+        :param None filename: strにキャストされる
+        :return:
+        :rtype: str
+        """
+        filename = filename or None
+        now = datetime.datetime.now()
+        name = now.strftime('%Y%m%d%H%M%S')
+        if filename is not None:
+            name = name + str(filename)
+        return name + '.zip'
+
+    def zipped_contents(self, downloads: dict, json_tree_file_name: str,
+                        encoded_json: bytes) -> tuple[str, str]:
+        """
+        jsonと添付ファイルを含むzipファイルを生成
+        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
+        添付ファイルがなく、jsonファイルだけ取得したい場合はzipped_jsonを利用
+
+        :param dict downloads:
+        :param str json_tree_file_name:
+        :param bytes encoded_json:
+        :return:
+        """
+
+        zip_suffix = '.zip'
+        json_suffix = '.json'
+
+        with TemporaryDirectory() as tmpdir:
+            dir_path_list = [os.path.join(tmpdir, str(doc_oid)) for
+                             doc_oid in downloads]
+
+            for dir_path in dir_path_list:
+                os.mkdir(dir_path)
+
+            filepath = None
+            for file_refs, dir_path in zip([i for i in downloads.values()],
+                                           dir_path_list):
+                for file_ref in file_refs:
+                    try:
+                        content = self.fs.get(file_ref)
+                    except NoFile:
+                        raise EdmanDbProcessError('指定の関連ファイルが存在しません')
+                    except GridFSError:
+                        raise
+                    else:
+                        filepath = os.path.join(dir_path, content.name)
+                    try:
+                        with open(filepath, 'wb') as f:
+                            f.write(content.read())
+                    except (FileNotFoundError, IOError):
+                        EdmanInternalError('ファイルを保存することが出来ませんでした')
+                    except GridFSError:
+                        raise
+            try:
+                # jsonファイルとして一時ディレクトリに保存
+                with open(os.path.join(tmpdir,
+                                       json_tree_file_name + json_suffix),
+                          'wb') as f:
+                    f.write(encoded_json)
+            except (FileNotFoundError, IOError):
+                EdmanInternalError('ファイルを保存することが出来ませんでした')
+            try:
+                # 最終的にDLするzipファイルを作成
+                with NamedTemporaryFile() as fp:
+                    zip_filepath = shutil.make_archive(fp.name, zip_suffix[1:],
+                                                       tmpdir)
+            except Exception:
+                raise
+        return filepath, zip_filepath
+
+    @staticmethod
+    def zipped_json(encoded_json: bytes, json_tree_file_name: str
+                    ) -> tuple[str, str]:
+        """
+        jsonファイルとzipファイルを名前付きテンポラリとして生成し、パスを生成
+        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
+        添付ファイルがなく、jsonファイルだけ取得したい場合に使用する
+        # リファクタリング対象
+
+        :param bytes encoded_json: json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの
+        :param str json_tree_file_name: zipファイル内に配置するjsonファイルの名前
+        :return:
+        :rtype:tuple
+        """
+
+        json_suffix = '.json'
+        zip_suffix = '.zip'
+        try:
+            # jsonファイルとして一時ファイルに保存
+            with NamedTemporaryFile(suffix=json_suffix,
+                                    delete=False) as fp:
+                filepath = fp.name
+                fp.write(encoded_json)
+        except Exception:
+            raise
+        try:
+            # jsonファイルをzipで圧縮して一時ファイルに保存
+            with NamedTemporaryFile(suffix=zip_suffix,
+                                    delete=False) as fp:
+                with zipfile.ZipFile(fp.name, 'w',
+                                     zipfile.ZIP_DEFLATED) as archive:
+                    zip_filepath = fp.name
+                    archive.write(filepath,
+                                  arcname=json_tree_file_name + json_suffix)
+        except Exception:
+            raise
+        return filepath, zip_filepath
+
+    def get_fileref_and_generate_dl_list(self, docs: dict,
+                                         attach_key: str) -> tuple[dict, dict]:
+        """
+        json出力用の辞書内のファイルリファレンスをファイルパス文字列リストに置き換える
+        edmanへ移動予定
+            例:
+            {"_ed_file":[ObjectId('file_oid_1'),ObjectId('file_oid_2')]}
+            ↓
+            {"_ed_attachment":["document_oid/sample.jpg","document_oid/sample2.jpg"]}
+        同時にダウンロード処理用の辞書を作成する
+            {ObjectId('document_oid'):[ObjectId('file_oid_1'),ObjectId('file_oid_2')]}
+
+        :param dict docs:
+        :param str attach_key:
+        :return:
+        :rtype: tuple
+        """
+        dl_list = {}
+
+        def recursive(data: dict, doc_oid=None):
+            c_docs = {}
+            for key, value in data.items():
+                if isinstance(data[key], dict):
+                    # ドキュメントのoidを取得
+                    if '_id' in data[key]:
+                        doc_oid = data[key]['_id']
+                    c_docs.update({key: recursive(data[key], doc_oid)})
+                elif isinstance(value, list) and Utils.item_literal_check(
+                        value):
+                    if Config.file in key:
+                        # ファイルリファレンスオブジェクト取得
+                        try:
+                            file_out = [self.fs.get(i) for i in value]
+                        except NoFile:
+                            raise EdmanDbProcessError('指定の関連ファイルが存在しません')
+                        except GridFSError:
+                            raise
+                        # ファイルパス生成
+                        tmp = {
+                            attach_key: [
+                                str(data['_id']) + '/' + i.filename for i
+                                in file_out]
+                        }
+                        dl_list.update({data['_id']: value})
+                    else:
+                        tmp = {key: value}
+                    c_docs.update(tmp)
+                elif isinstance(data[key], list):
+                    c_docs.update(
+                        {key: [recursive(item, doc_oid) for item in
+                               data[key]]})
+                else:
+                    c_docs.update({key: value})
+            return c_docs
+
+        new_docs = recursive(docs)
+        return new_docs, dl_list
