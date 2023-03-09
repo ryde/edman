@@ -10,7 +10,6 @@ from edman.exceptions import EdmanDbConnectError
 
 
 class TestMultiUser(TestCase):
-
     db_server_connect = False
     test_ini = []
     client = None
@@ -81,7 +80,7 @@ class TestMultiUser(TestCase):
                     'user': account['username'],
                     'password': account['password'],
                     'database': account['db_name'],
-                    'options':[f"authSource={account['db_auth']}"]
+                    'options': [f"authSource={account['db_auth']}"]
                 }
                 connections.append(con)
             cls.connections = connections
