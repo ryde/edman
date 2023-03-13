@@ -1,4 +1,3 @@
-import sys
 import os
 import shutil
 import copy
@@ -72,8 +71,7 @@ class File:
         # ドキュメント存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
-            # TODO
-            sys.exit('対象のドキュメントが存在しません')
+            raise EdmanInternalError('対象のドキュメントが存在しません')
 
         if structure == 'emb':
             # クエリーがドキュメントのキーとして存在するかチェック
@@ -95,7 +93,6 @@ class File:
 
         if structure == 'ref':
             new_doc = self.file_list_attachment(doc, inserted_file_oids)
-
         elif structure == 'emb':
             try:
                 new_doc = Utils.doc_traverse(doc, inserted_file_oids, query,
@@ -133,8 +130,7 @@ class File:
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
         if doc is None:
-            # TODO
-            sys.exit('対象のコレクション、またはドキュメントが存在しません')
+            raise EdmanInternalError('対象のコレクション、またはドキュメントが存在しません')
 
         # ファイルリスト取得
         files_list = self.get_file_ref(doc, structure, query)
@@ -153,7 +149,6 @@ class File:
                 new_doc = self.file_list_replace(doc, files_list)
             except Exception:
                 raise
-
         elif structure == 'emb':
             try:
                 new_doc = Utils.doc_traverse(doc, files_list, query,
@@ -164,16 +159,12 @@ class File:
             raise EdmanFormatError('structureはrefまたはembの指定が必要です')
 
         replace_result = self.db[collection].replace_one({'_id': oid}, new_doc)
-
         # fsから該当ファイルを削除
         if replace_result.modified_count:
             self.fs_delete([delete_oid])
 
-        # ファイルが削除されたか検証
-        if self.fs.exists(delete_oid):
-            return False
-        else:
-            return True
+        # ファイルが削除されればOK
+        return False if self.fs.exists(delete_oid) else True
 
     def fs_delete(self, oids: list) -> None:
         """
@@ -182,10 +173,9 @@ class File:
         :param list oids:
         :return:
         """
-        if len(oids):
-            for oid in oids:
-                if self.fs.exists(oid):
-                    self.fs.delete(oid)
+        for oid in oids:
+            if self.fs.exists(oid):
+                self.fs.delete(oid)
 
     def get_file_ref(self, doc: dict, structure: str, query=None) -> list:
         """
@@ -203,10 +193,8 @@ class File:
         if structure != 'emb' and structure != 'ref':
             raise EdmanFormatError('構造の選択はembまたはrefが必要です')
 
-        files_list = []
         if structure == 'ref':
-            if self.file_ref in doc:
-                files_list = doc[self.file_ref]
+            files_list = doc.get(self.file_ref, [])
         else:
             if not Utils.query_check(query, doc):
                 EdmanFormatError('対象のドキュメントに対してクエリーが一致しません.')
@@ -238,8 +226,7 @@ class File:
         result = {}
 
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
-        doc = self.db[collection].find_one({'_id': oid})
-        if doc is None:
+        if (doc := self.db[collection].find_one({'_id': oid})) is None:
             raise EdmanDbProcessError(
                 f'ドキュメントまたはコレクションが存在しません oid:{oid} collection:{collection}')
 
@@ -248,7 +235,7 @@ class File:
             try:
                 fs_out = self.fs.get(file_oid)
             except gridfs.errors.NoFile:
-                pass
+                continue
             else:
                 result.update({file_oid: fs_out.filename})
         return result
@@ -314,7 +301,7 @@ class File:
             doc[self.file_ref].extend(files_oid)
             files_oid = sorted(list(set(doc[self.file_ref])))
         # self.file_refがなければ作成してfiles_oidを値として更新
-        if len(files_oid):
+        if files_oid:
             doc.update({self.file_ref: files_oid})
         return doc
 
@@ -331,7 +318,7 @@ class File:
         :rtype: dict
         """
         if self.file_ref in doc:
-            if len(files_oid):
+            if files_oid:
                 doc[self.file_ref] = files_oid
             else:
                 del doc[self.file_ref]
@@ -370,7 +357,7 @@ class File:
         return name + '.zip'
 
     def zipped_contents(self, downloads: dict, json_tree_file_name: str,
-                        encoded_json: bytes) -> tuple[str, str]:
+                        encoded_json: bytes) -> str:
         """
         jsonと添付ファイルを含むzipファイルを生成
         zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
@@ -379,6 +366,7 @@ class File:
         :param dict downloads:
         :param str json_tree_file_name:
         :param bytes encoded_json:
+        :rtype: str
         :return:
         """
 
@@ -392,7 +380,6 @@ class File:
             for dir_path in dir_path_list:
                 os.mkdir(dir_path)
 
-            filepath = None
             for file_refs, dir_path in zip([i for i in downloads.values()],
                                            dir_path_list):
                 for file_ref in file_refs:
@@ -426,11 +413,10 @@ class File:
                                                        tmpdir)
             except Exception:
                 raise
-        return filepath, zip_filepath
+        return zip_filepath
 
     @staticmethod
-    def zipped_json(encoded_json: bytes, json_tree_file_name: str
-                    ) -> tuple[str, str]:
+    def zipped_json(encoded_json: bytes, json_tree_file_name: str) -> str:
         """
         jsonファイルとzipファイルを名前付きテンポラリとして生成し、パスを生成
         zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
@@ -440,7 +426,7 @@ class File:
         :param bytes encoded_json: json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの
         :param str json_tree_file_name: zipファイル内に配置するjsonファイルの名前
         :return:
-        :rtype:tuple
+        :rtype:str
         """
 
         json_suffix = '.json'
@@ -464,13 +450,12 @@ class File:
                                   arcname=json_tree_file_name + json_suffix)
         except Exception:
             raise
-        return filepath, zip_filepath
+        return zip_filepath
 
     def get_fileref_and_generate_dl_list(self, docs: dict,
                                          attach_key: str) -> tuple[dict, dict]:
         """
         json出力用の辞書内のファイルリファレンスをファイルパス文字列リストに置き換える
-        edmanへ移動予定
             例:
             {"_ed_file":[ObjectId('file_oid_1'),ObjectId('file_oid_2')]}
             ↓
