@@ -70,6 +70,16 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="edman.config.Config.fs_chunks">
+<span class="sig-name descname"><span class="pre">fs_chunks</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fs.chunks'</span></em><a class="headerlink" href="#edman.config.Config.fs_chunks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edman.config.Config.fs_files">
+<span class="sig-name descname"><span class="pre">fs_files</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fs.files'</span></em><a class="headerlink" href="#edman.config.Config.fs_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="edman.config.Config.gzip_compress_level">
 <span class="sig-name descname"><span class="pre">gzip_compress_level</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#edman.config.Config.gzip_compress_level" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -114,7 +124,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.convert.Convert.emb">
-<span class="sig-name descname"><span class="pre">emb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/convert.html#Convert.emb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert.emb" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">emb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/convert.html#Convert.emb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert.emb" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line">エンベデッドモードでedman用の変換を行う</div>
 <div class="line">主に日付の変換</div>
@@ -122,7 +132,7 @@
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>raw_data</strong> (<em>dict</em>) – </p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
@@ -135,17 +145,17 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.convert.Convert.exclusion_key">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exclusion_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ex_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/convert.html#Convert.exclusion_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert.exclusion_key" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">exclusion_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ex_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/convert.html#Convert.exclusion_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.convert.Convert.exclusion_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>指定のキーの要素を除外する</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>doc</strong> (<em>dict</em>) – </p></li>
 <li><p><strong>ex_keys</strong> (<em>tuple</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>output</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -523,12 +533,12 @@ adminのみ実行可能</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.db.DB.get_ref_depth">
-<span class="sig-name descname"><span class="pre">get_ref_depth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_ref_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_ref_depth" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_ref_depth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_ref_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_ref_depth" title="Permalink to this definition">¶</a></dt>
 <dd><p>要素への階層の数を取得する</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>current_doc</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>doc</strong> (<em>dict</em>) – </p></li>
 <li><p><strong>reference_key</strong> (<em>str</em>) – DBRefが格納されているキー名 例:_ed_parent, _ed_child</p></li>
 </ul>
 </dd>
@@ -566,10 +576,10 @@ adminのみ実行可能</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.db.DB.get_root_dbref">
-<span class="sig-name descname"><span class="pre">get_root_dbref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DBRef</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_root_dbref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_root_dbref" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_root_dbref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DBRef</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.get_root_dbref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.get_root_dbref" title="Permalink to this definition">¶</a></dt>
 <dd><p>ref形式のドキュメントのルートのDBRef要素を取得する
 ※root要素内にはparentのdbref要素は存在しないので、上から2階層目のparentのdbrefを取得する
-:param dict current_doc:
+:param dict doc:
 :return:
 :rtype: None or DBRef</p>
 </dd></dl>
@@ -987,15 +997,12 @@ docにファイルリファレンスデータが無かった場合は例外を�
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.get_fileref_and_generate_dl_list">
 <span class="sig-name descname"><span class="pre">get_fileref_and_generate_dl_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attach_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.get_fileref_and_generate_dl_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.get_fileref_and_generate_dl_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>json出力用の辞書内のファイルリファレンスをファイルパス文字列リストに置き換える
-edmanへ移動予定</p>
-<blockquote>
-<div><p>例:
+<dd><dl class="simple">
+<dt>json出力用の辞書内のファイルリファレンスをファイルパス文字列リストに置き換える</dt><dd><p>例:
 {“_ed_file”:[ObjectId(‘file_oid_1’),ObjectId(‘file_oid_2’)]}
 ↓
 {“_ed_attachment”:[“document_oid/sample.jpg”,”document_oid/sample2.jpg”]}</p>
-</div></blockquote>
-<dl class="simple">
+</dd>
 <dt>同時にダウンロード処理用の辞書を作成する</dt><dd><p>{ObjectId(‘document_oid’):[ObjectId(‘file_oid_1’),ObjectId(‘file_oid_2’)]}</p>
 </dd>
 </dl>
@@ -1017,7 +1024,7 @@ edmanへ移動予定</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.zipped_contents">
-<span class="sig-name descname"><span class="pre">zipped_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">downloads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_contents" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">zipped_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">downloads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_contents" title="Permalink to this definition">¶</a></dt>
 <dd><p>jsonと添付ファイルを含むzipファイルを生成
 zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 添付ファイルがなく、jsonファイルだけ取得したい場合はzipped_jsonを利用</p>
@@ -1029,15 +1036,18 @@ zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 <li><p><strong>encoded_json</strong> (<em>bytes</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.zipped_json">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zipped_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_json" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zipped_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>jsonファイルとzipファイルを名前付きテンポラリとして生成し、パスを生成
 zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 添付ファイルがなく、jsonファイルだけ取得したい場合に使用する
@@ -1053,7 +1063,7 @@ zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 <dd class="field-even"><p></p>
 </dd>
 </dl>
-<p>:rtype:tuple</p>
+<p>:rtype:str</p>
 </dd></dl>
 
 </dd></dl>
@@ -1456,6 +1466,8 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.child"><code class="docutils literal notranslate"><span class="pre">Config.child</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.date"><code class="docutils literal notranslate"><span class="pre">Config.date</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.file"><code class="docutils literal notranslate"><span class="pre">Config.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.fs_chunks"><code class="docutils literal notranslate"><span class="pre">Config.fs_chunks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.fs_files"><code class="docutils literal notranslate"><span class="pre">Config.fs_files</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.gzip_compress_level"><code class="docutils literal notranslate"><span class="pre">Config.gzip_compress_level</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.parent"><code class="docutils literal notranslate"><span class="pre">Config.parent</span></code></a></li>
 </ul>

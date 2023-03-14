@@ -348,37 +348,31 @@
         <span class="n">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="Convert.exclusion_key"><a class="viewcode-back" href="../../edman.html#edman.convert.Convert.exclusion_key">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">exclusion_key</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">ex_keys</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="Convert.exclusion_key"><a class="viewcode-back" href="../../edman.html#edman.convert.Convert.exclusion_key">[docs]</a>    <span class="k">def</span> <span class="nf">exclusion_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">ex_keys</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        指定のキーの要素を除外する</span>
 
-<span class="sd">        :param dict data:</span>
+<span class="sd">        :param dict doc:</span>
 <span class="sd">        :param tuple ex_keys:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :return: output</span>
 <span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">def</span> <span class="nf">recursive</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ex_keys</span><span class="p">:</span>
-                        <span class="k">continue</span>
-                    <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">recursive</span><span class="p">(</span><span class="n">value</span><span class="p">)}</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_literal_check</span><span class="p">(</span>
-                        <span class="n">value</span><span class="p">):</span>
-                    <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ex_keys</span><span class="p">:</span>
-                        <span class="k">continue</span>
-                    <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="p">[</span><span class="n">recursive</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]}</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">output</span>
-
-        <span class="k">return</span> <span class="n">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ex_keys</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclusion_key</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ex_keys</span><span class="p">)}</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_literal_check</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ex_keys</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">exclusion_key</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ex_keys</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_attached_oid</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -419,58 +413,45 @@
                 <span class="k">else</span> <span class="n">i</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_data</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Convert.emb"><a class="viewcode-back" href="../../edman.html#edman.convert.Convert.emb">[docs]</a>    <span class="k">def</span> <span class="nf">emb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="Convert.emb"><a class="viewcode-back" href="../../edman.html#edman.convert.Convert.emb">[docs]</a>    <span class="k">def</span> <span class="nf">emb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | エンベデッドモードでedman用の変換を行う</span>
 <span class="sd">        | 主に日付の変換</span>
 <span class="sd">        | update処理でも使用している</span>
 
-<span class="sd">        :param dict raw_data:</span>
+<span class="sd">        :param dict data:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">collection_name_check</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;この名前は使用できません </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">converted_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb</span><span class="p">(</span><span class="n">converted_value</span><span class="p">)}</span>
 
-        <span class="k">def</span> <span class="nf">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            再帰で辞書を走査して、日付データの変換などを行う</span>
-<span class="sd">            要リファクタリング</span>
-
-<span class="sd">            :param dict data:</span>
-<span class="sd">            :return:</span>
-<span class="sd">            :rtype: dict</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">collection_name_check</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
-                        <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;この名前は使用できません </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="n">converted_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                    <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">recursive</span><span class="p">(</span><span class="n">converted_value</span><span class="p">)}</span>
-
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                    <span class="c1"># 日付データが含まれていたらdatetimeオブジェクトに変換</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_replace</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                    <span class="c1"># 通常のリストデータの場合</span>
-                    <span class="k">if</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_literal_check</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">field_name_check</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
-                            <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;フィールド名に不備があります </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                        <span class="n">list_tmp_data</span> <span class="o">=</span> <span class="n">value</span>
-                    <span class="c1"># 子要素としてのリストデータの場合</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">collection_name_check</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
-                            <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;この名前は使用できません </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                        <span class="n">list_tmp_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">recursive</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_convert_datetime</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
-                                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
-                    <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">list_tmp_data</span><span class="p">}</span>
-                <span class="k">else</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c1"># 日付データが含まれていたらdatetimeオブジェクトに変換</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_replace</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="c1"># 通常のリストデータの場合</span>
+                <span class="k">if</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_literal_check</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">field_name_check</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
                         <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;フィールド名に不備があります </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">output</span>
-
-        <span class="n">result</span> <span class="o">=</span> <span class="n">recursive</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span></div>
+                    <span class="n">list_tmp_data</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="c1"># 子要素としてのリストデータの場合</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">collection_name_check</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;この名前は使用できません </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">list_tmp_data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">emb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_convert_datetime</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">list_tmp_data</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">field_name_check</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;フィールド名に不備があります </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="Convert.dict_to_edman"><a class="viewcode-back" href="../../edman.html#edman.convert.Convert.dict_to_edman">[docs]</a>    <span class="k">def</span> <span class="nf">dict_to_edman</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;ref&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
