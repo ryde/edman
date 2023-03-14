@@ -863,7 +863,6 @@ class DB:
                     recursive(tmp)
 
         result = []  # recによって書き換えられる
-
         recursive([self_doc])  # 再帰関数をシンプルにするため、初期データをリストで囲む
         return self._build_to_doc_child(result)  # 親子構造に組み立て
 
