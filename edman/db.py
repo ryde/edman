@@ -355,7 +355,7 @@ class DB:
             # embの場合は指定階層のドキュメントを引き抜く
             # refの場合はdocの結果をそのまま入れる
             try:
-                doc_result = self._get_emb_doc(doc,
+                doc_result = self._get_emb_doc(dict(doc),
                                                query) if query is not None else doc
             except EdmanInternalError:
                 raise
@@ -408,6 +408,7 @@ class DB:
         if doc is None:
             raise EdmanDbProcessError('ドキュメントが存在しません')
 
+        doc = dict(doc)
         if query is not None:  # emb
             try:
                 doc = Utils.doc_traverse(doc, [delete_key], query,
@@ -478,6 +479,7 @@ class DB:
         if db_result is None:
             raise EdmanInternalError('該当するドキュメントは存在しません')
 
+        db_result = dict(db_result)
         if structure == 'emb':
             convert = Convert()
             try:
@@ -562,6 +564,7 @@ class DB:
         if db_result is None:
             raise EdmanInternalError('該当するドキュメントは存在しません')
 
+        db_result = dict(db_result)
         if structure == 'emb':
             try:
                 result = self.db[collection].delete_one({'_id': oid})
@@ -876,24 +879,22 @@ class DB:
         :rtype: dict
         """
 
-        def recursive(doc_list: list, depth: int):
+        def recursive(doc_list, d):
             """
             再帰で結果リスト組み立て
             """
-            if depth > 0:
+            if d > 0:
                 tmp = []
                 # ここでデータを取得する
                 for doc in doc_list:
                     if tmp := self._child_storaged(doc):
                         result.append(tmp)
-                depth -= 1
-
+                d -= 1
                 # 子データがある時は繰り返す
                 if tmp:
-                    recursive(tmp, depth)
+                    recursive(tmp, d)
 
         result = []  # recによって書き換えられる
-
         if depth >= 1:  # depthが効くのは必ず1以上
             recursive([self_doc], depth)  # 再帰関数をシンプルにするため、初期データをリストで囲む
             result = self._build_to_doc_child(result)  # 親子構造に組み立て
@@ -952,14 +953,14 @@ class DB:
         :rtype: dict
         """
 
-        def foo(b):
+        def f(b):
             try:
                 parent_id = self._get_uni_parent(b)
             except ValueError:
                 raise
             return parent_id
 
-        return {foo(bros): bros for bros in find_result}
+        return {f(bros): bros for bros in find_result}
 
     def _get_uni_parent(self, bros: dict) -> ObjectId:
         """
@@ -998,21 +999,21 @@ class DB:
         def recursive(data):
             for key, value in data.items():
                 if isinstance(value, dict):
-                    for del_key in reference:
-                        if del_key in value:
-                            del value[del_key]
+                    for k in reference:
+                        if k in value:
+                            del value[k]
                     recursive(value)
                 elif isinstance(value, list) and Utils.item_literal_check(
                         value):
                     continue
                 elif isinstance(value, list):
                     for i in value:
-                        for del_key in reference:
-                            if del_key in i:
-                                del i[del_key]
+                        for k in reference:
+                            if k in i:
+                                del i[k]
                         recursive(i)
                 else:
-                    pass
+                    continue
 
         # 入ってくるデータのトップにコレクションが入っていないのでうまく扱えない？応急処置
         for del_key in reference:
@@ -1057,19 +1058,17 @@ class DB:
             else:
                 result = pull_result
 
-            converted_edman = convert.dict_to_edman(result)
-            structured_result = self.insert(converted_edman)
+            structured_result = self.insert(convert.dict_to_edman(result))
             structured_result.reverse()
             result_list.append(structured_result)
 
         result = {}
-        if len(result_list):
+        if result_list:
             result.update({'result': result_list})
 
         return result
 
-    def get_collections(self, coll_filter=None,
-                        gf_filter=True) -> list:
+    def get_collections(self, coll_filter=None, gf_filter=True) -> list:
         """
         コレクションを取得
 
@@ -1081,8 +1080,8 @@ class DB:
         collections = [collection for collection in
                        self.db.list_collection_names(filter=coll_filter)]
         if gf_filter:
-            gridfs_collections = ['fs.files', 'fs.chunks']
-            result = list(set(collections) - set(gridfs_collections))
+            result = list(
+                set(collections) - {Config.fs_files, Config.fs_chunks})
         else:
             result = collections
         result.sort()
