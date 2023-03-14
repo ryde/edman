@@ -316,37 +316,31 @@ class Convert:
         recursive(data)
         return output
 
-    @staticmethod
-    def exclusion_key(data: dict, ex_keys: tuple) -> dict:
+    def exclusion_key(self, doc: dict, ex_keys: tuple) -> dict:
         """
         指定のキーの要素を除外する
 
-        :param dict data:
+        :param dict doc:
         :param tuple ex_keys:
-        :return:
+        :return: output
         :rtype: dict
         """
-
-        def recursive(doc):
-            output = {}
-            for key, value in doc.items():
-                if isinstance(value, dict):
-                    if key in ex_keys:
-                        continue
-                    o = {key: recursive(value)}
-                elif isinstance(value, list) and Utils.item_literal_check(
-                        value):
-                    o = {key: value}
-                elif isinstance(value, list):
-                    if key in ex_keys:
-                        continue
-                    o = {key: [recursive(i) for i in value]}
-                else:
-                    o = {key: value}
-                output.update(o)
-            return output
-
-        return recursive(data)
+        output = {}
+        for key, value in doc.items():
+            if isinstance(value, dict):
+                if key in ex_keys:
+                    continue
+                o = {key: self.exclusion_key(value, ex_keys)}
+            elif isinstance(value, list) and Utils.item_literal_check(value):
+                o = {key: value}
+            elif isinstance(value, list):
+                if key in ex_keys:
+                    continue
+                o = {key: [self.exclusion_key(i, ex_keys) for i in value]}
+            else:
+                o = {key: value}
+            output.update(o)
+        return output
 
     @staticmethod
     def _attached_oid(data: dict) -> dict:
@@ -387,58 +381,45 @@ class Convert:
                 else i
                 for i in list_data]
 
-    def emb(self, raw_data: dict) -> dict:
+    def emb(self, data: dict) -> dict:
         """
         | エンベデッドモードでedman用の変換を行う
         | 主に日付の変換
         | update処理でも使用している
 
-        :param dict raw_data:
+        :param dict data:
         :return:
         :rtype: dict
         """
+        output = {}
+        for key, value in data.items():
+            if isinstance(value, dict):
+                if not Utils.collection_name_check(key):
+                    raise EdmanFormatError(f'この名前は使用できません {key}')
+                converted_value = self._convert_datetime(value)
+                o = {key: self.emb(converted_value)}
 
-        def recursive(data: dict) -> dict:
-            """
-            再帰で辞書を走査して、日付データの変換などを行う
-            要リファクタリング
-
-            :param dict data:
-            :return:
-            :rtype: dict
-            """
-            output = {}
-            for key, value in data.items():
-                if isinstance(value, dict):
-                    if not Utils.collection_name_check(key):
-                        raise EdmanFormatError(f'この名前は使用できません {key}')
-                    converted_value = self._convert_datetime(value)
-                    o = {key: recursive(converted_value)}
-
-                elif isinstance(value, list):
-                    # 日付データが含まれていたらdatetimeオブジェクトに変換
-                    value = self._date_replace(value)
-                    # 通常のリストデータの場合
-                    if Utils.item_literal_check(value):
-                        if not Utils.field_name_check(key):
-                            raise EdmanFormatError(f'フィールド名に不備があります {key}')
-                        list_tmp_data = value
-                    # 子要素としてのリストデータの場合
-                    else:
-                        if not Utils.collection_name_check(key):
-                            raise EdmanFormatError(f'この名前は使用できません {key}')
-                        list_tmp_data = [recursive(self._convert_datetime(i))
-                                         for i in value]
-                    o = {key: list_tmp_data}
-                else:
+            elif isinstance(value, list):
+                # 日付データが含まれていたらdatetimeオブジェクトに変換
+                value = self._date_replace(value)
+                # 通常のリストデータの場合
+                if Utils.item_literal_check(value):
                     if not Utils.field_name_check(key):
                         raise EdmanFormatError(f'フィールド名に不備があります {key}')
-                    o = {key: value}
-                output.update(o)
-            return output
-
-        result = recursive(raw_data)
-        return result
+                    list_tmp_data = value
+                # 子要素としてのリストデータの場合
+                else:
+                    if not Utils.collection_name_check(key):
+                        raise EdmanFormatError(f'この名前は使用できません {key}')
+                    list_tmp_data = [self.emb(self._convert_datetime(i))
+                                     for i in value]
+                o = {key: list_tmp_data}
+            else:
+                if not Utils.field_name_check(key):
+                    raise EdmanFormatError(f'フィールド名に不備があります {key}')
+                o = {key: value}
+            output.update(o)
+        return output
 
     def dict_to_edman(self, raw_data: dict, mode='ref') -> list:
         """

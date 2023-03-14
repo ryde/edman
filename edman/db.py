@@ -1219,54 +1219,46 @@ class DB:
 
         return result
 
-    def get_ref_depth(self, current_doc: dict, reference_key: str) -> int:
-
+    def get_ref_depth(self, doc: dict, reference_key: str) -> int:
         """
         要素への階層の数を取得する
 
-        :param dict current_doc:
+        :param dict doc:
         :param str reference_key: DBRefが格納されているキー名 例:_ed_parent, _ed_child
         :return:
         :rtype: int
         """
+        result = 0
+        if reference_key in doc:
+            # 子要素の場合はリストで入っている
+            # 各枝の中で一番多い数を取得する=最大の世代数
+            if isinstance(doc[reference_key], list):
+                result_list = []
+                for dbref_doc in doc[reference_key]:
+                    tmp = 1
+                    tmp += self.get_ref_depth(self.db.dereference(dbref_doc),
+                                              reference_key)
+                    result_list.append(tmp)
+                result = max(result_list)
+            else:
+                # 親要素はツリーを遡っていくだけ
+                result = 1
+                result += self.get_ref_depth(
+                    self.db.dereference(doc[reference_key]), reference_key)
+        return result
 
-        def recursive(doc):
-            result = 0
-            if reference_key in doc:
-                # 子要素の場合はリストで入っている
-                # 各枝の中で一番多い数を取得する=最大の世代数
-                if isinstance(doc[reference_key], list):
-                    result_list = []
-                    for i, dbref_doc in enumerate(doc[reference_key]):
-                        tmp = 1
-                        tmp += recursive(self.db.dereference(dbref_doc))
-                        result_list.append(tmp)
-                    result = max(result_list)
-                else:
-                    # 親要素はツリーを遡っていくだけ
-                    result = 1
-                    result += recursive(
-                        self.db.dereference(doc[reference_key]))
-            return result
-
-        return recursive(current_doc)
-
-    def get_root_dbref(self, current_doc: dict) -> Union[None, DBRef]:
+    def get_root_dbref(self, doc: dict) -> Union[None, DBRef]:
         """
         ref形式のドキュメントのルートのDBRef要素を取得する
         ※root要素内にはparentのdbref要素は存在しないので、上から2階層目のparentのdbrefを取得する
-        :param dict current_doc:
+        :param dict doc:
         :return:
         :rtype: None or DBRef
         """
-
-        def recursive(doc):
-            parent_ref = None
-            if Config.parent in doc:
-                parent_ref = doc[Config.parent]
-                if (over_first_degree_ref := recursive(
-                        self.db.dereference(doc[Config.parent]))) is not None:
-                    parent_ref = over_first_degree_ref
-            return parent_ref
-
-        return recursive(current_doc)
+        parent_ref = None
+        if Config.parent in doc:
+            parent_ref = doc[Config.parent]
+            if (over_first_degree_ref := self.get_root_dbref(
+                    self.db.dereference(doc[Config.parent]))) is not None:
+                parent_ref = over_first_degree_ref
+        return parent_ref
