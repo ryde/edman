@@ -238,7 +238,7 @@ class Search:
                 # リストデータは中身を型変換する
                 elif isinstance(data[key], list) and Utils.item_literal_check(
                         data[key]):
-                    data[key] = [self._format_datetime(i) for i in data[key]]
+                    data[key] = [self._format_datetime(j) for j in data[key]]
                 elif isinstance(data[key], list):
                     for item in data[key]:
                         recursive(Utils.item_delete(item, refs))

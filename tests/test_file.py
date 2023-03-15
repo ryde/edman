@@ -721,22 +721,14 @@ class TestFile(TestCase):
         expected = file_list
         self.assertEqual(expected, actual)
 
-    def test__zipped_json(self):
+    def test_zipped_json(self):
 
         # # 正常系
         s = {"document": [{"test1": "ABC"}, {"test2": 12345}]}
         raw_json = dumps(s, ensure_ascii=False, indent=4)
         encoded_json = raw_json.encode('utf-8')
         filename = 'jsonfile'
-        ac_j_path, ac_z_path = self.file.zipped_json(encoded_json, filename)
-
-        # ac_j_pathを辞書に変換してsと同じか調べる
-        with open(ac_j_path) as f:
-            j_read = f.read()
-        actual = json.loads(j_read)
-        expected = s
-        self.assertDictEqual(expected, actual)
-        os.unlink(ac_j_path)
+        ac_z_path = self.file.zipped_json(encoded_json, filename)
 
         # ac_z_pathを解凍して中身のファイル名がzipped_filepathと同じか調べる
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -752,7 +744,7 @@ class TestFile(TestCase):
         self.assertEqual(expected, actual)
         os.unlink(ac_z_path)
 
-    def test__zipped_contents(self):
+    def test_zipped_contents(self):
         if not self.db_server_connect:
             return
 
@@ -831,7 +823,7 @@ class TestFile(TestCase):
         raw_json = dumps(res, ensure_ascii=False, indent=4)
         encoded_json = raw_json.encode('utf-8')
         json_tree_file_name = 'json_tree'
-        _, zip_filepath = self.file.zipped_contents(downloads,
+        zip_filepath = self.file.zipped_contents(downloads,
                                                     json_tree_file_name,
                                                     encoded_json)
         # print('zip_filepath:', zip_filepath)
@@ -861,7 +853,7 @@ class TestFile(TestCase):
         if os.path.exists(zip_filepath):
             os.remove(zip_filepath)
 
-    def test__get_fileref_and_generate_dl_list(self):
+    def test_get_fileref_and_generate_dl_list(self):
 
         if not self.db_server_connect:
             return
@@ -910,7 +902,7 @@ class TestFile(TestCase):
             actual = dl_list
             self.assertDictEqual(expected, actual)
 
-    def test__generate_zip_filename(self):
+    def test_generate_zip_filename(self):
 
         # 正常系
         # ファイル名を指定
