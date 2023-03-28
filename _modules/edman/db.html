@@ -817,7 +817,6 @@
 <span class="sd">        :return: structured_result</span>
 <span class="sd">        :rtype: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">oid</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
 
         <span class="c1"># refデータをembに変換する</span>
@@ -1063,7 +1062,7 @@
 <span class="sd">        :param str collection: 変換対象のコレクション</span>
 <span class="sd">        :param str key: refに変換開始する対象のキー</span>
 <span class="sd">        :param tuple exclusion: 除外するキーの設定</span>
-<span class="sd">        :return: result</span>
+<span class="sd">        :return:</span>
 <span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1093,11 +1092,7 @@
             <span class="n">structured_result</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
             <span class="n">result_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">structured_result</span><span class="p">)</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">result_list</span><span class="p">:</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result_list</span><span class="p">})</span>
-
-        <span class="k">return</span> <span class="n">result</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result_list</span><span class="p">}</span> <span class="k">if</span> <span class="n">result_list</span> <span class="k">else</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="DB.get_collections"><a class="viewcode-back" href="../../edman.html#edman.db.DB.get_collections">[docs]</a>    <span class="k">def</span> <span class="nf">get_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coll_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gf_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1105,7 +1100,7 @@
 
 <span class="sd">        :param dict or None coll_filter:</span>
 <span class="sd">        :param bool gf_filter: default True</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :return: result</span>
 <span class="sd">        :rtype: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">collections</span> <span class="o">=</span> <span class="p">[</span><span class="n">collection</span> <span class="k">for</span> <span class="n">collection</span> <span class="ow">in</span>
@@ -1284,12 +1279,10 @@
 <span class="sd">        ref形式のドキュメントのルートのDBRef要素を取得する</span>
 <span class="sd">        ※root要素内にはparentのdbref要素は存在しないので、上から2階層目のparentのdbrefを取得する</span>
 <span class="sd">        :param dict doc:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :return: parent_ref</span>
 <span class="sd">        :rtype: None or DBRef</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parent_ref</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">parent</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
-            <span class="n">parent_ref</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[</span><span class="n">Config</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">parent_ref</span> <span class="o">:=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Config</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">over_first_degree_ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_root_dbref</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">Config</span><span class="o">.</span><span class="n">parent</span><span class="p">])))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">parent_ref</span> <span class="o">=</span> <span class="n">over_first_degree_ref</span>
