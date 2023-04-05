@@ -372,12 +372,12 @@
         <span class="k">return</span> <span class="n">jmespath</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.generate_zip_filename"><a class="viewcode-back" href="../../edman.html#edman.file.File.generate_zip_filename">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">generate_zip_filename</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate_zip_filename</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        &#39;%Y%m%d%H%M%S&#39;.zipのファイル名を生成</span>
 <span class="sd">        任意の文字列を指定すると, &#39;%Y%m%d%H%M%S&#39; + 任意の文字列 + .zipを生成</span>
 
-<span class="sd">        :param None filename: strにキャストされる</span>
+<span class="sd">        :param any filename: strにキャストされる</span>
 <span class="sd">        :return:</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>

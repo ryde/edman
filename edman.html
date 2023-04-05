@@ -931,12 +931,12 @@ docにファイルリファレンスデータが無かった場合は例外を�
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.generate_zip_filename">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_zip_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edman/file.html#File.generate_zip_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.generate_zip_filename" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_zip_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.generate_zip_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.generate_zip_filename" title="Permalink to this definition">¶</a></dt>
 <dd><p>‘%Y%m%d%H%M%S’.zipのファイル名を生成
 任意の文字列を指定すると, ‘%Y%m%d%H%M%S’ + 任意の文字列 + .zipを生成</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>None</em>) – strにキャストされる</p>
+<dd class="field-odd"><p><strong>filename</strong> (<em>any</em>) – strにキャストされる</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
@@ -1147,20 +1147,6 @@ zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 </dl>
 <p>:param None or list exclusion:除外するリファレンスキー 例 [‘_ed_file’]
 :return: result 親 + 自分 + 子の階層構造となった辞書データ
-:rtype: dict</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="edman.search.Search.get_documents">
-<span class="sig-name descname"><span class="pre">get_documents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dl_select</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.get_documents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.get_documents" title="Permalink to this definition">¶</a></dt>
-<dd><p>指定したドキュメントをDBから取得する
-:param int dl_select:
-:param str collection_name:
-:param ObjectId or str oid:
-:param int parent_depth:
-:param int child_depth:
-:param List or None exclusion:
-:return: result
 :rtype: dict</p>
 </dd></dl>
 
@@ -1559,7 +1545,6 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l2"><a class="reference internal" href="#module-edman.search">edman.search module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#edman.search.Search"><code class="docutils literal notranslate"><span class="pre">Search</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.find"><code class="docutils literal notranslate"><span class="pre">Search.find()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.get_documents"><code class="docutils literal notranslate"><span class="pre">Search.get_documents()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.process_data_derived_from_mongodb"><code class="docutils literal notranslate"><span class="pre">Search.process_data_derived_from_mongodb()</span></code></a></li>
 </ul>
 </li>
