@@ -340,12 +340,12 @@ class File:
         return jmespath.search(s, doc)
 
     @staticmethod
-    def generate_zip_filename(filename=None):
+    def generate_zip_filename(filename=None) -> str:
         """
         '%Y%m%d%H%M%S'.zipのファイル名を生成
         任意の文字列を指定すると, '%Y%m%d%H%M%S' + 任意の文字列 + .zipを生成
 
-        :param None filename: strにキャストされる
+        :param any filename: strにキャストされる
         :return:
         :rtype: str
         """

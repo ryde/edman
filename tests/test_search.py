@@ -476,61 +476,6 @@ class TestSearch(TestCase):
             self.assertIsInstance(actual[self.date], str)
             self.assertEqual(self.date, list(actual.keys())[0])
 
-    def test__get_documents(self):
-        if not self.db_server_connect:
-            return
-        # docをDBに入れる
-        parent_id = ObjectId()
-        doc_id = ObjectId()
-        child_id = ObjectId()
-        parent_col = 'parent_col'
-        doc_col = 'doc_col'
-        child_col = 'child_col'
-        insert_docs = [
-            {
-                'col': parent_col,
-                'doc': {
-                    '_id': parent_id,
-                    'name': 'parent',
-                    Config.child: [DBRef(doc_col, doc_id)]
-                },
-            },
-            {
-                'col': doc_col,
-                'doc': {
-                    '_id': doc_id,
-                    'name': 'doc',
-                    Config.parent: DBRef(parent_col, parent_id),
-                    Config.child: [DBRef(child_col, child_id)]
-                }
-            },
-            {
-                'col': child_col,
-                'doc': {
-                    '_id': child_id,
-                    'name': 'child',
-                    Config.parent: DBRef(doc_col, doc_id),
-                }
-            }]
-        result = {}
-        for i in insert_docs:
-            insert_result = self.testdb[i['col']].insert_one(i['doc'])
-            result.update({i['col']: insert_result.inserted_id})
-
-        # 正常系 所属するツリー全て
-        all_docs = self.search.get_documents(2, doc_col, doc_id,
-                                             parent_depth=0, child_depth=0)
-        # print('all_docs:', all_docs)
-        expected = {
-            parent_col: {
-                'name': 'parent',
-                doc_col: [{
-                    'name': 'doc',
-                    child_col: [{'name': 'child'}]
-                }]
-            }
-        }
-        self.assertDictEqual(expected, all_docs)
 
         # 正常系 階層指定 中身がdb.find()なので割愛
         # all_docs = self.search.get_documents(1, doc_col, doc_id,

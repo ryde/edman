@@ -785,7 +785,6 @@ class DB:
         :return: structured_result
         :rtype: list
         """
-
         oid = Utils.conv_objectid(oid)
 
         # refデータをembに変換する
@@ -1031,7 +1030,7 @@ class DB:
         :param str collection: 変換対象のコレクション
         :param str key: refに変換開始する対象のキー
         :param tuple exclusion: 除外するキーの設定
-        :return: result
+        :return:
         :rtype: dict
         """
 
@@ -1061,11 +1060,7 @@ class DB:
             structured_result.reverse()
             result_list.append(structured_result)
 
-        result = {}
-        if result_list:
-            result.update({'result': result_list})
-
-        return result
+        return {'result': result_list} if result_list else {}
 
     def get_collections(self, coll_filter=None, gf_filter=True) -> list:
         """
@@ -1073,7 +1068,7 @@ class DB:
 
         :param dict or None coll_filter:
         :param bool gf_filter: default True
-        :return:
+        :return: result
         :rtype: list
         """
         collections = [collection for collection in
@@ -1252,12 +1247,10 @@ class DB:
         ref形式のドキュメントのルートのDBRef要素を取得する
         ※root要素内にはparentのdbref要素は存在しないので、上から2階層目のparentのdbrefを取得する
         :param dict doc:
-        :return:
+        :return: parent_ref
         :rtype: None or DBRef
         """
-        parent_ref = None
-        if Config.parent in doc:
-            parent_ref = doc[Config.parent]
+        if (parent_ref := doc.get(Config.parent)) is not None:
             if (over_first_degree_ref := self.get_root_dbref(
                     self.db.dereference(doc[Config.parent]))) is not None:
                 parent_ref = over_first_degree_ref
