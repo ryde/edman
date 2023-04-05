@@ -5,7 +5,6 @@ from bson import errors, ObjectId
 from edman.utils import Utils
 from edman.exceptions import EdmanDbProcessError
 from edman import Config
-from edman.json_manager import GetJsonStructure
 
 
 class Search:

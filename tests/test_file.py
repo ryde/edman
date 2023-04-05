@@ -90,25 +90,39 @@ class TestFile(TestCase):
     # def tearDown(self):
     #     pass
 
+    @staticmethod
+    def make_txt_files(dir_path, name='file_dl_list', suffix='.txt',
+                       text='test', qty=1):
+        # 添付ファイル用テキストファイル作成
+        p = Path(dir_path)
+        if qty == 1:
+            filename = name + suffix
+            save_path = p / filename
+            with save_path.open('w') as f:
+                f.write(text)
+        else:
+            for i in range(qty):
+                filename = name + str(i) + suffix
+                save_path = p / filename
+                with save_path.open('w') as f:
+                    f.write(text + str(i))
+        return sorted(p.glob(name + '*' + suffix))
+
     def test_file_gen(self):
 
         # 正常系
         with tempfile.TemporaryDirectory() as tmp_dir:
-            p = Path(tmp_dir)
-
+            files = self.make_txt_files(tmp_dir, name='insert_file_ref_test',
+                                        qty=2)
             expected = []
-            for i in range(2):
-                gen_file = 'gen_test' + str(i) + '.txt'
-                gen_path = p / gen_file
-                with gen_path.open('w') as f:
-                    test_var = 'test' + str(i)
-                    expected.append((gen_file, test_var))
-                    f.write(test_var)
+            for file_path in files:
+                with file_path.open() as f:
+                    expected.append((file_path.name, f.read()))
 
             # ファイル読み込み、テスト
             actual = []
-            files = tuple(sorted(p.glob('gen_test*.txt')))
-            for idx, f in enumerate(self.file.file_gen(files)):
+            # files = tuple(sorted(p.glob('gen_test*.txt')))
+            for idx, f in enumerate(self.file.file_gen(tuple(files))):
                 filename, filedata = f
                 actual.append((filename, filedata.decode()))
             self.assertListEqual(sorted(actual), sorted(expected))
@@ -195,25 +209,20 @@ class TestFile(TestCase):
         insert_result = self.db.insert(converted_edman)
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            p = Path(tmp_dir)
-
+            files = self.make_txt_files(tmp_dir, name='insert_file_ref_test',
+                                        qty=2)
             expected = []
-            for i in range(2):
-                gen_file = 'insert_file_ref_test' + str(i) + '.txt'
-                gen_path = p / gen_file
-                with gen_path.open('w') as f:
-                    test_var = 'test' + str(i)
-                    expected.append((gen_file, test_var))
-                    f.write(test_var)
-
-            file_path = tuple(sorted(p.glob('insert_file_ref_test*.txt')))
+            for file_path in files:
+                with file_path.open() as f:
+                    expected.append((file_path.name, f.read()))
 
             # メソッド実行
             collection = 'structure_5'
             oid = [i[collection][0] for i in insert_result if collection in i][
                 0]
             insert_file_result = self.file.add_file_reference(collection, oid,
-                                                              file_path, 'ref',
+                                                              tuple(files),
+                                                              'ref',
                                                               compress=True)
 
             # DBからデータ取得
@@ -303,24 +312,19 @@ class TestFile(TestCase):
         insert_result = self.testdb['structure_emb'].insert_one(data)
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            p = Path(tmp_dir)
-
+            files_obj = self.make_txt_files(tmp_dir, name='emb_test', qty=2)
             expected = []
-            for i in range(2):
-                gen_file = 'emb_test' + str(i) + '.txt'
-                gen_path = p / gen_file
-                with gen_path.open('w') as f:
-                    test_var = 'test' + str(i)
-                    f.write(test_var)
-                    expected.append(test_var)
-            files = tuple(sorted(p.glob('emb_test*.txt')))
+            for file_path in files_obj:
+                with file_path.open() as f:
+                    expected.append(f.read())
+
             collection = 'structure_emb'
             oid = insert_result.inserted_id
             query = ['structure_2', '1']
 
             # メソッド実行
             insert_file_emb_result = self.file.add_file_reference(
-                collection, oid, files, 'emb', query, compress=True)
+                collection, oid, tuple(files_obj), 'emb', query, compress=True)
             # ドキュメントをfindして出す
             result = self.testdb[collection].find_one({'_id': oid})
 
@@ -392,17 +396,9 @@ class TestFile(TestCase):
 
         # 正常系
         with tempfile.TemporaryDirectory() as tmp_dir:
-            p = Path(tmp_dir)
-
-            for i in range(2):
-                gen_file = 'delete_test' + str(i) + '.txt'
-                gen_path = p / gen_file
-                with gen_path.open('w') as f:
-                    test_var = 'test' + str(i)
-                    f.write(test_var)
-
             fs_oids = []
-            for i in tuple(sorted(p.glob('delete_test*.txt'))):
+            for i in tuple(
+                    self.make_txt_files(tmp_dir, name='delete_test', qty=2)):
                 with i.open('rb') as f:
                     self.fs = gridfs.GridFS(self.testdb)
                     fs_oids.append(
@@ -418,29 +414,21 @@ class TestFile(TestCase):
             return
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            p = Path(tmp_dir)
-            test_vars = {}
-            filename_list = []
-            for i in range(2):
-                name = 'file_dl' + str(i) + '.txt'
-                filename_list.append(name)
-                save_path = p / name
-                with save_path.open('w') as f:
-                    test_var = 'test' + str(i)
-                    f.write(test_var)
-                    test_vars.update({name: test_var})
+            files = self.make_txt_files(tmp_dir, name='file_dl', qty=2)
 
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in sorted(p.glob('file_dl*.txt')):
+            test_vars = {}
+            for filename in files:
                 with filename.open('rb') as f:
-                    file_obj = gzip.compress(f.read(), compresslevel=6)
+                    content = f.read()
+                    file_obj = gzip.compress(content, compresslevel=6)
                     files_oid.append(
                         self.fs.put(file_obj, filename=filename.name,
                                     compress='gzip'))
-
-            files_list_dic = dict(zip(files_oid, filename_list))
+                    test_vars.update({filename.name: content.decode()})
+            files_list_dic = dict(zip(files_oid, [i.name for i in files]))
 
         with tempfile.TemporaryDirectory() as tmp_dl_dir:
             path = Path(tmp_dl_dir)
@@ -467,20 +455,12 @@ class TestFile(TestCase):
             return
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            p = Path(tmp_dir)
-            filename_list = []
-            for i in range(2):
-                name = 'file_names' + str(i) + '.txt'
-                filename_list.append(name)
-                save_path = p / name
-                with save_path.open('w') as f:
-                    test_var = 'test' + str(i)
-                    f.write(test_var)
+            files = self.make_txt_files(tmp_dir, name='file_names', qty=2)
 
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in sorted(p.glob('file_names*.txt')):
+            for filename in files:
                 with filename.open('rb') as f:
                     files_oid.append(
                         self.fs.put(f.read(), filename=filename.name))
@@ -507,7 +487,7 @@ class TestFile(TestCase):
             query = ['test1', 'test3', 'test4', '0']
             actual = self.file.get_file_names('structure_emb', oid, 'emb',
                                               query)
-            expected = dict(zip(files_oid, filename_list))
+            expected = dict(zip(files_oid, [i.name for i in files]))
             self.assertDictEqual(actual, expected)
 
             # 正常系 ファイルがなかった場合 →空のリストを出力
@@ -573,20 +553,13 @@ class TestFile(TestCase):
             return
 
         with tempfile.TemporaryDirectory() as tmp_dl_dir:
-            p = Path(tmp_dl_dir)
-            filename_list = []
-            name = 'file_delete.txt'
-            filename_list.append(name)
-            save_path = p / name
-            with save_path.open('w') as f:
-                test_var = 'test'
-                f.write(test_var)
 
             # embの添付ファイル削除テスト
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in sorted(p.glob('file_delete*.txt')):
+            dl_files = self.make_txt_files(tmp_dl_dir, name='file_delete')
+            for filename in dl_files:
                 with filename.open('rb') as f:
                     files_oid.append(
                         self.fs.put(f.read(), filename=filename.name))
@@ -620,7 +593,7 @@ class TestFile(TestCase):
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in sorted(p.glob('file_delete*.txt')):
+            for filename in dl_files:
                 with filename.open('rb') as f:
                     files_oid.append(
                         self.fs.put(f.read(), filename=filename.name))
@@ -750,18 +723,17 @@ class TestFile(TestCase):
 
         with tempfile.TemporaryDirectory() as tmp_dl_dir:
             # 添付ファイル用テキストファイル作成
-            p = Path(tmp_dl_dir)
-            filename_list = []
+
+            test_var = 'test'
             name = 'file_dl_list.txt'
-            filename_list.append(name)
-            save_path = p / name
-            with save_path.open('w') as f:
-                test_var = 'test'
-                f.write(test_var)
+            input_filename = os.path.splitext(os.path.basename(name))[0]
+            file_dl_list = self.make_txt_files(tmp_dl_dir, name=input_filename,
+                                               text=test_var)
+
             # ファイル読み込み、ファイルをgridfsに入れる
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
-            for filename in sorted(p.glob('file_dl_list*.txt')):
+            for filename in file_dl_list:
                 with filename.open('rb') as f:
                     files_oid.append(
                         self.fs.put(f.read(), filename=filename.name))
@@ -808,35 +780,27 @@ class TestFile(TestCase):
             # # ドキュメントを取得する
             search = Search(self.db)
             exclusion = ['_id', Config.file]
-            docs = search.get_documents(1, doc_col, result[doc_col],
-                                        1, 1, exclusion=exclusion)
-            # print('docs', docs)
+            docs = search.find(doc_col, {'_id': result[doc_col]}, 1, 1,
+                               exclusion)
             result_with_filepath, downloads = self.file.get_fileref_and_generate_dl_list(
                 docs, "_ed_attachment")
-            # print('result_with_filepath:', result_with_filepath)
-            # print('downloads:', downloads)
             res = search.process_data_derived_from_mongodb(
                 result_with_filepath)
-            # print('res', res)
 
         # 実行
         raw_json = dumps(res, ensure_ascii=False, indent=4)
         encoded_json = raw_json.encode('utf-8')
         json_tree_file_name = 'json_tree'
         zip_filepath = self.file.zipped_contents(downloads,
-                                                    json_tree_file_name,
-                                                    encoded_json)
-        # print('zip_filepath:', zip_filepath)
-
+                                                 json_tree_file_name,
+                                                 encoded_json)
         with tempfile.TemporaryDirectory() as tmp:
             # 解凍
             shutil.unpack_archive(zip_filepath, tmp)
             # 添付ファイルを読み込んでテキストの中身を抽出
             path_lists = [tmp, str(list(downloads.keys())[0]), name]
-            attached_file_path = os.path.join(*path_lists)
-            with open(attached_file_path) as f:
+            with open(os.path.join(*path_lists)) as f:
                 attached_s = f.read()
-                # print('test: ', attached_s)
             path_lists = [tmp, json_tree_file_name + '.json']
             json_file_path = os.path.join(*path_lists)
             with open(json_file_path) as jf:
@@ -844,8 +808,6 @@ class TestFile(TestCase):
             # 外に出すデータを組み立て(zip内部のjsonデータ、上記の添付ファイルデータ)
             actual_data = {'json_data': j_data, 'attached_data': attached_s}
         # テスト
-        # print(actual_data)
-        # print(res)
         self.assertDictEqual(res, actual_data['json_data'])
         self.assertEqual(test_var, actual_data['attached_data'])
 
