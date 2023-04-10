@@ -138,9 +138,6 @@ class Search:
             raise EdmanDbProcessError('ドキュメントが取得できませんでした')
         else:
             if len(docs):
-                # 複数ドキュメントの場合は選択処理へ
-                # doc = docs[0] if len(docs) == 1 else self._self_data_select(docs)
-                # result = {collection: docs[0]}
                 result = {collection: docs[0]}
         return result
 
