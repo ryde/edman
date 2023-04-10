@@ -833,13 +833,13 @@ target = [‘1’, ‘2’, ‘3’, ‘4’, ‘5’]
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.download">
-<span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.download" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gridfsからデータをダウンロードし、ファイルに保存
 metadataに圧縮指定があれば伸長する</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>oid</strong> (<em>ObjectId</em>) – </p></li>
+<li><p><strong>file_oid</strong> (<em>ObjectId</em>) – </p></li>
 <li><p><strong>path</strong> (<em>str</em><em> or </em><em>Path</em>) – </p></li>
 </ul>
 </dd>
@@ -1020,6 +1020,57 @@ docにファイルリファレンスデータが無かった場合は例外を�
 <dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.grid_in">
+<span class="sig-name descname"><span class="pre">grid_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepaths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.grid_in"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.grid_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gridfsへ複数のデータをアップロードし
+compressに圧縮指定があれば圧縮する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepaths</strong> (<em>tuple</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>inserted</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.upload">
+<span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.upload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>ドキュメントにファイルリファレンスを追加する
+ファイルのインサート処理、圧縮処理なども行う
+:param str collection:
+:param oid:
+:type oid: ObjectId or str
+:param tuple file_path:
+:param str structure:
+:param query:
+:type query: list or None
+:param bool compress: default False
+:return:
+:rtype: bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.upload2">
+<span class="sig-name descname"><span class="pre">upload2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.upload2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.upload2" title="Permalink to this definition">¶</a></dt>
+<dd><p>ドキュメントにファイルリファレンスを追加する
+ファイルのインサート処理、圧縮処理なども行う
+:param str collection:
+:param oid:
+:type oid: ObjectId or str
+:param tuple file_path:ドキュメントに添付する単数or複数のファイルパスと圧縮可否のタプル
+:param str structure:
+:param query:
+:type query: list or None
+:return:
+:rtype: bool</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1522,6 +1573,9 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_file_names"><code class="docutils literal notranslate"><span class="pre">File.get_file_names()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_file_ref"><code class="docutils literal notranslate"><span class="pre">File.get_file_ref()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_fileref_and_generate_dl_list"><code class="docutils literal notranslate"><span class="pre">File.get_fileref_and_generate_dl_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.grid_in"><code class="docutils literal notranslate"><span class="pre">File.grid_in()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.upload"><code class="docutils literal notranslate"><span class="pre">File.upload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.upload2"><code class="docutils literal notranslate"><span class="pre">File.upload2()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_contents"><code class="docutils literal notranslate"><span class="pre">File.zipped_contents()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_json"><code class="docutils literal notranslate"><span class="pre">File.zipped_json()</span></code></a></li>
 </ul>

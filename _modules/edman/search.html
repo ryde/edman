@@ -170,9 +170,6 @@
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;ドキュメントが取得できませんでした&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">):</span>
-                <span class="c1"># 複数ドキュメントの場合は選択処理へ</span>
-                <span class="c1"># doc = docs[0] if len(docs) == 1 else self._self_data_select(docs)</span>
-                <span class="c1"># result = {collection: docs[0]}</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="n">collection</span><span class="p">:</span> <span class="n">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
         <span class="k">return</span> <span class="n">result</span>
 

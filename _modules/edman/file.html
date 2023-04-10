@@ -97,51 +97,9 @@
 <span class="sd">        :return:</span>
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">oid</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
-
-        <span class="c1"># ドキュメント存在確認&amp;対象ドキュメント取得</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">})</span>
-        <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;対象のドキュメントが存在しません&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;emb&#39;</span><span class="p">:</span>
-            <span class="c1"># クエリーがドキュメントのキーとして存在するかチェック</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">query_check</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">doc</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="s1">&#39;対象のドキュメントに対してクエリーが一致しません.&#39;</span><span class="p">)</span>
-
-        <span class="c1"># ファイルのインサート</span>
-        <span class="n">inserted_file_oids</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_gen</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
-            <span class="n">file_obj</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">file</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
-
-            <span class="k">if</span> <span class="n">compress</span><span class="p">:</span>
-                <span class="n">file_obj</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">file_obj</span><span class="p">,</span>
-                                         <span class="n">compresslevel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comp_level</span><span class="p">)</span>
-                <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;compress&#39;</span><span class="p">:</span> <span class="s1">&#39;gzip&#39;</span><span class="p">})</span>
-
-            <span class="n">inserted_file_oids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">file_obj</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;ref&#39;</span><span class="p">:</span>
-            <span class="n">new_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_list_attachment</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">inserted_file_oids</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;emb&#39;</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">new_doc</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">doc_traverse</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">inserted_file_oids</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span>
-                                             <span class="bp">self</span><span class="o">.</span><span class="n">file_list_attachment</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">raise</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="s1">&#39;構造はrefかembが必要です&#39;</span><span class="p">)</span>
-
-        <span class="c1"># ドキュメント差し替え</span>
-        <span class="n">replace_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">replace_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">},</span> <span class="n">new_doc</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">replace_result</span><span class="o">.</span><span class="n">modified_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># 差し替えができなかった時は添付ファイルは削除</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fs_delete</span><span class="p">(</span><span class="n">inserted_file_oids</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="c1"># TODO 後にupload()に差し替え　現在は単なるメソッドの受け皿</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">oid</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                           <span class="n">compress</span><span class="o">=</span><span class="n">compress</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="File.delete"><a class="viewcode-back" href="../../edman.html#edman.file.File.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delete_oid</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                <span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -272,29 +230,40 @@
                 <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">file_oid</span><span class="p">:</span> <span class="n">fs_out</span><span class="o">.</span><span class="n">filename</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="File.download"><a class="viewcode-back" href="../../edman.html#edman.file.File.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="File.download"><a class="viewcode-back" href="../../edman.html#edman.file.File.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_oid</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gridfsからデータをダウンロードし、ファイルに保存</span>
 <span class="sd">        metadataに圧縮指定があれば伸長する</span>
 
-<span class="sd">        :param ObjectId oid:</span>
+<span class="sd">        :param ObjectId file_oid:</span>
+<span class="sd">        :param path:</span>
+<span class="sd">        :type path: str or Path</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO 定型的な前処理があればここに追加する</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_out</span><span class="p">(</span><span class="n">file_oid</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_grid_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_oid</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gridfsからデータをダウンロードし、ファイルに保存</span>
+<span class="sd">        metadataに圧縮指定があれば伸長する</span>
+
+<span class="sd">        :param ObjectId file_oid:</span>
 <span class="sd">        :param path:</span>
 <span class="sd">        :type path: str or Path</span>
 <span class="sd">        :return: result</span>
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="kc">False</span>
-
         <span class="c1"># パスがstrならpathlibにする</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">path</span>
-
         <span class="c1"># パスが正しいか検証</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span>
-
         <span class="c1"># ダウンロード処理</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">oid</span><span class="p">):</span>
-            <span class="n">fs_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_oid</span><span class="p">):</span>
+            <span class="n">fs_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_oid</span><span class="p">)</span>
             <span class="n">save_path</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">fs_out</span><span class="o">.</span><span class="n">filename</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">save_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -307,14 +276,192 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
             <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
                 <span class="k">raise</span>
-
             <span class="k">if</span> <span class="n">save_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="kc">True</span>
-
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;指定のファイルはDBに存在しません&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
 
-        <span class="k">return</span> <span class="n">result</span></div>
+    <span class="k">def</span> <span class="nf">_grid_out2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_oid_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">],</span>
+                  <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gridfsからデータを取得し、ファイルに保存</span>
+<span class="sd">        metadataに圧縮指定があれば伸長する</span>
+<span class="sd">        複数のファイルを指定すると、複数のファイルが作成される</span>
+
+<span class="sd">        :param list file_oid_list:</span>
+<span class="sd">        :param path:</span>
+<span class="sd">        :type path: str or Path</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO あとでこのメソッドを名前変更</span>
+
+        <span class="c1"># パスがstrならpathlibにする</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">path</span>
+
+        <span class="c1"># パスが正しいか検証</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span>
+        <span class="c1"># ファイルが存在するか検証</span>
+        <span class="k">if</span> <span class="kc">False</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">,</span> <span class="n">file_oid_list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;指定のファイルはDBに存在しません&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># ダウンロード処理</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">file_oid</span> <span class="ow">in</span> <span class="n">file_oid_list</span><span class="p">:</span>
+                <span class="n">fs_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_oid</span><span class="p">)</span>
+                <span class="n">save_path</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">fs_out</span><span class="o">.</span><span class="n">filename</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">save_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">tmp</span> <span class="o">=</span> <span class="n">fs_out</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fs_out</span><span class="p">,</span>
+                                   <span class="s1">&#39;compress&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fs_out</span><span class="o">.</span><span class="n">compress</span> <span class="o">==</span> <span class="s1">&#39;gzip&#39;</span><span class="p">:</span>
+                            <span class="n">tmp</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+                <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">save_path</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+<div class="viewcode-block" id="File.upload"><a class="viewcode-back" href="../../edman.html#edman.file.File.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+               <span class="n">file_path</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+               <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ドキュメントにファイルリファレンスを追加する</span>
+<span class="sd">        ファイルのインサート処理、圧縮処理なども行う</span>
+<span class="sd">        :param str collection:</span>
+<span class="sd">        :param oid:</span>
+<span class="sd">        :type oid: ObjectId or str</span>
+<span class="sd">        :param tuple file_path:</span>
+<span class="sd">        :param str structure:</span>
+<span class="sd">        :param query:</span>
+<span class="sd">        :type query: list or None</span>
+<span class="sd">        :param bool compress: default False</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO このメソッドはあとで削除</span>
+
+        <span class="n">oid</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
+
+        <span class="c1"># ドキュメント存在確認&amp;対象ドキュメント取得</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;対象のドキュメントが存在しません&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;emb&#39;</span><span class="p">:</span>
+            <span class="c1"># クエリーがドキュメントのキーとして存在するかチェック</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">query_check</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">doc</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="s1">&#39;対象のドキュメントに対してクエリーが一致しません.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ファイルのインサート</span>
+        <span class="n">inserted_file_oids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_gen</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="n">file_obj</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">file</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+
+            <span class="k">if</span> <span class="n">compress</span><span class="p">:</span>
+                <span class="n">file_obj</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">file_obj</span><span class="p">,</span>
+                                         <span class="n">compresslevel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comp_level</span><span class="p">)</span>
+                <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;compress&#39;</span><span class="p">:</span> <span class="s1">&#39;gzip&#39;</span><span class="p">})</span>
+
+            <span class="n">inserted_file_oids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">file_obj</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;ref&#39;</span><span class="p">:</span>
+            <span class="n">new_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_list_attachment</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">inserted_file_oids</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;emb&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">new_doc</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">doc_traverse</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">inserted_file_oids</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">file_list_attachment</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="s1">&#39;構造はrefかembが必要です&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ドキュメント差し替え</span>
+        <span class="n">replace_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">replace_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">},</span> <span class="n">new_doc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">replace_result</span><span class="o">.</span><span class="n">modified_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># 差し替えができなかった時は添付ファイルは削除</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fs_delete</span><span class="p">(</span><span class="n">inserted_file_oids</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="File.upload2"><a class="viewcode-back" href="../../edman.html#edman.file.File.upload2">[docs]</a>    <span class="k">def</span> <span class="nf">upload2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+                <span class="n">file_path</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]],</span> <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ドキュメントにファイルリファレンスを追加する</span>
+<span class="sd">        ファイルのインサート処理、圧縮処理なども行う</span>
+<span class="sd">        :param str collection:</span>
+<span class="sd">        :param oid:</span>
+<span class="sd">        :type oid: ObjectId or str</span>
+<span class="sd">        :param tuple file_path:ドキュメントに添付する単数or複数のファイルパスと圧縮可否のタプル</span>
+<span class="sd">        :param str structure:</span>
+<span class="sd">        :param query:</span>
+<span class="sd">        :type query: list or None</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO あとでこのメソッドを名前変更</span>
+
+        <span class="n">oid</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
+
+        <span class="c1"># ドキュメント存在確認&amp;対象ドキュメント取得</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;対象のドキュメントが存在しません&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;emb&#39;</span><span class="p">:</span>
+            <span class="c1"># クエリーがドキュメントのキーとして存在するかチェック</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">Utils</span><span class="o">.</span><span class="n">query_check</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">doc</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="s1">&#39;対象のドキュメントに対してクエリーが一致しません.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ファイルのインサート</span>
+        <span class="n">inserted_file_oids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_in</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;ref&#39;</span><span class="p">:</span>
+            <span class="n">new_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_list_attachment</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">inserted_file_oids</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">structure</span> <span class="o">==</span> <span class="s1">&#39;emb&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">new_doc</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">doc_traverse</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">inserted_file_oids</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">file_list_attachment</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="s1">&#39;構造はrefかembが必要です&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ドキュメント差し替え</span>
+        <span class="n">replace_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">replace_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">},</span> <span class="n">new_doc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">replace_result</span><span class="o">.</span><span class="n">modified_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># 差し替えができなかった時は添付ファイルは削除</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fs_delete</span><span class="p">(</span><span class="n">inserted_file_oids</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="File.grid_in"><a class="viewcode-back" href="../../edman.html#edman.file.File.grid_in">[docs]</a>    <span class="k">def</span> <span class="nf">grid_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gridfsへ複数のデータをアップロードし</span>
+<span class="sd">        compressに圧縮指定があれば圧縮する</span>
+
+<span class="sd">        :param tuple filepaths:</span>
+<span class="sd">        :return: inserted</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inserted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">compress</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">file_gen</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">filepaths</span><span class="p">])),</span>
+                <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">filepaths</span><span class="p">]):</span>
+            <span class="n">file_obj</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">file</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+            <span class="k">if</span> <span class="n">compress</span><span class="p">:</span>
+                <span class="n">file_obj</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">file_obj</span><span class="p">,</span>
+                                         <span class="n">compresslevel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comp_level</span><span class="p">)</span>
+                <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;compress&#39;</span><span class="p">:</span> <span class="s1">&#39;gzip&#39;</span><span class="p">})</span>
+            <span class="n">inserted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">file_obj</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">inserted</span></div>
 
 <div class="viewcode-block" id="File.file_list_attachment"><a class="viewcode-back" href="../../edman.html#edman.file.File.file_list_attachment">[docs]</a>    <span class="k">def</span> <span class="nf">file_list_attachment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
                              <span class="n">files_oid</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
