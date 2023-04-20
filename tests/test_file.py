@@ -127,224 +127,6 @@ class TestFile(TestCase):
                 actual.append((filename, filedata.decode()))
             self.assertListEqual(sorted(actual), sorted(expected))
 
-    def test_add_file_reference(self):
-        if not self.db_server_connect:
-            return
-
-        # refの場合
-        # refデータ入力
-        ref_json = {
-            "structure_1": [
-                {
-                    "position": "top",
-                    "username": "ryde",
-                    "structure_2": [
-                        {
-                            "maker": "Ferrari",
-                            "carname": "F355",
-                            "power": 380,
-                            "float_val": 4453.456
-                        },
-                        {
-                            "maker": "HONDA",
-                            "carname": "NSX",
-                            "power": 280,
-                            "float_val": 321.56,
-                            "start_date": {"#date": "1981-04-23"},
-                            "structure_3_1": [
-                                {
-                                    "filename": "test1.txt",
-                                    "name": "添付ファイル1"
-                                },
-                                {
-                                    "filename": "test2.txt",
-                                    "name": "添付ファイル2"
-                                }
-                            ],
-                            "structure_3_2": [
-                                {
-                                    "filename": "test3.txt",
-                                    "name": "添付ファイル3",
-                                    "structure_4": {
-                                        "filename": "test4.txt",
-                                        "name": "添付ファイル4",
-                                        "structure_5": [
-                                            {
-                                                "url": "example2.com",
-                                                "name": "テストURL2"
-                                            },
-                                            {
-                                                "url": "example3.com",
-                                                "name": "テストURL3"
-                                            }
-                                        ]
-                                    },
-                                    "structure_6": [
-                                        {
-                                            "url": "example_x.com",
-                                            "name": "テストURL_x"
-                                        },
-                                        {
-                                            "url": "example_y.com",
-                                            "name": "テストURL_y"
-                                        }
-                                    ],
-                                    "structure_5": {
-                                        "url": "example.com",
-                                        "name": "テストURL1",
-                                        "structure_5": {
-                                            "url": "example4.com",
-                                            "name": "テストURL4"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-        convert = Convert()
-        converted_edman = convert.dict_to_edman(ref_json, mode='ref')
-        insert_result = self.db.insert(converted_edman)
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            files = self.make_txt_files(tmp_dir, name='insert_file_ref_test',
-                                        qty=2)
-            expected = []
-            for file_path in files:
-                with file_path.open() as f:
-                    expected.append((file_path.name, f.read()))
-
-            # メソッド実行
-            collection = 'structure_5'
-            oid = [i[collection][0] for i in insert_result if collection in i][
-                0]
-            insert_file_result = self.file.add_file_reference(collection, oid,
-                                                              tuple(files),
-                                                              'ref',
-                                                              compress=True)
-
-            # DBからデータ取得
-            query = {'_id': oid}
-            result = self.testdb[collection].find_one(query)
-
-            # 取得したデータからgridfsのファイルを取得
-            actual = []
-            self.fs = gridfs.GridFS(self.testdb)
-            for file_oid in result[self.config.file]:
-                data = self.fs.get(file_oid)
-                d = data.read()
-                if hasattr(data, 'compress') and data.compress == 'gzip':
-                    d = gzip.decompress(d)
-                actual.append((data.filename, d.decode()))
-
-            # テスト
-            self.assertTrue(insert_file_result)
-            self.assertListEqual(sorted(actual), sorted(expected))
-
-        # embの場合
-        data = {
-            "position": "top",
-            "structure_2": [
-                {
-                    "maker": "Ferrari",
-                    "carname": "F355",
-                    "power": 380,
-                    "float_val": 4453.456
-                },
-                {
-                    "maker": "HONDA",
-                    "carname": "NSX",
-                    "power": 280,
-                    "float_val": 321.56,
-                    "structure_3_1": [
-                        {
-                            "filename": "test1.txt",
-                            "name": "添付ファイル1"
-                        },
-                        {
-                            "filename": "test2.txt",
-                            "name": "添付ファイル2"
-                        }
-                    ],
-                    "structure_3_2": [
-                        {
-                            "filename": "test3.txt",
-                            "name": "添付ファイル3",
-                            "structure_4": {
-                                "filename": "test4.txt",
-                                "name": "添付ファイル4",
-                                "structure_5": [
-                                    {
-                                        "url": "example2.com",
-                                        "name": "テストURL2"
-                                    },
-                                    {
-                                        "url": "example3.com",
-                                        "name": "テストURL3"
-                                    }
-                                ]
-                            },
-                            "structure_6": [
-                                {
-                                    "url": "example_x.com",
-                                    "name": "テストURL_x"
-                                },
-                                {
-                                    "url": "example_y.com",
-                                    "name": "テストURL_y"
-                                }
-                            ],
-                            "structure_5": {
-                                "url": "example.com",
-                                "name": "テストURL1",
-                                "structure_5": {
-                                    "url": "example4.com",
-                                    "name": "テストURL4"
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-        insert_result = self.testdb['structure_emb'].insert_one(data)
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            files_obj = self.make_txt_files(tmp_dir, name='emb_test', qty=2)
-            expected = []
-            for file_path in files_obj:
-                with file_path.open() as f:
-                    expected.append(f.read())
-
-            collection = 'structure_emb'
-            oid = insert_result.inserted_id
-            query = ['structure_2', '1']
-
-            # メソッド実行
-            insert_file_emb_result = self.file.add_file_reference(
-                collection, oid, tuple(files_obj), 'emb', query, compress=True)
-            # ドキュメントをfindして出す
-            result = self.testdb[collection].find_one({'_id': oid})
-
-            # gridfsからデータ取得
-            out_data = []
-            self.fs = gridfs.GridFS(self.testdb)
-            for oid in result['structure_2'][1][self.config.file]:
-                data = self.fs.get(oid)
-                f_data = data.read()
-                if hasattr(data, 'compress') and data.compress == 'gzip':
-                    f_data = gzip.decompress(f_data)
-
-                out_data.append(f_data.decode())
-
-            # DBデータとファイルのデータに差異はないか
-            self.assertListEqual(sorted(expected), sorted(out_data))
-
-            # メソッド成功時のフラグ
-            self.assertTrue(insert_file_emb_result)
-
     def test_file_list_attachment(self):
 
         # _ed_fileがなかった場合
@@ -408,47 +190,6 @@ class TestFile(TestCase):
             for i in fs_oids:
                 with self.subTest(i=i):
                     self.assertFalse(self.fs.exists(i))
-
-    def test_download(self):
-        if not self.db_server_connect:
-            return
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            files = self.make_txt_files(tmp_dir, name='file_dl', qty=2)
-
-            # ファイル読み込み、ファイルをgridfsに入れる
-            files_oid = []
-            self.fs = gridfs.GridFS(self.testdb)
-            test_vars = {}
-            for filename in files:
-                with filename.open('rb') as f:
-                    content = f.read()
-                    file_obj = gzip.compress(content, compresslevel=6)
-                    files_oid.append(
-                        self.fs.put(file_obj, filename=filename.name,
-                                    compress='gzip'))
-                    test_vars.update({filename.name: content.decode()})
-            files_list_dic = dict(zip(files_oid, [i.name for i in files]))
-
-        with tempfile.TemporaryDirectory() as tmp_dl_dir:
-            path = Path(tmp_dl_dir)
-
-            # 正常テスト
-            expected = {}
-            for oid, file_name in files_list_dic.items():
-                if self.file.download(oid, path):
-                    if path.exists():
-                        expected.update({oid: file_name})
-            self.assertDictEqual(files_list_dic, expected)
-
-            # files_list_dicファイルの中身が同じかテスト
-            for name, txt in test_vars.items():
-                dl_path = path / name
-                with dl_path.open('rb') as f:
-                    raw_data = f.read()
-                    dl_data = raw_data.decode()
-                    with self.subTest(name=name):
-                        self.assertEqual(dl_data, txt)
 
     def test_get_file_names(self):
         if not self.db_server_connect:
@@ -827,7 +568,7 @@ class TestFile(TestCase):
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
             input_filename = os.path.splitext(os.path.basename(name))[0]
-            for filename in self.make_txt_files(tmp_dl_dir,input_filename):
+            for filename in self.make_txt_files(tmp_dl_dir, input_filename):
                 with filename.open('rb') as f:
                     files_oid.append(
                         self.fs.put(f.read(), filename=filename.name))
@@ -886,7 +627,7 @@ class TestFile(TestCase):
         actual = self.file.generate_zip_filename(filename)
         self.assertEqual(expected, actual)
 
-    def test_grid_out2(self):
+    def test_grid_out(self):
         if not self.db_server_connect:
             return
 
@@ -909,7 +650,7 @@ class TestFile(TestCase):
         with tempfile.TemporaryDirectory() as tmp_dl_dir:
             path = Path(tmp_dl_dir)
 
-            grid_out_result = self.file._grid_out2(files_oid, tmp_dl_dir)
+            grid_out_result = self.file._grid_out(files_oid, tmp_dl_dir)
             # 実行結果
             self.assertTrue(grid_out_result)
 
@@ -917,11 +658,10 @@ class TestFile(TestCase):
             expected = {}
             for dl_file in path.glob('*.txt'):
                 with dl_file.open() as f:
-                    expected.update({dl_file.name:f.read()})
+                    expected.update({dl_file.name: f.read()})
             self.assertDictEqual(test_vars, expected)
 
-
-    def test_upload2(self):
+    def test_upload(self):
         if not self.db_server_connect:
             return
 
@@ -1015,9 +755,9 @@ class TestFile(TestCase):
             oid = [i[collection][0] for i in insert_result if collection in i][
                 0]
             p_files = tuple([(i, True) for i in files])
-            insert_file_result = self.file.upload2(collection, oid,
-                                                              p_files,
-                                                              'ref')
+            insert_file_result = self.file.upload(collection, oid,
+                                                  p_files,
+                                                  'ref')
 
             # DBからデータ取得
             query = {'_id': oid}
@@ -1118,7 +858,7 @@ class TestFile(TestCase):
 
             files_obj2 = tuple([(i, True) for i in files_obj])
             # メソッド実行
-            insert_file_emb_result = self.file.upload2(
+            insert_file_emb_result = self.file.upload(
                 collection, oid, files_obj2, 'emb', query)
 
             # ドキュメントをfindして出す
@@ -1141,11 +881,33 @@ class TestFile(TestCase):
             # メソッド成功時のフラグ
             self.assertTrue(insert_file_emb_result)
 
+    def test_grid_in(self):
+        if not self.db_server_connect:
+            return
 
+        # 正常系
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            sample_files = self.make_txt_files(tmp_dir, name='grid_in_test',
+                                               qty=2)
+            compress_settings = [True, False]
+            td = tuple(
+                [(p, b) for (p, b) in zip(sample_files, compress_settings)])
 
+            self.fs = gridfs.GridFS(self.testdb)
+            actual = []
+            for oid in self.file.grid_in(td):
+                data = self.fs.get(oid)
+                if data.compress == 'gzip':
+                    f_data = gzip.decompress(data.read()).decode()
+                    b_data = True
+                else:
+                    f_data = data.read().decode()
+                    b_data = False
+                actual.append([data.filename, f_data, b_data])
 
-    # def test_grid_out(self):
-    #     # 現状test_download()と同じ
-    #     # あとでgrid_out2と()差し替え
-    #     pass
+            expected = []
+            for file_path, compress in zip(sample_files, compress_settings):
+                with file_path.open() as f:
+                    expected.append([file_path.name, f.read(), compress])
 
+            self.assertListEqual(sorted(actual), sorted(expected))
