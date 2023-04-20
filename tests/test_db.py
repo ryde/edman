@@ -108,6 +108,24 @@ class TestDB(TestCase):
     #     # DB破棄
     #     pass
 
+    @staticmethod
+    def make_txt_files(dir_path, name='file_dl_list', suffix='.txt',
+                       text='test', qty=1):
+        # 添付ファイル用テキストファイル作成
+        p = Path(dir_path)
+        if qty == 1:
+            filename = name + suffix
+            save_path = p / filename
+            with save_path.open('w') as f:
+                f.write(text)
+        else:
+            for i in range(qty):
+                filename = name + str(i) + suffix
+                save_path = p / filename
+                with save_path.open('w') as f:
+                    f.write(text + str(i))
+        return sorted(p.glob(name + '*' + suffix))
+
     def test_insert(self):
         if not self.db_server_connect:
             return
@@ -1233,39 +1251,23 @@ class TestDB(TestCase):
         convert = Convert()
         converted_edman = convert.dict_to_edman(data, mode='ref')
         inserted_report = self.db.insert(converted_edman)
-        # print('inserted_report', inserted_report)
 
         target_collection = 'st2'
-        # ファイルリファレンスをアタッチ
         file = File(self.testdb)
         attached_file_oid = inserted_report[0]['engine'][0]
-        # print('file_oid', file_oid)
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            p = Path(tmp_dir)
-            filename_list = []
-            name = 'file_ref.txt'
-            filename_list.append(name)
-            save_path = p / name
-            with save_path.open('w') as f:
-                test_var = 'test ref'
-                f.write(test_var)
-                # ここはfileクラスのメソッドは利用せずにgridfsでインサートしたほうが良いかも？
-                file.add_file_reference('engine', attached_file_oid,
-                                        (save_path,),
-                                        'ref')
+            p_files = self.make_txt_files(tmp_dir, name='file_ref',text='test ref')
+            for p_file in p_files:
+                file.upload('engine', attached_file_oid,((p_file,False),),'ref')
 
         oid = inserted_report[1][target_collection][1]
-        # print(target_collection, oid)
         new_collection = 'new_collection'
         actual = self.db.structure(target_collection, oid,
                                    structure_mode='emb',
                                    new_collection=new_collection)
-        # print('actual', actual)
         find_result = self.testdb[new_collection].find_one(
             {'_id': actual[0][new_collection][0]})
-        # print('find_result', find_result['engine'][0])
-
         self.assertTrue(
             True if self.file in find_result['engine'][0] else False)
 
@@ -1284,7 +1286,6 @@ class TestDB(TestCase):
         convert = Convert()
         converted_edman = convert.dict_to_edman(data, mode='ref')
         inserted_report = self.db.insert(converted_edman)
-        # print(inserted_report)
         oid = inserted_report[0]['sample'][0]
         new_collection = 'new_collection'
         actual = self.db.structure('sample', oid,
@@ -1326,19 +1327,15 @@ class TestDB(TestCase):
         actual = self.db.structure('sample2', oid,
                                    structure_mode='ref',
                                    new_collection=new_collection)
-        # print('actual', actual)
         actual2 = self.db.structure('new_collection',
                                     actual[0]['new_collection'][0],
                                     structure_mode='emb',
                                     new_collection='new_collection2')
-        # print('actual2', actual2)
 
         result = self.testdb['new_collection2'].find_one(
             {'_id': actual2[0]['new_collection2'][0]})
         del result['_id']
         self.assertDictEqual(result, data['sample2'])
-        # print(result)
-        # print(data['sample2'])
 
     def test_get_child_all(self):
         if not self.db_server_connect:

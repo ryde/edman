@@ -5,7 +5,7 @@ import gzip
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 import datetime
 import zipfile
-from typing import Union, Tuple, Iterator, List
+from typing import Union, Tuple, Iterator, List, Any
 from pathlib import Path
 import gridfs
 from gridfs.errors import NoFile, GridFSError
@@ -46,28 +46,6 @@ class File:
             except IOError:
                 raise
             yield file.name, fp
-
-    def add_file_reference(self, collection: str, oid: Union[ObjectId, str],
-                           file_path: Tuple[Path], structure: str,
-                           query=None, compress=False) -> bool:
-        """
-        ドキュメントにファイルリファレンスを追加する
-        ファイルのインサート処理、圧縮処理なども行う
-
-        :param str collection:
-        :param oid:
-        :type oid: ObjectId or str
-        :param tuple file_path:
-        :param str structure:
-        :param query:
-        :type query: list or None
-        :param bool compress: default False
-        :return:
-        :rtype: bool
-        """
-        # TODO 後にupload()に差し替え　現在は単なるメソッドの受け皿
-        return self.upload(collection, oid, file_path, structure, query=query,
-                           compress=compress)
 
     def delete(self, delete_oid: ObjectId, collection: str,
                oid: Union[ObjectId, str], structure: str, query=None) -> bool:
@@ -198,59 +176,22 @@ class File:
                 result.update({file_oid: fs_out.filename})
         return result
 
-    def download(self, file_oid: ObjectId, path: Union[str, Path]) -> bool:
+    def download(self, file_oid: list[ObjectId],
+                 path: Union[str, Path]) -> bool:
         """
         Gridfsからデータをダウンロードし、ファイルに保存
         metadataに圧縮指定があれば伸長する
 
-        :param ObjectId file_oid:
+        :param list file_oid:
         :param path:
         :type path: str or Path
         :return: result
         :rtype: bool
         """
-        # TODO 定型的な前処理があればここに追加する
+        # 定型的な前処理があればここに追加する
         return self._grid_out(file_oid, path)
 
-    def _grid_out(self, file_oid: ObjectId, path: Union[str, Path]) -> bool:
-        """
-        Gridfsからデータをダウンロードし、ファイルに保存
-        metadataに圧縮指定があれば伸長する
-
-        :param ObjectId file_oid:
-        :param path:
-        :type path: str or Path
-        :return: result
-        :rtype: bool
-        """
-        result = False
-        # パスがstrならpathlibにする
-        p = Path(path) if isinstance(path, str) else path
-        # パスが正しいか検証
-        if not p.exists():
-            raise FileNotFoundError
-        # ダウンロード処理
-        if self.fs.exists(file_oid):
-            fs_out = self.fs.get(file_oid)
-            save_path = p / fs_out.filename
-            try:
-                with save_path.open('wb') as f:
-                    tmp = fs_out.read()
-                    if hasattr(fs_out,
-                               'compress') and fs_out.compress == 'gzip':
-                        tmp = gzip.decompress(tmp)
-                    f.write(tmp)
-                    f.flush()
-                    os.fsync(f.fileno())
-            except IOError:
-                raise
-            if save_path.exists():
-                result = True
-        else:
-            raise EdmanDbProcessError('指定のファイルはDBに存在しません')
-        return result
-
-    def _grid_out2(self, file_oid_list: List[ObjectId],
+    def _grid_out(self, file_oid_list: List[ObjectId],
                   path: Union[str, Path]) -> bool:
         """
         Gridfsからデータを取得し、ファイルに保存
@@ -263,7 +204,6 @@ class File:
         :return: result
         :rtype: bool
         """
-        # TODO あとでこのメソッドを名前変更
 
         # パスがstrならpathlibにする
         p = Path(path) if isinstance(path, str) else path
@@ -295,72 +235,8 @@ class File:
         return all(results)
 
     def upload(self, collection: str, oid: Union[ObjectId, str],
-               file_path: Tuple[Path], structure: str,
-               query=None, compress=False) -> bool:
-        """
-        ドキュメントにファイルリファレンスを追加する
-        ファイルのインサート処理、圧縮処理なども行う
-        :param str collection:
-        :param oid:
-        :type oid: ObjectId or str
-        :param tuple file_path:
-        :param str structure:
-        :param query:
-        :type query: list or None
-        :param bool compress: default False
-        :return:
-        :rtype: bool
-        """
-        # TODO このメソッドはあとで削除
-
-        oid = Utils.conv_objectid(oid)
-
-        # ドキュメント存在確認&対象ドキュメント取得
-        doc = self.db[collection].find_one({'_id': oid})
-        if doc is None:
-            raise EdmanInternalError('対象のドキュメントが存在しません')
-
-        if structure == 'emb':
-            # クエリーがドキュメントのキーとして存在するかチェック
-            if not Utils.query_check(query, doc):
-                raise EdmanFormatError('対象のドキュメントに対してクエリーが一致しません.')
-
-        # ファイルのインサート
-        inserted_file_oids = []
-        for file in self.file_gen(file_path):
-            file_obj = file[1]
-            metadata = {'filename': file[0]}
-
-            if compress:
-                file_obj = gzip.compress(file_obj,
-                                         compresslevel=self.comp_level)
-                metadata.update({'compress': 'gzip'})
-
-            inserted_file_oids.append(self.fs.put(file_obj, **metadata))
-
-        if structure == 'ref':
-            new_doc = self.file_list_attachment(doc, inserted_file_oids)
-        elif structure == 'emb':
-            try:
-                new_doc = Utils.doc_traverse(doc, inserted_file_oids, query,
-                                             self.file_list_attachment)
-            except Exception:
-                raise
-        else:
-            raise EdmanFormatError('構造はrefかembが必要です')
-
-        # ドキュメント差し替え
-        replace_result = self.db[collection].replace_one({'_id': oid}, new_doc)
-
-        if replace_result.modified_count == 1:
-            return True
-        else:  # 差し替えができなかった時は添付ファイルは削除
-            self.fs_delete(inserted_file_oids)
-            return False
-
-    def upload2(self, collection: str, oid: Union[ObjectId, str],
-                file_path: Tuple[Tuple[Path, bool]], structure: str,
-                query=None) -> bool:
+               file_path: Tuple[Tuple[Path, bool]], structure: str,
+               query=None) -> bool:
         """
         ドキュメントにファイルリファレンスを追加する
         ファイルのインサート処理、圧縮処理なども行う
@@ -374,7 +250,6 @@ class File:
         :return:
         :rtype: bool
         """
-        # TODO あとでこのメソッドを名前変更
 
         oid = Utils.conv_objectid(oid)
 
@@ -409,26 +284,33 @@ class File:
             self.fs_delete(inserted_file_oids)
             return False
 
-    def grid_in(self, filepaths: Tuple[Tuple[Path, bool]]) -> list:
+    def grid_in(self, files: Tuple[Tuple[Path, bool]]) -> list[Any]:
         """
         Gridfsへ複数のデータをアップロードし
-        compressに圧縮指定があれば圧縮する
+        compressに圧縮指定があればgzipで圧縮する
 
-        :param tuple filepaths:
+        :param tuple files:
         :return: inserted
         :rtype: list
         """
         inserted = []
-        for file, compress in zip(
-                self.file_gen(tuple([i[0] for i in filepaths])),
-                [i[1] for i in filepaths]):
-            file_obj = file[1]
-            metadata = {'filename': file[0]}
-            if compress:
-                file_obj = gzip.compress(file_obj,
-                                         compresslevel=self.comp_level)
-                metadata.update({'compress': 'gzip'})
-            inserted.append(self.fs.put(file_obj, **metadata))
+        for file, compress in files:
+            try:
+                with file.open('rb') as f:
+                    fb = f.read()
+                    if compress:
+                        fb = gzip.compress(fb, compresslevel=self.comp_level)
+                        compress = 'gzip'
+                    else:
+                        compress = None
+                    metadata = {'filename': os.path.basename(f.name),
+                                'compress': compress}
+            except (IOError, OSError) as e:
+                raise EdmanDbProcessError(e)
+            try:
+                inserted.append(self.fs.put(fb, **metadata))
+            except GridFSError as e:
+                raise EdmanDbProcessError(e)
         return inserted
 
     def file_list_attachment(self, doc: dict,
