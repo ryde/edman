@@ -235,7 +235,7 @@ class File:
         return all(results)
 
     def upload(self, collection: str, oid: Union[ObjectId, str],
-               file_path: Tuple[Tuple[Path, bool]], structure: str,
+               file_path: Tuple[Tuple[Any, bool]], structure: str,
                query=None) -> bool:
         """
         ドキュメントにファイルリファレンスを追加する
@@ -284,7 +284,7 @@ class File:
             self.fs_delete(inserted_file_oids)
             return False
 
-    def grid_in(self, files: Tuple[Tuple[Path, bool]]) -> list[Any]:
+    def grid_in(self, files: Tuple[Tuple[Any, bool]]) -> list[Any]:
         """
         Gridfsへ複数のデータをアップロードし
         compressに圧縮指定があればgzipで圧縮する
@@ -419,7 +419,12 @@ class File:
                     except GridFSError:
                         raise
                     else:
-                        filepath = os.path.join(dir_path, content.name)
+                        # 圧縮設定の場合はその拡張子を追加
+                        if content.compress is not None:
+                            filename = content.name + '.' + content.compress
+                        else:
+                            filename = content.name
+                        filepath = os.path.join(dir_path, filename)
                     try:
                         with open(filepath, 'wb') as f:
                             f.write(content.read())

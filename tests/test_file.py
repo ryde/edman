@@ -475,9 +475,9 @@ class TestFile(TestCase):
             files_oid = []
             self.fs = gridfs.GridFS(self.testdb)
             for filename in file_dl_list:
+                metadata = {'filename': filename.name, 'compress': None}
                 with filename.open('rb') as f:
-                    files_oid.append(
-                        self.fs.put(f.read(), filename=filename.name))
+                    files_oid.append(self.fs.put(f.read(), **metadata))
 
             # docをDBに入れる
             parent_id = ObjectId()
