@@ -419,7 +419,12 @@ class File:
                     except GridFSError:
                         raise
                     else:
-                        filepath = os.path.join(dir_path, content.name)
+                        # 圧縮設定の場合はその拡張子を追加
+                        if content.compress is not None:
+                            filename = content.name + '.' + content.compress
+                        else:
+                            filename = content.name
+                        filepath = os.path.join(dir_path, filename)
                     try:
                         with open(filepath, 'wb') as f:
                             f.write(content.read())
