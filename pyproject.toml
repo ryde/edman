@@ -10,7 +10,7 @@ homepage = "https://github.com/ryde/edman"
 repository = "https://github.com/ryde/edman"
 documentation = "https://edman.readthedocs.io/en/latest/"
 readme = "README.rst"
-version = "edman/_version.py"
+version = "edman/_version"
 requires-python = ">=3.11"
 license = {file = "LICENSE.txt"}
 classifiers = [
