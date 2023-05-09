@@ -1,0 +1,30 @@
+[build-system]
+requires = ["wheel", "setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edman"
+description = "KEK IMSS SBRC/PF Experimental Data Management System"
+authors = ["Masaki Ohno <masakio@post.kek.jp>"]
+homepage = "https://github.com/ryde/edman"
+repository = "https://github.com/ryde/edman"
+documentation = "https://edman.readthedocs.io/en/latest/"
+readme = "README.rst"
+version = "_version.py"
+requires-python = ">=3.11"
+license = {file = "LICENSE.txt"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Database :: Front-Ends",
+]
+dependencies = [
+    "pymongo~=4.3.3",
+    " python-dateutil~=2.8.2",
+    "jmespath~=1.0.1",
+]
+[tool.setuptools.packages.find]
+exclude = ["tests"]
+
+
