@@ -1,12 +1,13 @@
 attrs==23.1.0
 bleach==6.0.0
+build==0.10.0
 certifi==2023.5.7
 cffi==1.15.1
 charset-normalizer==3.1.0
 commonmark==0.9.1
 cryptography==40.0.2
 dnspython==2.3.0
-docutils==0.19
+docutils==0.20
 exceptiongroup==1.1.1
 idna==3.4
 importlib-metadata==6.6.0
@@ -26,6 +27,7 @@ pycparser==2.21
 Pygments==2.15.1
 pymongo==4.3.3
 pyparsing==3.0.9
+pyproject_hooks==1.0.0
 pytest==7.3.1
 python-dateutil==2.8.2
 readme-renderer==37.3
@@ -34,10 +36,12 @@ requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==13.3.5
 SecretStorage==3.3.3
+setuptools-scm==7.1.0
 six==1.16.0
 toml==0.10.2
 tomli==2.0.1
 twine==4.0.2
+typing_extensions==4.5.0
 urllib3==2.0.2
 webencodings==0.5.1
 zipp==3.15.0
