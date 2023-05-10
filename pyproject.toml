@@ -25,9 +25,8 @@ dependencies = [
 version = "2023.5.10"
 
 [project.urls]
-documentation = "https://edman.readthedocs.io/en/latest/"
-homepage = "https://github.com/ryde/edman"
-repository = "https://github.com/ryde/edman"
+"documentation" = "https://edman.readthedocs.io/en/latest/"
+"repository" = "https://github.com/ryde/edman"
 
 [tool.setuptools.packages.find]
 exclude = ["tests"]
