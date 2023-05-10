@@ -22,10 +22,10 @@ dependencies = [
     " python-dateutil~=2.8.2",
     "jmespath~=1.0.1",
 ]
-version = "2023.5.10"
+version = "2023.5.10.1"
 
 [project.urls]
-"documentation" = "https://edman.readthedocs.io/en/latest/"
+"documentation" = "https://ryde.github.io/edman/"
 "repository" = "https://github.com/ryde/edman"
 
 [tool.setuptools.packages.find]
