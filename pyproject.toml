@@ -31,4 +31,6 @@ version = "2023.5.10.1"
 [tool.setuptools.packages.find]
 exclude = ["tests"]
 
-
+[tool.pytest.ini_options]
+addopts = "-p no:cacheprovider"
+testpaths = ["tests"]
