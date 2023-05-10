@@ -25,7 +25,7 @@ dependencies = [
 version = "2023.5.10"
 
 [project.urls]
-"documentation" = "https://edman.readthedocs.io/en/latest/"
+"documentation" = "https://ryde.github.io/edman/"
 "repository" = "https://github.com/ryde/edman"
 
 [tool.setuptools.packages.find]
