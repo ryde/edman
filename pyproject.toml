@@ -5,7 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "edman"
 description = "KEK IMSS SBRC/PF Experimental Data Management System"
-authors = ["Masaki Ohno <masakio@post.kek.jp>"]
+authors = [
+    {name = "Masaki Ohno", email = "masakio@post.kek.jp"},
+]
 homepage = "https://github.com/ryde/edman"
 repository = "https://github.com/ryde/edman"
 documentation = "https://edman.readthedocs.io/en/latest/"
