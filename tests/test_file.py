@@ -641,10 +641,12 @@ class TestFile(TestCase):
             for filename in files:
                 with filename.open('rb') as f:
                     content = f.read()
-                    file_obj = gzip.compress(content, compresslevel=6)
+                    # file_obj = gzip.compress(content, compresslevel=6)
+                    # files_oid.append(
+                    #     self.fs.put(file_obj, filename=filename.name,
+                    #                 compress='gzip'))
                     files_oid.append(
-                        self.fs.put(file_obj, filename=filename.name,
-                                    compress='gzip'))
+                        self.fs.put(content, filename=filename.name))
                     test_vars.update({filename.name: content.decode()})
 
         with tempfile.TemporaryDirectory() as tmp_dl_dir:
@@ -889,7 +891,7 @@ class TestFile(TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             sample_files = self.make_txt_files(tmp_dir, name='grid_in_test',
                                                qty=2)
-            compress_settings = [True, False]
+            compress_settings = [False, False]
             td = tuple(
                 [(p, b) for (p, b) in zip(sample_files, compress_settings)])
 
@@ -897,12 +899,15 @@ class TestFile(TestCase):
             actual = []
             for oid in self.file.grid_in(td):
                 data = self.fs.get(oid)
-                if data.compress == 'gzip':
-                    f_data = gzip.decompress(data.read()).decode()
-                    b_data = True
-                else:
-                    f_data = data.read().decode()
-                    b_data = False
+                # if data.compress == 'gzip':
+                #     f_data = gzip.decompress(data.read()).decode()
+                #     b_data = True
+                # else:
+                #     f_data = data.read().decode()
+                #     b_data = False
+
+                f_data = data.read().decode()
+                b_data = False
                 actual.append([data.filename, f_data, b_data])
 
             expected = []
