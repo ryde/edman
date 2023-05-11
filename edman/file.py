@@ -223,9 +223,9 @@ class File:
                 try:
                     with save_path.open('wb') as f:
                         tmp = fs_out.read()
-                        if hasattr(fs_out,
-                                   'compress') and fs_out.compress == 'gzip':
-                            tmp = gzip.decompress(tmp)
+                        # if hasattr(fs_out,
+                        #            'compress') and fs_out.compress == 'gzip':
+                        #     tmp = gzip.decompress(tmp)
                         f.write(tmp)
                         f.flush()
                         os.fsync(f.fileno())
@@ -243,7 +243,7 @@ class File:
         :param str collection:
         :param oid:
         :type oid: ObjectId or str
-        :param tuple file_path:ドキュメントに添付する単数or複数のファイルパスと圧縮可否のタプル
+        :param tuple file_path:ドキュメントに添付する単数or複数のファイルパス
         :param str structure:
         :param query:
         :type query: list or None
@@ -287,7 +287,6 @@ class File:
     def grid_in(self, files: Tuple[Tuple[Any, bool]]) -> list[Any]:
         """
         Gridfsへ複数のデータをアップロードし
-        compressに圧縮指定があればgzipで圧縮する
 
         :param tuple files:
         :return: inserted
@@ -298,13 +297,15 @@ class File:
             try:
                 with file.open('rb') as f:
                     fb = f.read()
-                    if compress:
-                        fb = gzip.compress(fb, compresslevel=self.comp_level)
-                        compress = 'gzip'
-                    else:
-                        compress = None
-                    metadata = {'filename': os.path.basename(f.name),
-                                'compress': compress}
+                    # if compress:
+                    #     fb = gzip.compress(fb, compresslevel=self.comp_level)
+                    #     compress = 'gzip'
+                    # else:
+                    #     compress = None
+                    # metadata = {'filename': os.path.basename(f.name),
+                    #             'compress': compress}
+                    metadata = {'filename': os.path.basename(f.name)}
+
             except (IOError, OSError) as e:
                 raise EdmanDbProcessError(e)
             try:
@@ -420,10 +421,11 @@ class File:
                         raise
                     else:
                         # 圧縮設定の場合はその拡張子を追加
-                        if content.compress is not None:
-                            filename = content.name + '.' + content.compress
-                        else:
-                            filename = content.name
+                        # if content.compress is not None:
+                        #     filename = content.name + '.' + content.compress
+                        # else:
+                        #     filename = content.name
+                        filename = content.name
                         filepath = os.path.join(dir_path, filename)
                     try:
                         with open(filepath, 'wb') as f:
