@@ -1,7 +1,6 @@
 import os
 import shutil
 import copy
-import gzip
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 import datetime
 import zipfile
@@ -180,7 +179,6 @@ class File:
                  path: Union[str, Path]) -> bool:
         """
         Gridfsからデータをダウンロードし、ファイルに保存
-        metadataに圧縮指定があれば伸長する
 
         :param list file_oid:
         :param path:
@@ -195,7 +193,6 @@ class File:
                   path: Union[str, Path]) -> bool:
         """
         Gridfsからデータを取得し、ファイルに保存
-        metadataに圧縮指定があれば伸長する
         複数のファイルを指定すると、複数のファイルが作成される
 
         :param list file_oid_list:
@@ -223,9 +220,6 @@ class File:
                 try:
                     with save_path.open('wb') as f:
                         tmp = fs_out.read()
-                        # if hasattr(fs_out,
-                        #            'compress') and fs_out.compress == 'gzip':
-                        #     tmp = gzip.decompress(tmp)
                         f.write(tmp)
                         f.flush()
                         os.fsync(f.fileno())
@@ -239,7 +233,7 @@ class File:
                query=None) -> bool:
         """
         ドキュメントにファイルリファレンスを追加する
-        ファイルのインサート処理、圧縮処理なども行う
+        ファイルのインサート処理なども行う
         :param str collection:
         :param oid:
         :type oid: ObjectId or str
@@ -286,7 +280,7 @@ class File:
 
     def grid_in(self, files: Tuple[Tuple[Any, bool]]) -> list[Any]:
         """
-        Gridfsへ複数のデータをアップロードし
+        Gridfsへ複数のデータをアップロード
 
         :param tuple files:
         :return: inserted
@@ -297,15 +291,7 @@ class File:
             try:
                 with file.open('rb') as f:
                     fb = f.read()
-                    # if compress:
-                    #     fb = gzip.compress(fb, compresslevel=self.comp_level)
-                    #     compress = 'gzip'
-                    # else:
-                    #     compress = None
-                    # metadata = {'filename': os.path.basename(f.name),
-                    #             'compress': compress}
                     metadata = {'filename': os.path.basename(f.name)}
-
             except (IOError, OSError) as e:
                 raise EdmanDbProcessError(e)
             try:
@@ -420,13 +406,7 @@ class File:
                     except GridFSError:
                         raise
                     else:
-                        # 圧縮設定の場合はその拡張子を追加
-                        # if content.compress is not None:
-                        #     filename = content.name + '.' + content.compress
-                        # else:
-                        #     filename = content.name
-                        filename = content.name
-                        filepath = os.path.join(dir_path, filename)
+                        filepath = os.path.join(dir_path, content.name)
                     try:
                         with open(filepath, 'wb') as f:
                             f.write(content.read())
@@ -457,7 +437,6 @@ class File:
         jsonファイルとzipファイルを名前付きテンポラリとして生成し、パスを生成
         zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
         添付ファイルがなく、jsonファイルだけ取得したい場合に使用する
-        # リファクタリング対象
 
         :param bytes encoded_json: json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの
         :param str json_tree_file_name: zipファイル内に配置するjsonファイルの名前
