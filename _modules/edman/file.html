@@ -457,6 +457,44 @@
                 <span class="k">raise</span>
         <span class="k">return</span> <span class="n">zip_filepath</span></div>
 
+    <span class="c1"># def zipped_contents_path(self, downloads: dict, json_tree_file_name: str,</span>
+    <span class="c1">#                     encoded_json: bytes, p: Path) -&gt; str:</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     jsonと添付ファイルを含むzipファイルを生成</span>
+    <span class="c1">#     zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む</span>
+    <span class="c1">#     添付ファイルがなく、jsonファイルだけ取得したい場合はzipped_jsonを利用</span>
+    <span class="c1">#</span>
+    <span class="c1">#     :param dict downloads:</span>
+    <span class="c1">#     :param str json_tree_file_name:</span>
+    <span class="c1">#     :param bytes encoded_json:</span>
+    <span class="c1">#     :param Path p:</span>
+    <span class="c1">#     :rtype: str</span>
+    <span class="c1">#     :return:</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1">#     json_suffix = &#39;.json&#39;</span>
+    <span class="c1">#     dir_path_list = [p/str(doc_oid) for doc_oid in downloads]</span>
+    <span class="c1">#</span>
+    <span class="c1">#     for file_refs, dir_path in zip([i for i in downloads.values()],</span>
+    <span class="c1">#                                    dir_path_list):</span>
+    <span class="c1">#         os.mkdir(dir_path)</span>
+    <span class="c1">#         for file_ref in file_refs:</span>
+    <span class="c1">#             content = self.fs.get(file_ref)</span>
+    <span class="c1">#             filepath = dir_path / content.name</span>
+    <span class="c1">#             with open(filepath, &#39;wb&#39;) as f:</span>
+    <span class="c1">#                 f.write(content.read())</span>
+    <span class="c1">#</span>
+    <span class="c1">#         json_dir = dir_path / json_tree_file_name + json_suffix</span>
+    <span class="c1">#         # jsonファイルとして一時ディレクトリに保存</span>
+    <span class="c1">#         with json_dir.open(&#39;wb&#39;) as f:</span>
+    <span class="c1">#             f.write(encoded_json)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     # 最終的にDLするzipファイルを作成</span>
+    <span class="c1">#     zip_filepath = shutil.make_archive(&#39;dl&#39;, &#39;zip&#39;, p)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return zip_filepath</span>
+
+
 <div class="viewcode-block" id="File.zipped_json"><a class="viewcode-back" href="../../edman.html#edman.file.File.zipped_json">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">zipped_json</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">json_tree_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -510,6 +548,7 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="n">json_tree_file_name</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span>
         <span class="n">jsonfile</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">filename</span>
         <span class="n">zip_filepath</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">zip_filename</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">jsonfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">)</span>
@@ -517,7 +556,7 @@
             <span class="k">raise</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">jsonfile</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">jsonfile</span><span class="p">,</span> <span class="n">arcname</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span>
         <span class="k">return</span> <span class="n">zip_filepath</span></div>
