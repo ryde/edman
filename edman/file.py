@@ -61,38 +61,32 @@ class File:
         :rtype: bool
         """
         oid = Utils.conv_objectid(oid)
+        if structure not in ['ref', 'emb']:
+            raise EdmanFormatError('structureはrefまたはembの指定が必要です')
 
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
-        doc = self.db[collection].find_one({'_id': oid})
-        if doc is None:
+        if (doc := self.db[collection].find_one({'_id': oid})) is None:
             raise EdmanInternalError('対象のコレクション、またはドキュメントが存在しません')
 
         # ファイルリスト取得
         files_list = self.get_file_ref(doc, structure, query)
-
-        # リファレンスデータを編集
-        if len(files_list) > 0:
-            # 何らかの原因で重複があった場合を避けるため一度setにする
-            files_list = list(set(files_list))
-            files_list.remove(delete_oid)
-        else:
+        if len(files_list) == 0:
             raise EdmanDbProcessError('ファイルが存在しません')
 
+        # リファレンスデータを編集
+        # 何らかの原因で重複があった場合を避けるため一度setにする
+        files_list = list(set(files_list))
+        files_list.remove(delete_oid)
+
         # ドキュメントを新しいファイルリファレンスに置き換える
-        if structure == 'ref':
-            try:
+        try:
+            if structure == 'ref':
                 new_doc = self.file_list_replace(doc, files_list)
-            except Exception:
-                raise
-        elif structure == 'emb':
-            try:
+            else:
                 new_doc = Utils.doc_traverse(doc, files_list, query,
                                              self.file_list_replace)
-            except Exception:
-                raise
-        else:
-            raise EdmanFormatError('structureはrefまたはembの指定が必要です')
-
+        except Exception:
+            raise
         replace_result = self.db[collection].replace_one({'_id': oid}, new_doc)
         # fsから該当ファイルを削除
         if replace_result.modified_count:
@@ -211,21 +205,22 @@ class File:
         # ファイルが存在するか検証
         if False in map(self.fs.exists, file_oid_list):
             raise EdmanDbProcessError('指定のファイルはDBに存在しません')
-        else:
-            # ダウンロード処理
-            results = []
-            for file_oid in file_oid_list:
-                fs_out = self.fs.get(file_oid)
-                save_path = p / fs_out.filename
-                try:
-                    with save_path.open('wb') as f:
-                        tmp = fs_out.read()
-                        f.write(tmp)
-                        f.flush()
-                        os.fsync(f.fileno())
-                except IOError:
-                    raise
-                results.append(save_path.exists())
+
+        # ダウンロード処理
+        results = []
+        for file_oid in file_oid_list:
+            fs_out = self.fs.get(file_oid)
+            save_path = p / fs_out.filename
+            try:
+                with save_path.open('wb') as f:
+                    tmp = fs_out.read()
+                    f.write(tmp)
+                    f.flush()
+                    os.fsync(f.fileno())
+            except IOError:
+                raise
+            results.append(save_path.exists())
+
         return all(results)
 
     def upload(self, collection: str, oid: Union[ObjectId, str],
@@ -244,8 +239,9 @@ class File:
         :return:
         :rtype: bool
         """
-
         oid = Utils.conv_objectid(oid)
+        if structure not in ['ref', 'emb']:
+            raise EdmanFormatError('構造はrefかembが必要です')
 
         # ドキュメント存在確認&対象ドキュメント取得
         doc = self.db[collection].find_one({'_id': oid})
@@ -260,23 +256,22 @@ class File:
         inserted_file_oids = self.grid_in(file_path)
         if structure == 'ref':
             new_doc = self.file_list_attachment(doc, inserted_file_oids)
-        elif structure == 'emb':
+        else:
             try:
                 new_doc = Utils.doc_traverse(doc, inserted_file_oids, query,
                                              self.file_list_attachment)
             except Exception:
                 raise
-        else:
-            raise EdmanFormatError('構造はrefかembが必要です')
 
         # ドキュメント差し替え
         replace_result = self.db[collection].replace_one({'_id': oid}, new_doc)
-
         if replace_result.modified_count == 1:
-            return True
+            result = True
         else:  # 差し替えができなかった時は添付ファイルは削除
             self.fs_delete(inserted_file_oids)
-            return False
+            result = False
+
+        return result
 
     def grid_in(self, files: Tuple[Tuple[Any, bool]]) -> list[Any]:
         """
