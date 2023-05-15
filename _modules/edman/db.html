@@ -340,8 +340,7 @@
 
 <div class="viewcode-block" id="DB.find_collection_from_objectid"><a class="viewcode-back" href="../../edman.html#edman.db.DB.find_collection_from_objectid">[docs]</a>    <span class="k">def</span> <span class="nf">find_collection_from_objectid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                       <span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span>
-                                      <span class="n">ObjectId</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span>
-    <span class="kc">None</span><span class="p">]:</span>
+                                      <span class="n">ObjectId</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | DB内のコレクションから指定のObjectIDを探し、所属しているコレクションを返す</span>
 <span class="sd">        | DBに負荷がかかるので使用は注意が必要</span>
@@ -376,9 +375,7 @@
 <span class="sd">        :return: result</span>
 <span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">oid</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">})</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)})</span>
 
         <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
@@ -684,7 +681,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">ref</span><span class="o">.</span><span class="n">id</span><span class="p">})</span>
         <span class="n">children</span> <span class="o">=</span> <span class="n">parent_doc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">]</span>
-
         <span class="n">target</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">del_oid</span><span class="p">:</span>
@@ -696,7 +692,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">children</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
-            <span class="c1"># 他に子要素が登録されていればself.childを更新</span>
+            <span class="c1"># 子要素が登録されていればself.childを更新</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">update_one</span><span class="p">(</span>
                     <span class="p">{</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">ref</span><span class="o">.</span><span class="n">id</span><span class="p">},</span>
@@ -719,11 +715,8 @@
 <span class="sd">        :return:</span>
 <span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">file_ref_buff</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">file_ref_buff</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span><span class="p">:</span> <span class="n">doc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span><span class="p">]}</span>
-
-        <span class="k">return</span> <span class="p">{</span><span class="n">collection</span><span class="p">:</span> <span class="p">{</span><span class="n">doc</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]:</span> <span class="n">file_ref_buff</span><span class="p">}}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">collection</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span><span class="p">:</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span><span class="p">,</span> <span class="p">{})}}}</span>
 
     <span class="k">def</span> <span class="nf">_recursive_extract_elements_from_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
                                              <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -737,7 +730,6 @@
 <span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_elements_from_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">collection</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">child_ref</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">]:</span>
                 <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recursive_extract_elements_from_doc</span><span class="p">(</span>
@@ -752,16 +744,13 @@
 <span class="sd">        :return: value</span>
 <span class="sd">        :rtype: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collect_emb_file_ref</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">request_key</span><span class="p">)</span>
-
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_literal_check</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">request_key</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">value</span>
                 <span class="k">continue</span>
-
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">request_key</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">value</span>
@@ -792,17 +781,17 @@
 
 <span class="sd">        :param str collection:</span>
 <span class="sd">        :param ObjectId oid:</span>
-<span class="sd">        :return: ref or emb</span>
+<span class="sd">        :return: result</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)})</span>
         <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;該当するドキュメントは存在しません&#39;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="s1">&#39;ref&#39;</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;ref&#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;emb&#39;</span></div>
+            <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;emb&#39;</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="DB.structure"><a class="viewcode-back" href="../../edman.html#edman.db.DB.structure">[docs]</a>    <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">,</span>
                   <span class="n">structure_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
@@ -818,6 +807,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">oid</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span>
 
+        <span class="n">convert</span> <span class="o">=</span> <span class="n">Convert</span><span class="p">()</span>
         <span class="c1"># refデータをembに変換する</span>
         <span class="k">if</span> <span class="n">structure_mode</span> <span class="o">==</span> <span class="s1">&#39;emb&#39;</span><span class="p">:</span>
             <span class="c1"># 自分データ取り出し</span>
@@ -825,7 +815,6 @@
                                   <span class="n">reference_delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">ref_result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s2">&quot;ドキュメントが存在しません&quot;</span><span class="p">)</span>
-
             <span class="n">reference_point_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reference_point</span><span class="p">(</span>
                 <span class="n">ref_result</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">reference_point_result</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">]:</span>
@@ -844,7 +833,6 @@
                 <span class="c1"># 自分と子要素をマージする</span>
                 <span class="n">ref_result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">non_ref_children</span><span class="p">)</span>
 
-                <span class="n">convert</span> <span class="o">=</span> <span class="n">Convert</span><span class="p">()</span>
                 <span class="n">converted_edman</span> <span class="o">=</span> <span class="n">convert</span><span class="o">.</span><span class="n">dict_to_edman</span><span class="p">(</span>
                     <span class="p">{</span><span class="n">new_collection</span><span class="p">:</span> <span class="n">ref_result</span><span class="p">},</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;emb&#39;</span><span class="p">)</span>
                 <span class="n">structured_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">converted_edman</span><span class="p">)</span>
@@ -854,7 +842,6 @@
                 <span class="k">for</span> <span class="n">del_key</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="s1">&#39;_id&#39;</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">del_key</span> <span class="ow">in</span> <span class="n">ref_result</span><span class="p">:</span>
                         <span class="k">del</span> <span class="n">ref_result</span><span class="p">[</span><span class="n">del_key</span><span class="p">]</span>
-                <span class="n">convert</span> <span class="o">=</span> <span class="n">Convert</span><span class="p">()</span>
                 <span class="n">converted_edman</span> <span class="o">=</span> <span class="n">convert</span><span class="o">.</span><span class="n">dict_to_edman</span><span class="p">(</span>
                     <span class="p">{</span><span class="n">new_collection</span><span class="p">:</span> <span class="n">ref_result</span><span class="p">},</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;emb&#39;</span><span class="p">)</span>
                 <span class="n">structured_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">converted_edman</span><span class="p">)</span>
@@ -863,7 +850,6 @@
         <span class="k">elif</span> <span class="n">structure_mode</span> <span class="o">==</span> <span class="s1">&#39;ref&#39;</span><span class="p">:</span>
             <span class="n">emb_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">})</span>
             <span class="k">del</span> <span class="n">emb_result</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span>
-            <span class="n">convert</span> <span class="o">=</span> <span class="n">Convert</span><span class="p">()</span>
             <span class="n">converted_edman</span> <span class="o">=</span> <span class="n">convert</span><span class="o">.</span><span class="n">dict_to_edman</span><span class="p">(</span>
                 <span class="p">{</span><span class="n">new_collection</span><span class="p">:</span> <span class="n">emb_result</span><span class="p">},</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;ref&#39;</span><span class="p">)</span>
             <span class="n">structured_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">converted_edman</span><span class="p">)</span>
@@ -939,14 +925,13 @@
 <span class="sd">        :return: children</span>
 <span class="sd">        :rtype: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># 単純にリスト内に辞書データを入れたい場合</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
             <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">{</span><span class="n">child_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">child_ref</span><span class="p">)}</span>
                 <span class="k">for</span> <span class="n">child_ref</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">]]</span>
-
         <span class="k">return</span> <span class="n">children</span>
 
     <span class="k">def</span> <span class="nf">_build_to_doc_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">find_result</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -1072,14 +1057,13 @@
                    <span class="bp">self</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;emb&#39;</span><span class="p">]</span>
 
         <span class="n">result_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">convert</span> <span class="o">=</span> <span class="n">Convert</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">oid</span> <span class="ow">in</span> <span class="n">id_list</span><span class="p">:</span>
             <span class="n">emb_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">oid</span><span class="p">})</span>
             <span class="k">del</span> <span class="n">emb_result</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span>
-            <span class="n">convert</span> <span class="o">=</span> <span class="n">Convert</span><span class="p">()</span>
             <span class="n">pull_result</span> <span class="o">=</span> <span class="n">convert</span><span class="o">.</span><span class="n">pullout_key</span><span class="p">(</span><span class="n">emb_result</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">pull_result</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">は存在しません&#39;</span><span class="p">)</span>
-
             <span class="k">if</span> <span class="n">exclusion</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">convert</span><span class="o">.</span><span class="n">exclusion_key</span><span class="p">(</span><span class="n">pull_result</span><span class="p">,</span> <span class="n">exclusion</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">pull_result</span> <span class="o">==</span> <span class="n">result</span><span class="p">:</span>
@@ -1110,7 +1094,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">collections</span>
         <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-
         <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="DB.pack_list"><a class="viewcode-back" href="../../edman.html#edman.db.DB.pack_list">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -1344,7 +1327,7 @@
       &copy;2023, Author.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
