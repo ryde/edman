@@ -309,8 +309,7 @@ class DB:
 
     def find_collection_from_objectid(self,
                                       oid: Union[str,
-                                      ObjectId]) -> Union[str,
-    None]:
+                                      ObjectId]) -> Union[str, None]:
         """
         | DB内のコレクションから指定のObjectIDを探し、所属しているコレクションを返す
         | DBに負荷がかかるので使用は注意が必要
@@ -345,9 +344,7 @@ class DB:
         :return: result
         :rtype: dict
         """
-
-        oid = Utils.conv_objectid(oid)
-        doc = self.db[collection].find_one({'_id': oid})
+        doc = self.db[collection].find_one({'_id': Utils.conv_objectid(oid)})
 
         if doc is None:
             result = None
@@ -653,7 +650,6 @@ class DB:
         """
         parent_doc = self.db[ref.collection].find_one({'_id': ref.id})
         children = parent_doc[self.child]
-
         target = None
         for child in children:
             if child.id == del_oid:
@@ -665,7 +661,7 @@ class DB:
         else:
             children.remove(target)
 
-            # 他に子要素が登録されていればself.childを更新
+            # 子要素が登録されていればself.childを更新
             if len(children) > 0:
                 result = self.db[ref.collection].update_one(
                     {'_id': ref.id},
@@ -688,11 +684,8 @@ class DB:
         :return:
         :rtype: dict
         """
-        file_ref_buff = {}
-        if doc.get(self.file_ref) is not None:
-            file_ref_buff = {self.file_ref: doc[self.file_ref]}
-
-        return {collection: {doc['_id']: file_ref_buff}}
+        return {collection: {
+            doc['_id']: {self.file_ref: doc.get(self.file_ref, {})}}}
 
     def _recursive_extract_elements_from_doc(self, doc: dict,
                                              collection: str) -> dict:
@@ -706,7 +699,6 @@ class DB:
         :rtype: dict
         """
         yield self._extract_elements_from_doc(doc, collection)
-
         if doc.get(self.child):
             for child_ref in doc[self.child]:
                 yield from self._recursive_extract_elements_from_doc(
@@ -721,16 +713,13 @@ class DB:
         :return: value
         :rtype: list
         """
-
         for key, value in doc.items():
             if isinstance(value, dict):
                 yield from self._collect_emb_file_ref(value, request_key)
-
             elif isinstance(value, list) and Utils.item_literal_check(value):
                 if key == request_key:
                     yield value
                 continue
-
             elif isinstance(value, list):
                 if key == request_key:
                     yield value
@@ -761,17 +750,17 @@ class DB:
 
         :param str collection:
         :param ObjectId oid:
-        :return: ref or emb
+        :return: result
         :rtype: str
         """
         doc = self.db[collection].find_one({'_id': Utils.conv_objectid(oid)})
         if doc is None:
             raise EdmanInternalError('該当するドキュメントは存在しません')
-
         if any(key in doc for key in (self.parent, self.child)):
-            return 'ref'
+            result = 'ref'
         else:
-            return 'emb'
+            result = 'emb'
+        return result
 
     def structure(self, collection: str, oid: ObjectId,
                   structure_mode: str, new_collection: str) -> list:
@@ -787,6 +776,7 @@ class DB:
         """
         oid = Utils.conv_objectid(oid)
 
+        convert = Convert()
         # refデータをembに変換する
         if structure_mode == 'emb':
             # 自分データ取り出し
@@ -794,7 +784,6 @@ class DB:
                                   reference_delete=False)
             if ref_result is None:
                 raise EdmanInternalError("ドキュメントが存在しません")
-
             reference_point_result = self.get_reference_point(
                 ref_result)
             if reference_point_result[self.child]:
@@ -813,7 +802,6 @@ class DB:
                 # 自分と子要素をマージする
                 ref_result.update(non_ref_children)
 
-                convert = Convert()
                 converted_edman = convert.dict_to_edman(
                     {new_collection: ref_result}, mode='emb')
                 structured_result = self.insert(converted_edman)
@@ -823,7 +811,6 @@ class DB:
                 for del_key in (self.parent, '_id'):
                     if del_key in ref_result:
                         del ref_result[del_key]
-                convert = Convert()
                 converted_edman = convert.dict_to_edman(
                     {new_collection: ref_result}, mode='emb')
                 structured_result = self.insert(converted_edman)
@@ -832,7 +819,6 @@ class DB:
         elif structure_mode == 'ref':
             emb_result = self.db[collection].find_one({'_id': oid})
             del emb_result['_id']
-            convert = Convert()
             converted_edman = convert.dict_to_edman(
                 {new_collection: emb_result}, mode='ref')
             structured_result = self.insert(converted_edman)
@@ -908,14 +894,13 @@ class DB:
         :return: children
         :rtype: list
         """
-        doc = list(doc.values())[0]
         children = []
         # 単純にリスト内に辞書データを入れたい場合
+        doc = list(doc.values())[0]
         if self.child in doc:
             children = [
                 {child_ref.collection: self.db.dereference(child_ref)}
                 for child_ref in doc[self.child]]
-
         return children
 
     def _build_to_doc_child(self, find_result: list) -> dict:
@@ -1041,14 +1026,13 @@ class DB:
                    self.get_structure(collection, doc['_id']) == 'emb']
 
         result_list = []
+        convert = Convert()
         for oid in id_list:
             emb_result = self.db[collection].find_one({'_id': oid})
             del emb_result['_id']
-            convert = Convert()
             pull_result = convert.pullout_key(emb_result, key)
             if not pull_result:
                 raise EdmanInternalError(f'{key}は存在しません')
-
             if exclusion:
                 result = convert.exclusion_key(pull_result, exclusion)
                 if pull_result == result:
@@ -1079,7 +1063,6 @@ class DB:
         else:
             result = collections
         result.sort()
-
         return result
 
     @staticmethod
