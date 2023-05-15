@@ -458,6 +458,34 @@ class TestFile(TestCase):
         self.assertEqual(expected, actual)
         os.unlink(ac_z_path)
 
+    def test_zipped_json2(self):
+
+        # # 正常系
+        s = {"document": [{"test1": "ABC"}, {"test2": 12345}]}
+        raw_json = dumps(s, ensure_ascii=False, indent=4)
+        encoded_json = raw_json.encode('utf-8')
+        filename = 'jsonfile'
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            p = Path(tmpdir)
+            ac_z_path = self.file.zipped_json_path(encoded_json, filename, p)
+
+            # 圧縮前のjsonファイルを削除する
+            first_file = filename + '.json'
+            first = p / first_file
+            first.unlink()
+
+            # ac_z_pathを解凍して中身のファイル名がzipped_filepathと同じか調べる
+            with zipfile.ZipFile(ac_z_path, 'r') as inputFile:
+                inputFile.extractall(tmpdir)
+
+            # 解凍されたディレクトリ名を取得する
+            ps = list(p.glob('**/*.json'))[0]
+            actual = ps.stem
+
+        expected = filename
+        self.assertEqual(expected, actual)
+
     def test_zipped_contents(self):
         if not self.db_server_connect:
             return

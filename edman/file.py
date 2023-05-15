@@ -462,6 +462,35 @@ class File:
             raise
         return zip_filepath
 
+    @staticmethod
+    def zipped_json_path(encoded_json: bytes, json_tree_file_name: str,
+                     p: Path) -> Path:
+        """
+        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
+        添付ファイルがなく、jsonファイルだけ取得したい場合に使用する
+
+        :param bytes encoded_json: json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの
+        :param str json_tree_file_name: zipファイル内に配置するjsonファイルの名前
+        :param Path p: ファイルを保存するディレクトリのパス
+        :return:zip_filepath
+        :rtype:Path
+        """
+        zip_filename = json_tree_file_name + '.zip'
+        filename = json_tree_file_name + '.json'
+        jsonfile = p / filename
+        zip_filepath = p / zip_filename
+        try:
+            with jsonfile.open('wb') as f:
+                f.write(encoded_json)
+        except Exception:
+            raise
+        try:
+            with zipfile.ZipFile(zip_filepath, 'w', zipfile.ZIP_DEFLATED) as f:
+                f.write(jsonfile)
+        except Exception:
+            raise
+        return zip_filepath
+
     def get_fileref_and_generate_dl_list(self, docs: dict,
                                          attach_key: str) -> tuple[dict, dict]:
         """
