@@ -584,6 +584,105 @@ class TestFile(TestCase):
         if os.path.exists(zip_filepath):
             os.remove(zip_filepath)
 
+    # def test_zipped_contents_path(self):
+    #     if not self.db_server_connect:
+    #         return
+    #
+    #     # TODO テストを書いている途中
+    #
+    #     with tempfile.TemporaryDirectory() as tmp_dl_dir:
+    #         # 添付ファイル用テキストファイル作成
+    #
+    #         test_var = 'test'
+    #         name = 'file_dl_list.txt'
+    #         input_filename = os.path.splitext(os.path.basename(name))[0]
+    #         file_dl_list = self.make_txt_files(tmp_dl_dir, name=input_filename,
+    #                                            text=test_var)
+    #
+    #         # ファイル読み込み、ファイルをgridfsに入れる
+    #         files_oid = []
+    #         self.fs = gridfs.GridFS(self.testdb)
+    #         for filename in file_dl_list:
+    #             metadata = {'filename': filename.name, 'compress': None}
+    #             with filename.open('rb') as f:
+    #                 files_oid.append(self.fs.put(f.read(), **metadata))
+    #
+    #         # docをDBに入れる
+    #         parent_id = ObjectId()
+    #         doc_id = ObjectId()
+    #         child_id = ObjectId()
+    #         parent_col = 'parent_col'
+    #         doc_col = 'doc_col'
+    #         child_col = 'child_col'
+    #         insert_docs = [
+    #             {
+    #                 'col': parent_col,
+    #                 'doc': {
+    #                     '_id': parent_id,
+    #                     'name': 'parent',
+    #                     Config.child: [DBRef(doc_col, doc_id)]
+    #                 },
+    #             },
+    #             {
+    #                 'col': doc_col,
+    #                 'doc': {
+    #                     '_id': doc_id,
+    #                     'name': 'doc',
+    #                     Config.file: files_oid,
+    #                     Config.parent: DBRef(parent_col, parent_id),
+    #                     Config.child: [DBRef(child_col, child_id)]
+    #                 }
+    #             },
+    #             {
+    #                 'col': child_col,
+    #                 'doc': {
+    #                     '_id': child_id,
+    #                     'name': 'child',
+    #                     Config.parent: DBRef(doc_col, doc_id),
+    #                 }
+    #             }]
+    #         result = {}
+    #         for i in insert_docs:
+    #             insert_result = self.testdb[i['col']].insert_one(i['doc'])
+    #             result.update({i['col']: insert_result.inserted_id})
+    #
+    #         # # ドキュメントを取得する
+    #         search = Search(self.db)
+    #         exclusion = ['_id', Config.file]
+    #         docs = search.find(doc_col, {'_id': result[doc_col]}, 1, 1,
+    #                            exclusion)
+    #         result_with_filepath, downloads = self.file.get_fileref_and_generate_dl_list(
+    #             docs, "_ed_attachment")
+    #         res = search.process_data_derived_from_mongodb(
+    #             result_with_filepath)
+    #
+    #     # 実行
+    #     raw_json = dumps(res, ensure_ascii=False, indent=4)
+    #     encoded_json = raw_json.encode('utf-8')
+    #     json_tree_file_name = 'json_tree'
+    #
+    #     with tempfile.TemporaryDirectory() as tmp:
+    #         p = Path(tmp)
+    #         zip_filepath = self.file.zipped_contents_path(downloads,
+    #                                                  json_tree_file_name,
+    #                                                  encoded_json, p)
+    #         # 解凍
+    #         shutil.unpack_archive(zip_filepath, tmp)
+    #         # 添付ファイルを読み込んでテキストの中身を抽出
+    #         path_lists = [tmp, str(list(downloads.keys())[0]), name]
+    #         with open(os.path.join(*path_lists)) as f:
+    #             attached_s = f.read()
+    #         path_lists = [tmp, json_tree_file_name + '.json']
+    #         json_file_path = os.path.join(*path_lists)
+    #         with open(json_file_path) as jf:
+    #             j_data = json.load(jf)
+    #         # 外に出すデータを組み立て(zip内部のjsonデータ、上記の添付ファイルデータ)
+    #         actual_data = {'json_data': j_data, 'attached_data': attached_s}
+    #     # テスト
+    #     self.assertDictEqual(res, actual_data['json_data'])
+    #     self.assertEqual(test_var, actual_data['attached_data'])
+
+
     def test_get_fileref_and_generate_dl_list(self):
 
         if not self.db_server_connect:

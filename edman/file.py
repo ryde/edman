@@ -426,6 +426,44 @@ class File:
                 raise
         return zip_filepath
 
+    # def zipped_contents_path(self, downloads: dict, json_tree_file_name: str,
+    #                     encoded_json: bytes, p: Path) -> str:
+    #     """
+    #     jsonと添付ファイルを含むzipファイルを生成
+    #     zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
+    #     添付ファイルがなく、jsonファイルだけ取得したい場合はzipped_jsonを利用
+    #
+    #     :param dict downloads:
+    #     :param str json_tree_file_name:
+    #     :param bytes encoded_json:
+    #     :param Path p:
+    #     :rtype: str
+    #     :return:
+    #     """
+    #
+    #     json_suffix = '.json'
+    #     dir_path_list = [p/str(doc_oid) for doc_oid in downloads]
+    #
+    #     for file_refs, dir_path in zip([i for i in downloads.values()],
+    #                                    dir_path_list):
+    #         os.mkdir(dir_path)
+    #         for file_ref in file_refs:
+    #             content = self.fs.get(file_ref)
+    #             filepath = dir_path / content.name
+    #             with open(filepath, 'wb') as f:
+    #                 f.write(content.read())
+    #
+    #         json_dir = dir_path / json_tree_file_name + json_suffix
+    #         # jsonファイルとして一時ディレクトリに保存
+    #         with json_dir.open('wb') as f:
+    #             f.write(encoded_json)
+    #
+    #     # 最終的にDLするzipファイルを作成
+    #     zip_filepath = shutil.make_archive('dl', 'zip', p)
+    #
+    #     return zip_filepath
+
+
     @staticmethod
     def zipped_json(encoded_json: bytes, json_tree_file_name: str) -> str:
         """
@@ -479,6 +517,7 @@ class File:
         filename = json_tree_file_name + '.json'
         jsonfile = p / filename
         zip_filepath = p / zip_filename
+
         try:
             with jsonfile.open('wb') as f:
                 f.write(encoded_json)
@@ -486,7 +525,7 @@ class File:
             raise
         try:
             with zipfile.ZipFile(zip_filepath, 'w', zipfile.ZIP_DEFLATED) as f:
-                f.write(jsonfile)
+                f.write(jsonfile, arcname=filename)
         except Exception:
             raise
         return zip_filepath
