@@ -1071,6 +1071,24 @@ zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 <p>:rtype:str</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.zipped_json_path">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zipped_json_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_json_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_json_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
+添付ファイルがなく、jsonファイルだけ取得したい場合に使用する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>encoded_json</strong> (<em>bytes</em>) – json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの</p></li>
+<li><p><strong>json_tree_file_name</strong> (<em>str</em>) – zipファイル内に配置するjsonファイルの名前</p></li>
+<li><p><strong>p</strong> (<em>Path</em>) – ファイルを保存するディレクトリのパス</p></li>
+</ul>
+</dd>
+</dl>
+<p>:return:zip_filepath
+:rtype:Path</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1530,6 +1548,7 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.upload"><code class="docutils literal notranslate"><span class="pre">File.upload()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_contents"><code class="docutils literal notranslate"><span class="pre">File.zipped_contents()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_json"><code class="docutils literal notranslate"><span class="pre">File.zipped_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_json_path"><code class="docutils literal notranslate"><span class="pre">File.zipped_json_path()</span></code></a></li>
 </ul>
 </li>
 </ul>

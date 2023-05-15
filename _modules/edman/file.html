@@ -493,6 +493,35 @@
             <span class="k">raise</span>
         <span class="k">return</span> <span class="n">zip_filepath</span></div>
 
+<div class="viewcode-block" id="File.zipped_json_path"><a class="viewcode-back" href="../../edman.html#edman.file.File.zipped_json_path">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">zipped_json_path</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">json_tree_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                     <span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む</span>
+<span class="sd">        添付ファイルがなく、jsonファイルだけ取得したい場合に使用する</span>
+
+<span class="sd">        :param bytes encoded_json: json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの</span>
+<span class="sd">        :param str json_tree_file_name: zipファイル内に配置するjsonファイルの名前</span>
+<span class="sd">        :param Path p: ファイルを保存するディレクトリのパス</span>
+<span class="sd">        :return:zip_filepath</span>
+<span class="sd">        :rtype:Path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zip_filename</span> <span class="o">=</span> <span class="n">json_tree_file_name</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">json_tree_file_name</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span>
+        <span class="n">jsonfile</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">filename</span>
+        <span class="n">zip_filepath</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">zip_filename</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">jsonfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">jsonfile</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">zip_filepath</span></div>
+
 <div class="viewcode-block" id="File.get_fileref_and_generate_dl_list"><a class="viewcode-back" href="../../edman.html#edman.file.File.get_fileref_and_generate_dl_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_fileref_and_generate_dl_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
                                          <span class="n">attach_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
