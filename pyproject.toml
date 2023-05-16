@@ -23,7 +23,7 @@ dependencies = [
     " python-dateutil~=2.8.2",
     "jmespath~=1.0.1",
 ]
-version = "2023.5.15.1"
+version = "2023.5.16"
 # dynamic = ["version"]
 
 [project.urls]
