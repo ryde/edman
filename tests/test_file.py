@@ -544,8 +544,9 @@ class TestFile(TestCase):
                                                      json_tree_file_name,
                                                      encoded_json, p)
             # 解凍
+            # print('unpack before',list(p.iterdir()))
             shutil.unpack_archive(zip_filepath, tmp)
-            # print(list(p.iterdir()))
+            # print('unpack after', list(p.iterdir()))
 
             # 添付ファイルを読み込んでテキストの中身を抽出
             path_lists = [tmp, str(list(downloads.keys())[0]), name]

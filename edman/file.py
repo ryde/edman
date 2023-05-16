@@ -367,9 +367,8 @@ class File:
             name = name + str(filename)
         return name + '.zip'
 
-
     def zipped_contents(self, downloads: dict, json_tree_file_name: str,
-                             encoded_json: bytes, p: Path) -> str:
+                        encoded_json: bytes, p: Path) -> str:
         """
         jsonと添付ファイルを含むzipファイルを生成
         zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
@@ -382,6 +381,9 @@ class File:
         :rtype: str
         :return:
         """
+        work = p
+        p = work / 'archives'
+        p.mkdir()
         for file_refs, dir_path in zip([i for i in downloads.values()],
                                        [p / str(doc_oid) for doc_oid in
                                         downloads]):
@@ -413,17 +415,17 @@ class File:
                 EdmanInternalError('ファイルを保存することが出来ませんでした')
 
         # 最終的にDLするzipファイルを作成
-        base = p / 'dl'
+        base = work / 'dl'
         try:
-            zip_filepath = shutil.make_archive(str(base), 'zip', str(p))
+            zip_filepath = shutil.make_archive(str(base), format='zip',
+                                               root_dir=str(p))
         except Exception:
             raise
         return zip_filepath
 
-
     @staticmethod
     def zipped_json(encoded_json: bytes, json_tree_file_name: str,
-                         p: Path) -> Path:
+                    p: Path) -> Path:
         """
         zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
         添付ファイルがなく、jsonファイルだけ取得したい場合に使用する
