@@ -398,9 +398,8 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span></div>
 
-
 <div class="viewcode-block" id="File.zipped_contents"><a class="viewcode-back" href="../../edman.html#edman.file.File.zipped_contents">[docs]</a>    <span class="k">def</span> <span class="nf">zipped_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">downloads</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">json_tree_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                             <span class="n">encoded_json</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+                        <span class="n">encoded_json</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        jsonと添付ファイルを含むzipファイルを生成</span>
 <span class="sd">        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む</span>
@@ -413,6 +412,9 @@
 <span class="sd">        :rtype: str</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">work</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">work</span> <span class="o">/</span> <span class="s1">&#39;archives&#39;</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">file_refs</span><span class="p">,</span> <span class="n">dir_path</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">downloads</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span>
                                        <span class="p">[</span><span class="n">p</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">doc_oid</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc_oid</span> <span class="ow">in</span>
                                         <span class="n">downloads</span><span class="p">]):</span>
@@ -444,17 +446,17 @@
                 <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;ファイルを保存することが出来ませんでした&#39;</span><span class="p">)</span>
 
         <span class="c1"># 最終的にDLするzipファイルを作成</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="s1">&#39;dl&#39;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">work</span> <span class="o">/</span> <span class="s1">&#39;dl&#39;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">zip_filepath</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">make_archive</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">base</span><span class="p">),</span> <span class="s1">&#39;zip&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+            <span class="n">zip_filepath</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">make_archive</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">base</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">,</span>
+                                               <span class="n">root_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span>
         <span class="k">return</span> <span class="n">zip_filepath</span></div>
 
-
 <div class="viewcode-block" id="File.zipped_json"><a class="viewcode-back" href="../../edman.html#edman.file.File.zipped_json">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">zipped_json</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">json_tree_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                         <span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+                    <span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む</span>
 <span class="sd">        添付ファイルがなく、jsonファイルだけ取得したい場合に使用する</span>
