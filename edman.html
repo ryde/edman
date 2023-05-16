@@ -1030,7 +1030,7 @@ docにファイルリファレンスデータが無かった場合は例外を�
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.zipped_contents">
-<span class="sig-name descname"><span class="pre">zipped_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">downloads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_contents" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">zipped_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">downloads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_contents" title="Permalink to this definition">¶</a></dt>
 <dd><p>jsonと添付ファイルを含むzipファイルを生成
 zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 添付ファイルがなく、jsonファイルだけ取得したい場合はzipped_jsonを利用</p>
@@ -1040,6 +1040,7 @@ zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 <li><p><strong>downloads</strong> (<em>dict</em>) – </p></li>
 <li><p><strong>json_tree_file_name</strong> (<em>str</em>) – </p></li>
 <li><p><strong>encoded_json</strong> (<em>bytes</em>) – </p></li>
+<li><p><strong>p</strong> (<em>Path</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1053,27 +1054,7 @@ zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.zipped_json">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zipped_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>jsonファイルとzipファイルを名前付きテンポラリとして生成し、パスを生成
-zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
-添付ファイルがなく、jsonファイルだけ取得したい場合に使用する</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>encoded_json</strong> (<em>bytes</em>) – json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの</p></li>
-<li><p><strong>json_tree_file_name</strong> (<em>str</em>) – zipファイル内に配置するjsonファイルの名前</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-<p>:rtype:str</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="edman.file.File.zipped_json_path">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zipped_json_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_json_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_json_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zipped_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_tree_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.zipped_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.zipped_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 添付ファイルがなく、jsonファイルだけ取得したい場合に使用する</p>
 <dl class="field-list simple">
@@ -1548,7 +1529,6 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.upload"><code class="docutils literal notranslate"><span class="pre">File.upload()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_contents"><code class="docutils literal notranslate"><span class="pre">File.zipped_contents()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_json"><code class="docutils literal notranslate"><span class="pre">File.zipped_json()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_json_path"><code class="docutils literal notranslate"><span class="pre">File.zipped_json_path()</span></code></a></li>
 </ul>
 </li>
 </ul>
