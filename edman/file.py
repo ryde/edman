@@ -367,8 +367,9 @@ class File:
             name = name + str(filename)
         return name + '.zip'
 
+
     def zipped_contents(self, downloads: dict, json_tree_file_name: str,
-                        encoded_json: bytes) -> str:
+                             encoded_json: bytes, p: Path) -> str:
         """
         jsonと添付ファイルを含むzipファイルを生成
         zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
@@ -377,132 +378,52 @@ class File:
         :param dict downloads:
         :param str json_tree_file_name:
         :param bytes encoded_json:
+        :param Path p:
         :rtype: str
         :return:
         """
+        for file_refs, dir_path in zip([i for i in downloads.values()],
+                                       [p / str(doc_oid) for doc_oid in
+                                        downloads]):
+            os.mkdir(dir_path)
+            for file_ref in file_refs:
+                # 添付ファイルをダウンロード
+                try:
+                    content = self.fs.get(file_ref)
+                except NoFile:
+                    raise EdmanDbProcessError('指定の関連ファイルが存在しません')
+                except GridFSError:
+                    raise
 
-        zip_suffix = '.zip'
-        json_suffix = '.json'
+                # 添付ファイルを保存
+                filepath = dir_path / content.name
+                try:
+                    with open(filepath, 'wb') as f:
+                        f.write(content.read())
+                except (FileNotFoundError, IOError):
+                    EdmanInternalError('ファイルを保存することが出来ませんでした')
 
-        with TemporaryDirectory() as tmpdir:
-            dir_path_list = [os.path.join(tmpdir, str(doc_oid)) for
-                             doc_oid in downloads]
-
-            for dir_path in dir_path_list:
-                os.mkdir(dir_path)
-
-            for file_refs, dir_path in zip([i for i in downloads.values()],
-                                           dir_path_list):
-                for file_ref in file_refs:
-                    try:
-                        content = self.fs.get(file_ref)
-                    except NoFile:
-                        raise EdmanDbProcessError('指定の関連ファイルが存在しません')
-                    except GridFSError:
-                        raise
-                    else:
-                        filepath = os.path.join(dir_path, content.name)
-                    try:
-                        with open(filepath, 'wb') as f:
-                            f.write(content.read())
-                    except (FileNotFoundError, IOError):
-                        EdmanInternalError('ファイルを保存することが出来ませんでした')
-                    except GridFSError:
-                        raise
+            # jsonファイルを保存
+            json_file = json_tree_file_name + '.json'
+            json_path = p / json_file
             try:
-                # jsonファイルとして一時ディレクトリに保存
-                with open(os.path.join(tmpdir,
-                                       json_tree_file_name + json_suffix),
-                          'wb') as f:
+                with json_path.open('wb') as f:
                     f.write(encoded_json)
             except (FileNotFoundError, IOError):
                 EdmanInternalError('ファイルを保存することが出来ませんでした')
-            try:
-                # 最終的にDLするzipファイルを作成
-                with NamedTemporaryFile() as fp:
-                    zip_filepath = shutil.make_archive(fp.name, zip_suffix[1:],
-                                                       tmpdir)
-            except Exception:
-                raise
-        return zip_filepath
 
-    # def zipped_contents_path(self, downloads: dict, json_tree_file_name: str,
-    #                     encoded_json: bytes, p: Path) -> str:
-    #     """
-    #     jsonと添付ファイルを含むzipファイルを生成
-    #     zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
-    #     添付ファイルがなく、jsonファイルだけ取得したい場合はzipped_jsonを利用
-    #
-    #     :param dict downloads:
-    #     :param str json_tree_file_name:
-    #     :param bytes encoded_json:
-    #     :param Path p:
-    #     :rtype: str
-    #     :return:
-    #     """
-    #
-    #     json_suffix = '.json'
-    #     dir_path_list = [p/str(doc_oid) for doc_oid in downloads]
-    #
-    #     for file_refs, dir_path in zip([i for i in downloads.values()],
-    #                                    dir_path_list):
-    #         os.mkdir(dir_path)
-    #         for file_ref in file_refs:
-    #             content = self.fs.get(file_ref)
-    #             filepath = dir_path / content.name
-    #             with open(filepath, 'wb') as f:
-    #                 f.write(content.read())
-    #
-    #         json_dir = dir_path / json_tree_file_name + json_suffix
-    #         # jsonファイルとして一時ディレクトリに保存
-    #         with json_dir.open('wb') as f:
-    #             f.write(encoded_json)
-    #
-    #     # 最終的にDLするzipファイルを作成
-    #     zip_filepath = shutil.make_archive('dl', 'zip', p)
-    #
-    #     return zip_filepath
-
-
-    @staticmethod
-    def zipped_json(encoded_json: bytes, json_tree_file_name: str) -> str:
-        """
-        jsonファイルとzipファイルを名前付きテンポラリとして生成し、パスを生成
-        zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
-        添付ファイルがなく、jsonファイルだけ取得したい場合に使用する
-
-        :param bytes encoded_json: json文字列としてダンプしたものを指定の文字コードでバイト列に変換したもの
-        :param str json_tree_file_name: zipファイル内に配置するjsonファイルの名前
-        :return:
-        :rtype:str
-        """
-
-        json_suffix = '.json'
-        zip_suffix = '.zip'
+        # 最終的にDLするzipファイルを作成
+        base = p / 'dl'
         try:
-            # jsonファイルとして一時ファイルに保存
-            with NamedTemporaryFile(suffix=json_suffix,
-                                    delete=False) as fp:
-                filepath = fp.name
-                fp.write(encoded_json)
-        except Exception:
-            raise
-        try:
-            # jsonファイルをzipで圧縮して一時ファイルに保存
-            with NamedTemporaryFile(suffix=zip_suffix,
-                                    delete=False) as fp:
-                with zipfile.ZipFile(fp.name, 'w',
-                                     zipfile.ZIP_DEFLATED) as archive:
-                    zip_filepath = fp.name
-                    archive.write(filepath,
-                                  arcname=json_tree_file_name + json_suffix)
+            zip_filepath = shutil.make_archive(str(base), 'zip', str(p))
         except Exception:
             raise
         return zip_filepath
 
+
     @staticmethod
-    def zipped_json_path(encoded_json: bytes, json_tree_file_name: str,
-                     p: Path) -> Path:
+    def zipped_json(encoded_json: bytes, json_tree_file_name: str,
+                         p: Path) -> Path:
         """
         zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
         添付ファイルがなく、jsonファイルだけ取得したい場合に使用する
