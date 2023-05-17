@@ -922,3 +922,81 @@ class TestFile(TestCase):
                     expected.append([file_path.name, f.read(), compress])
 
             self.assertListEqual(sorted(actual), sorted(expected))
+
+    def test_generate_file_path_dict(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_p = Path(tmp)
+            p = tmp_p / 'sub'
+            p.mkdir()
+            sample_files = self.make_txt_files(p,
+                                               name='generate_file_path_dict_test',
+                                               qty=2)
+            file_list = list(map(str, sample_files))
+            expected = {k: v for k,v in zip(file_list, sample_files)}
+            actual = self.file.generate_file_path_dict(file_list, p)
+            self.assertDictEqual(actual, expected)
+
+    def test_generate_upload_list(self):
+        json_dict = {
+            "position": "top",
+            "structure_2": [
+                {
+                    "maker": "Ferrari",
+                    "carname": "F355",
+                    "power": 380,
+                    "_ed_attachment": ['aaa/01.jpg']
+                },
+                {
+                    "maker": "Ferrari",
+                    "carname": "458 Italia",
+                    "_ed_attachment":['bbb/01.jpg', 'bbb/02.jpg']
+                }]
+        }
+        expected = ['aaa/01.jpg', 'bbb/01.jpg', 'bbb/02.jpg']
+        actual = self.file.generate_upload_list(json_dict)
+        # print(actual)
+        self.assertListEqual(actual, expected)
+
+    def test_json_rewrite(self):
+        if not self.db_server_connect:
+            return
+
+        json_dict = {
+            "position": "top",
+            "structure_2": [
+                {
+                    "maker": "Ferrari",
+                    "carname": "F355",
+                    "power": 380,
+                    "_ed_attachment": ['aaa/01.jpg']
+                },
+                {
+                    "maker": "Ferrari",
+                    "carname": "458 Italia",
+                    "_ed_attachment": ['bbb/01.jpg', 'bbb/02.jpg']
+                }]
+        }
+        a01_file = ObjectId()
+        b01_file = ObjectId()
+        b02_file = ObjectId()
+        files_dict = {'aaa/01.jpg':a01_file,
+                      'bbb/01.jpg':b01_file,
+                      'bbb/02.jpg':b02_file}
+        expected = {
+            "position": "top",
+            "structure_2": [
+                {
+                    "maker": "Ferrari",
+                    "carname": "F355",
+                    "power": 380,
+                    "_ed_file": [a01_file]
+                },
+                {
+                    "maker": "Ferrari",
+                    "carname": "458 Italia",
+                    "_ed_file": [b01_file, b02_file]
+                }]
+        }
+        actual = self.file.json_rewrite(json_dict, files_dict)
+        # print(actual)
+        self.assertDictEqual(actual, expected)

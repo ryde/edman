@@ -1,10 +1,11 @@
 import os
 import shutil
 import copy
-from tempfile import TemporaryDirectory, NamedTemporaryFile
+import json
+from tempfile import TemporaryDirectory
 import datetime
 import zipfile
-from typing import Union, Tuple, Iterator, List, Any
+from typing import Union, Tuple, Iterator, List, Any, IO
 from pathlib import Path
 import gridfs
 from gridfs.errors import NoFile, GridFSError
@@ -28,6 +29,7 @@ class File:
             self.fs = gridfs.GridFS(self.db)
         self.file_ref = Config.file
         self.comp_level = Config.gzip_compress_level
+        self.file_attachment = Config.file_attachment
 
     @staticmethod
     def file_gen(files: Tuple[Path]) -> Iterator:
@@ -273,7 +275,7 @@ class File:
 
         return result
 
-    def grid_in(self, files: Tuple[Tuple[Any, bool]]) -> list[Any]:
+    def grid_in(self, files: Tuple[Tuple[Any, bool]]) -> list[ObjectId]:
         """
         Gridfsへ複数のデータをアップロード
 
@@ -509,3 +511,120 @@ class File:
 
         new_docs = recursive(docs)
         return new_docs, dl_list
+
+    def upload_zipped(self, zip_file: IO) -> dict | None:
+        """
+        zipファイルを解凍し、ファイルをgridfsに格納、結果のoidを含めたjsonを返す
+
+        :param IO zip_file: アップロードされたzipファイル
+        :return:
+        :rtype: dict
+        """
+        entry_json = None
+
+        with TemporaryDirectory() as td:
+            p = Path(td)
+            with zipfile.ZipFile(zip_file) as ex_zip:
+                ex_zip.extractall(td)
+
+            json_list = list(p.glob('*.json'))
+            if not json_list:
+                raise EdmanInternalError('jsonファイルが存在しません')
+            if len(json_list) > 1:
+                raise EdmanInternalError('jsonファイルは一つだけしか含めることはできません')
+            target_json = json_list[0]
+            # jsonデータ取り出し
+            with target_json.open() as f:
+                json_data = json.load(f)
+            try:
+                # 添付ファイルを取り出す
+                files_list = self.generate_upload_list(json_data)
+                # 解凍したデータ内に、実際にデータが存在するか照合する(ダウンロードするパスを接合する)
+                path_list = self.generate_file_path_dict(files_list, p)
+                # gridfsにファイルを格納するために専用のタプルを作成
+                paths = [(path, False) for _, path in path_list]
+                # grid.fsに入れる
+                grid_in_results = self.grid_in(tuple(paths))
+                # grid_inはinserted_idしか返さないため、jsonのファイルパスをキーとしてinserted_oidをバリューとする辞書を作成する
+                gf_inserted_dict = {i[0]: j for i, j in
+                                    zip(path_list, grid_in_results)}
+            except Exception:
+                raise
+            else:
+                # jsonデータにoidを書き加え、添付ファイル用キーを削除
+                entry_json = self.json_rewrite(json_data, gf_inserted_dict)
+
+        return entry_json
+
+    def generate_upload_list(self, data: dict) -> list[str]:
+        """
+        json辞書からキーfiles_dir_keyの値であるリストを抽出し、新しいリストにする
+
+        :param dict data:
+        :return: result
+        :rtype: list
+        """
+        result = []
+        for key, value in data.items():
+            if isinstance(value, dict):
+                result.extend(self.generate_upload_list(value))
+            elif isinstance(value, list):
+                # ファイル添付のキーをフック
+                if key == self.file_attachment:
+                    result.extend(value)
+                else:
+                    for i in value:
+                        result.extend(self.generate_upload_list(i))
+            else:
+                continue
+        return result
+
+    def json_rewrite(self, data: dict, files_dict: dict) -> dict:
+        """
+        元のjsonのファイルパスをinsert済みのファイルのoidに書き換える
+
+        :param dict data:
+        :param dict files_dict:
+        :return:
+        :rtype: dict
+        """
+        result = {}
+        for key, value in data.items():
+            if isinstance(value, dict):
+                result.update(
+                    {key: self.json_rewrite(value, files_dict)})
+            elif isinstance(value, list):
+                if key == self.file_attachment:
+                    buff = []
+                    for filepath in value:
+                        if files_dict.get(filepath) is not None:
+                            buff.append(files_dict[filepath])
+                    result.update({self.file_ref: buff})
+                else:
+                    result.update({
+                        key: [self.json_rewrite(i, files_dict)
+                              for i in value]})
+            else:
+                result.update({key: value})
+        return result
+
+    @staticmethod
+    def generate_file_path_dict(files_list: list, p: Path) -> dict[str, Path]:
+        """
+        files_listから添付ファイルの存在確認をし、添付ファイルのファイルパスを値とする辞書を作成
+
+        :param list files_list:
+        :param Path p:
+        :return: result
+        :rtype: dict
+        """
+        result = {}
+        for json_file_path in files_list:
+            p1 = Path(json_file_path)
+            j = p / p1
+            if j.exists():
+                result.update({json_file_path: j})
+            else:
+                raise EdmanInternalError(
+                    'JSON内のパスとファイル配置に違いがありましたので中止します')
+        return result

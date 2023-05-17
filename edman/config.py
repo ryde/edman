@@ -18,6 +18,8 @@ class Config:
     fs_files = 'fs.files' # Grid.fsのファイルコレクション名
     fs_chunks = 'fs.chunks' # Grid.fsのファイルチャンクコレクション名
 
+    file_attachment = '_ed_attachment'  # 添付ファイルのキー
+
     # Gzip 圧縮レベル (ファイル圧縮時に使用)
     gzip_compress_level = 6
 
