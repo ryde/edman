@@ -69,6 +69,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="edman.config.Config.file_attachment">
+<span class="sig-name descname"><span class="pre">file_attachment</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_ed_attachment'</span></em><a class="headerlink" href="#edman.config.Config.file_attachment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="edman.config.Config.fs_chunks">
 <span class="sig-name descname"><span class="pre">fs_chunks</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fs.chunks'</span></em><a class="headerlink" href="#edman.config.Config.fs_chunks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -903,6 +908,43 @@ docにファイルリファレンスデータが無かった場合は例外を�
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.generate_file_path_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_file_path_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.generate_file_path_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.generate_file_path_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>files_listから添付ファイルの存在確認をし、添付ファイルのファイルパスを値とする辞書を作成</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>files_list</strong> (<em>list</em>) – </p></li>
+<li><p><strong>p</strong> (<em>Path</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.generate_upload_list">
+<span class="sig-name descname"><span class="pre">generate_upload_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.generate_upload_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.generate_upload_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>json辞書からキーfiles_dir_keyの値であるリストを抽出し、新しいリストにする</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.generate_zip_filename">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_zip_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.generate_zip_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.generate_zip_filename" title="Permalink to this definition">¶</a></dt>
 <dd><p>‘%Y%m%d%H%M%S’.zipのファイル名を生成
@@ -997,7 +1039,7 @@ docにファイルリファレンスデータが無かった場合は例外を�
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.file.File.grid_in">
-<span class="sig-name descname"><span class="pre">grid_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.grid_in"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.grid_in" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">grid_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">bson.objectid.ObjectId</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/edman/file.html#File.grid_in"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.grid_in" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gridfsへ複数のデータをアップロード</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1008,6 +1050,26 @@ docにファイルリファレンスデータが無かった場合は例外を�
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.json_rewrite">
+<span class="sig-name descname"><span class="pre">json_rewrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.json_rewrite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.json_rewrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>元のjsonのファイルパスをinsert済みのファイルのoidに書き換える</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>files_dict</strong> (<em>dict</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1026,6 +1088,23 @@ docにファイルリファレンスデータが無かった場合は例外を�
 :type query: list or None
 :return:
 :rtype: bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.file.File.upload_zipped">
+<span class="sig-name descname"><span class="pre">upload_zipped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">IO</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/edman/file.html#File.upload_zipped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.file.File.upload_zipped" title="Permalink to this definition">¶</a></dt>
+<dd><p>zipファイルを解凍し、ファイルをgridfsに格納、結果のoidを含めたjsonを返す</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>zip_file</strong> (<em>IO</em>) – アップロードされたzipファイル</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1456,6 +1535,7 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.child"><code class="docutils literal notranslate"><span class="pre">Config.child</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.date"><code class="docutils literal notranslate"><span class="pre">Config.date</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.file"><code class="docutils literal notranslate"><span class="pre">Config.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.file_attachment"><code class="docutils literal notranslate"><span class="pre">Config.file_attachment</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.fs_chunks"><code class="docutils literal notranslate"><span class="pre">Config.fs_chunks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.fs_files"><code class="docutils literal notranslate"><span class="pre">Config.fs_files</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.config.Config.gzip_compress_level"><code class="docutils literal notranslate"><span class="pre">Config.gzip_compress_level</span></code></a></li>
@@ -1521,12 +1601,16 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.file_list_attachment"><code class="docutils literal notranslate"><span class="pre">File.file_list_attachment()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.file_list_replace"><code class="docutils literal notranslate"><span class="pre">File.file_list_replace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.fs_delete"><code class="docutils literal notranslate"><span class="pre">File.fs_delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.generate_file_path_dict"><code class="docutils literal notranslate"><span class="pre">File.generate_file_path_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.generate_upload_list"><code class="docutils literal notranslate"><span class="pre">File.generate_upload_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.generate_zip_filename"><code class="docutils literal notranslate"><span class="pre">File.generate_zip_filename()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_file_names"><code class="docutils literal notranslate"><span class="pre">File.get_file_names()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_file_ref"><code class="docutils literal notranslate"><span class="pre">File.get_file_ref()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.get_fileref_and_generate_dl_list"><code class="docutils literal notranslate"><span class="pre">File.get_fileref_and_generate_dl_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.grid_in"><code class="docutils literal notranslate"><span class="pre">File.grid_in()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.json_rewrite"><code class="docutils literal notranslate"><span class="pre">File.json_rewrite()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.upload"><code class="docutils literal notranslate"><span class="pre">File.upload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.file.File.upload_zipped"><code class="docutils literal notranslate"><span class="pre">File.upload_zipped()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_contents"><code class="docutils literal notranslate"><span class="pre">File.zipped_contents()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.file.File.zipped_json"><code class="docutils literal notranslate"><span class="pre">File.zipped_json()</span></code></a></li>
 </ul>

@@ -32,10 +32,11 @@
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span><span class="p">,</span> <span class="n">NamedTemporaryFile</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">IO</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">gridfs</span>
 <span class="kn">from</span> <span class="nn">gridfs.errors</span> <span class="kn">import</span> <span class="n">NoFile</span><span class="p">,</span> <span class="n">GridFSError</span>
@@ -59,6 +60,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="n">gridfs</span><span class="o">.</span><span class="n">GridFS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">comp_level</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">gzip_compress_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_attachment</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">file_attachment</span>
 
 <div class="viewcode-block" id="File.file_gen"><a class="viewcode-back" href="../../edman.html#edman.file.File.file_gen">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">file_gen</span><span class="p">(</span><span class="n">files</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
@@ -304,7 +306,7 @@
 
         <span class="k">return</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="File.grid_in"><a class="viewcode-back" href="../../edman.html#edman.file.File.grid_in">[docs]</a>    <span class="k">def</span> <span class="nf">grid_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="File.grid_in"><a class="viewcode-back" href="../../edman.html#edman.file.File.grid_in">[docs]</a>    <span class="k">def</span> <span class="nf">grid_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gridfsへ複数のデータをアップロード</span>
 
@@ -539,7 +541,124 @@
             <span class="k">return</span> <span class="n">c_docs</span>
 
         <span class="n">new_docs</span> <span class="o">=</span> <span class="n">recursive</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">new_docs</span><span class="p">,</span> <span class="n">dl_list</span></div></div>
+        <span class="k">return</span> <span class="n">new_docs</span><span class="p">,</span> <span class="n">dl_list</span></div>
+
+<div class="viewcode-block" id="File.upload_zipped"><a class="viewcode-back" href="../../edman.html#edman.file.File.upload_zipped">[docs]</a>    <span class="k">def</span> <span class="nf">upload_zipped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zip_file</span><span class="p">:</span> <span class="n">IO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        zipファイルを解凍し、ファイルをgridfsに格納、結果のoidを含めたjsonを返す</span>
+
+<span class="sd">        :param IO zip_file: アップロードされたzipファイル</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">entry_json</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">td</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">td</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex_zip</span><span class="p">:</span>
+                <span class="n">ex_zip</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">td</span><span class="p">)</span>
+
+            <span class="n">json_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.json&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">json_list</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;jsonファイルが存在しません&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;jsonファイルは一つだけしか含めることはできません&#39;</span><span class="p">)</span>
+            <span class="n">target_json</span> <span class="o">=</span> <span class="n">json_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># jsonデータ取り出し</span>
+            <span class="k">with</span> <span class="n">target_json</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># 添付ファイルを取り出す</span>
+                <span class="n">files_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_upload_list</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+                <span class="c1"># 解凍したデータ内に、実際にデータが存在するか照合する(ダウンロードするパスを接合する)</span>
+                <span class="n">path_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_file_path_dict</span><span class="p">(</span><span class="n">files_list</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+                <span class="c1"># gridfsにファイルを格納するために専用のタプルを作成</span>
+                <span class="n">paths</span> <span class="o">=</span> <span class="p">[(</span><span class="n">path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">path_list</span><span class="p">]</span>
+                <span class="c1"># grid.fsに入れる</span>
+                <span class="n">grid_in_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_in</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">paths</span><span class="p">))</span>
+                <span class="c1"># grid_inはinserted_idしか返さないため、jsonのファイルパスをキーとしてinserted_oidをバリューとする辞書を作成する</span>
+                <span class="n">gf_inserted_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
+                                    <span class="nb">zip</span><span class="p">(</span><span class="n">path_list</span><span class="p">,</span> <span class="n">grid_in_results</span><span class="p">)}</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># jsonデータにoidを書き加え、添付ファイル用キーを削除</span>
+                <span class="n">entry_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_rewrite</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">gf_inserted_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">entry_json</span></div>
+
+<div class="viewcode-block" id="File.generate_upload_list"><a class="viewcode-back" href="../../edman.html#edman.file.File.generate_upload_list">[docs]</a>    <span class="k">def</span> <span class="nf">generate_upload_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        json辞書からキーfiles_dir_keyの値であるリストを抽出し、新しいリストにする</span>
+
+<span class="sd">        :param dict data:</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_upload_list</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c1"># ファイル添付のキーをフック</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_attachment</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_upload_list</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="File.json_rewrite"><a class="viewcode-back" href="../../edman.html#edman.file.File.json_rewrite">[docs]</a>    <span class="k">def</span> <span class="nf">json_rewrite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">files_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        元のjsonのファイルパスをinsert済みのファイルのoidに書き換える</span>
+
+<span class="sd">        :param dict data:</span>
+<span class="sd">        :param dict files_dict:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_rewrite</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">files_dict</span><span class="p">)})</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_attachment</span><span class="p">:</span>
+                    <span class="n">buff</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">files_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">buff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">files_dict</span><span class="p">[</span><span class="n">filepath</span><span class="p">])</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span><span class="p">:</span> <span class="n">buff</span><span class="p">})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                        <span class="n">key</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">json_rewrite</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">files_dict</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="File.generate_file_path_dict"><a class="viewcode-back" href="../../edman.html#edman.file.File.generate_file_path_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">generate_file_path_dict</span><span class="p">(</span><span class="n">files_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        files_listから添付ファイルの存在確認をし、添付ファイルのファイルパスを値とする辞書を作成</span>
+
+<span class="sd">        :param list files_list:</span>
+<span class="sd">        :param Path p:</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">json_file_path</span> <span class="ow">in</span> <span class="n">files_list</span><span class="p">:</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">)</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">p1</span>
+            <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">json_file_path</span><span class="p">:</span> <span class="n">j</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span>
+                    <span class="s1">&#39;JSON内のパスとファイル配置に違いがありましたので中止します&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
 </pre></div>
 
           </div>
