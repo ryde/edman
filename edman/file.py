@@ -546,7 +546,7 @@ class File:
                 # grid.fsに入れる
                 grid_in_results = self.grid_in(tuple(paths))
                 # grid_inはinserted_idしか返さないため、jsonのファイルパスをキーとしてinserted_oidをバリューとする辞書を作成する
-                gf_inserted_dict = {i[0]: j for i, j in
+                gf_inserted_dict = {i: j for i, j in
                                     zip(path_list, grid_in_results)}
             except Exception:
                 raise

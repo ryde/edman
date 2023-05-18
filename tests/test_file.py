@@ -927,6 +927,16 @@ class TestFile(TestCase):
             file_list = list(map(str, sample_files))
             expected = {k: v for k, v in zip(file_list, sample_files)}
             actual = self.file.generate_file_path_dict(file_list, p)
+
+            # paths = [(v, False) for k, v in actual.items()]
+            # data = tuple(paths)
+            # print('data', data)
+            # grid_in_results = self.file.grid_in(data)
+            # gf_inserted_dict = {}
+            # for i, j in zip(actual, grid_in_results):
+            #     gf_inserted_dict.update({i: j})
+            # print('gf_inserted_dict', gf_inserted_dict)
+
             self.assertDictEqual(actual, expected)
 
     def test_generate_upload_list(self):
