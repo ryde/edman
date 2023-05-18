@@ -905,13 +905,6 @@ class TestFile(TestCase):
             actual = []
             for oid in self.file.grid_in(td):
                 data = self.fs.get(oid)
-                # if data.compress == 'gzip':
-                #     f_data = gzip.decompress(data.read()).decode()
-                #     b_data = True
-                # else:
-                #     f_data = data.read().decode()
-                #     b_data = False
-
                 f_data = data.read().decode()
                 b_data = False
                 actual.append([data.filename, f_data, b_data])
@@ -932,7 +925,7 @@ class TestFile(TestCase):
                                                name='generate_file_path_dict_test',
                                                qty=2)
             file_list = list(map(str, sample_files))
-            expected = {k: v for k,v in zip(file_list, sample_files)}
+            expected = {k: v for k, v in zip(file_list, sample_files)}
             actual = self.file.generate_file_path_dict(file_list, p)
             self.assertDictEqual(actual, expected)
 
@@ -949,10 +942,16 @@ class TestFile(TestCase):
                 {
                     "maker": "Ferrari",
                     "carname": "458 Italia",
-                    "_ed_attachment":['bbb/01.jpg', 'bbb/02.jpg']
-                }]
+                    "_ed_attachment": ['bbb/01.jpg', 'bbb/02.jpg'],
+
+                }],
+            "structure_3": {
+                "structure_4": {
+                    "data1": 45,
+                    "_ed_attachment": ['ccc/01.jpg']}
+            }
         }
-        expected = ['aaa/01.jpg', 'bbb/01.jpg', 'bbb/02.jpg']
+        expected = ['aaa/01.jpg', 'bbb/01.jpg', 'bbb/02.jpg', 'ccc/01.jpg']
         actual = self.file.generate_upload_list(json_dict)
         # print(actual)
         self.assertListEqual(actual, expected)
@@ -973,15 +972,23 @@ class TestFile(TestCase):
                 {
                     "maker": "Ferrari",
                     "carname": "458 Italia",
-                    "_ed_attachment": ['bbb/01.jpg', 'bbb/02.jpg']
-                }]
+                    "_ed_attachment": ['bbb/01.jpg', 'bbb/02.jpg'],
+
+                }],
+            "structure_3": {
+                "structure_4": {
+                    "data1": 45,
+                    "_ed_attachment": ['ccc/01.jpg']}
+            }
         }
         a01_file = ObjectId()
         b01_file = ObjectId()
         b02_file = ObjectId()
-        files_dict = {'aaa/01.jpg':a01_file,
-                      'bbb/01.jpg':b01_file,
-                      'bbb/02.jpg':b02_file}
+        c01_file = ObjectId()
+        files_dict = {'aaa/01.jpg': a01_file,
+                      'bbb/01.jpg': b01_file,
+                      'bbb/02.jpg': b02_file,
+                      'ccc/01.jpg': c01_file}
         expected = {
             "position": "top",
             "structure_2": [
@@ -995,7 +1002,12 @@ class TestFile(TestCase):
                     "maker": "Ferrari",
                     "carname": "458 Italia",
                     "_ed_file": [b01_file, b02_file]
-                }]
+                }],
+            "structure_3": {
+                "structure_4": {
+                    "data1": 45,
+                    "_ed_file": [c01_file]}
+            }
         }
         actual = self.file.json_rewrite(json_dict, files_dict)
         # print(actual)
