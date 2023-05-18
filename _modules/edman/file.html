@@ -577,7 +577,7 @@
                 <span class="c1"># grid.fsに入れる</span>
                 <span class="n">grid_in_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_in</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">paths</span><span class="p">))</span>
                 <span class="c1"># grid_inはinserted_idしか返さないため、jsonのファイルパスをキーとしてinserted_oidをバリューとする辞書を作成する</span>
-                <span class="n">gf_inserted_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
+                <span class="n">gf_inserted_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
                                     <span class="nb">zip</span><span class="p">(</span><span class="n">path_list</span><span class="p">,</span> <span class="n">grid_in_results</span><span class="p">)}</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="k">raise</span>
