@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Union
 from pymongo import errors
-from bson import errors, ObjectId
+from bson import errors as bson_errors, ObjectId
 from edman.utils import Utils
 from edman.exceptions import EdmanDbProcessError
 from edman import Config
@@ -118,11 +118,11 @@ class Search:
         if '_id' in query:
             try:
                 query['_id'] = ObjectId(query['_id'])
-            except errors.InvalidId:
+            except bson_errors.InvalidId:
                 raise
         return query
 
-    def _get_self(self, query: dict, collection: str) -> Union[dict, None]:
+    def _get_self(self, query: dict, collection: str) -> dict | None:
         """
         自分自身のドキュメント取得
 
@@ -141,7 +141,7 @@ class Search:
                 result = {collection: docs[0]}
         return result
 
-    def _get_parent(self, self_doc: dict, depth: int) -> Union[dict, None]:
+    def _get_parent(self, self_doc: dict, depth: int) -> dict | None:
         """
         | 親となるドキュメントを取得
         | depthで深度を設定し、階層分取得する
@@ -160,16 +160,16 @@ class Search:
             if self.parent in doc:
                 parent = self.connected_db.dereference(doc[self.parent])
                 parent_collection = doc[self.parent].collection
-                result.append({parent_collection: parent})
+                data.append({parent_collection: parent})
                 nonlocal depth
                 depth -= 1
                 if depth > 0:
                     recursive(parent)
 
         if depth > 0:
-            result = []  # recによって書き換えられる
+            data: list = []  # recによって書き換えられる
             recursive(list(self_doc.values())[0])
-            result = self._build_to_doc_parent(result)
+            result = self._build_to_doc_parent(data)
         else:
             result = None
         return result

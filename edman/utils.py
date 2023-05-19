@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-from typing import Union, Callable
+from typing import Union, Callable, Generator
 from datetime import datetime
 import dateutil.parser
 from bson import ObjectId, errors
@@ -16,7 +16,7 @@ class Utils:
         raise NotImplementedError('not allowed')
 
     @staticmethod
-    def item_literal_check(list_child: Union[dict, list]) -> bool:
+    def item_literal_check(list_child: dict | list) -> bool:
         """
         | リストデータ内にリテラルやオブジェクトのデータだけあればTrue
         | それ以外はFalse
@@ -131,7 +131,7 @@ class Utils:
         return doc
 
     @staticmethod
-    def conv_objectid(oid: Union[str, ObjectId]) -> ObjectId:
+    def conv_objectid(oid: str | ObjectId) -> ObjectId:
         """
         | 文字列だった場合ObjectIdを変換する
         | 元々ObjectIdならそのまま
@@ -152,7 +152,7 @@ class Utils:
         return result
 
     @staticmethod
-    def to_datetime(s: str) -> Union[datetime, str]:
+    def to_datetime(s: str) -> datetime | str:
         """
         | 日付もしくは日付時間をdatetimeオブジェクトに変換
         | 日付や日付時間にならないものは文字列に変換
@@ -208,7 +208,7 @@ class Utils:
         return doc
 
     @staticmethod
-    def child_combine(rec_result: list) -> dict:
+    def child_combine(rec_result: list) -> Generator:
         """
         | 同じコレクションのデータをリストでまとめるジェネレータ
         |
@@ -217,7 +217,7 @@ class Utils:
 
         :param list rec_result:
         :return:
-        :rtype: dict
+        :rtype: Generator
         """
         for bros in rec_result:
             tmp_bros = defaultdict(list)

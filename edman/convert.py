@@ -1,5 +1,6 @@
 import copy
-from typing import Union
+import datetime
+from typing import Union, Any
 from collections import defaultdict
 from bson import ObjectId, DBRef
 from edman.utils import Utils
@@ -114,7 +115,7 @@ class Convert:
         return [dict(result)]
 
     def _list_intercept_hook(self, collection: str,
-                             doc_with_child: Union[dict, list]) -> dict:
+                             doc_with_child: dict | list) -> dict:
         """
         | 対象ドキュメントの子要素のみを削除し、
         | 出力の対象コレクション内のリストに対して要素の追加もしくは書き換えを行う
@@ -150,7 +151,7 @@ class Convert:
             else:
                 output[collection] = [tmp]
 
-        output = {}
+        output: dict[Any, Any] = {}
         if isinstance(doc_with_child, list):
             for i in doc_with_child:
                 child_delete(i)
@@ -312,7 +313,8 @@ class Convert:
                 else:
                     continue
 
-        output = {}
+        output: dict[
+            str, Union[str, int, list, dict, float, datetime.datetime]] = {}
         recursive(data)
         return output
 

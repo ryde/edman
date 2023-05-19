@@ -5,7 +5,7 @@ import json
 from tempfile import TemporaryDirectory
 import datetime
 import zipfile
-from typing import Union, Tuple, Iterator, List, Any, IO
+from typing import Tuple, Iterator, List, Any, IO
 from pathlib import Path
 import gridfs
 from gridfs.errors import NoFile, GridFSError
@@ -49,7 +49,7 @@ class File:
             yield file.name, fp
 
     def delete(self, delete_oid: ObjectId, collection: str,
-               oid: Union[ObjectId, str], structure: str, query=None) -> bool:
+               oid: ObjectId | str, structure: str, query=None) -> bool:
         """
         該当のoidをファイルリファレンスから削除し、GridFSからファイルを削除
 
@@ -139,7 +139,7 @@ class File:
 
         return files_list
 
-    def get_file_names(self, collection: str, oid: Union[ObjectId, str],
+    def get_file_names(self, collection: str, oid: ObjectId | str,
                        structure: str, query=None) -> dict:
         """
         ファイル一覧を取得
@@ -171,8 +171,7 @@ class File:
                 result.update({file_oid: fs_out.filename})
         return result
 
-    def download(self, file_oid: list[ObjectId],
-                 path: Union[str, Path]) -> bool:
+    def download(self, file_oid: list[ObjectId], path: str | Path) -> bool:
         """
         Gridfsからデータをダウンロードし、ファイルに保存
 
@@ -186,7 +185,7 @@ class File:
         return self._grid_out(file_oid, path)
 
     def _grid_out(self, file_oid_list: List[ObjectId],
-                  path: Union[str, Path]) -> bool:
+                  path: str | Path) -> bool:
         """
         Gridfsからデータを取得し、ファイルに保存
         複数のファイルを指定すると、複数のファイルが作成される
@@ -225,7 +224,7 @@ class File:
 
         return all(results)
 
-    def upload(self, collection: str, oid: Union[ObjectId, str],
+    def upload(self, collection: str, oid: ObjectId | str,
                file_path: Tuple[Tuple[Any, bool]], structure: str,
                query=None) -> bool:
         """

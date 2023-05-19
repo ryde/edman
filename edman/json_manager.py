@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 from pathlib import Path
 from enum import Enum, auto
-from typing import Union
 from bson.json_util import dumps
 from edman.exceptions import EdmanFormatError
 
@@ -13,7 +12,7 @@ class JsonManager:
     """
 
     @staticmethod
-    def save(report_data: dict, path: Union[str, Path], name: str,
+    def save(report_data: dict, path: str| Path, name: str,
              date=False) -> None:
         """
         JSONファイルに書き出し

@@ -1,6 +1,6 @@
 import copy
 import urllib.parse
-from typing import Union
+from typing import Generator, Any
 from jmespath import exceptions as jms_exceptions, search as jms_search
 from pymongo import MongoClient, errors
 from bson import ObjectId, DBRef
@@ -285,7 +285,7 @@ class DB:
         except:
             raise
 
-    def insert(self, insert_data: list) -> list:
+    def insert(self, insert_data: list) -> list[dict[str, list[ObjectId]]]:
         """
         インサート実行
 
@@ -293,7 +293,7 @@ class DB:
         :return: results
         :rtype: list
         """
-        results = []
+        results: list[dict[str, list[ObjectId]]] = []
         for i in insert_data:
             for collection, bulk_list in i.items():
                 if isinstance(bulk_list, dict):
@@ -308,8 +308,7 @@ class DB:
         return results
 
     def find_collection_from_objectid(self,
-                                      oid: Union[str,
-                                      ObjectId]) -> Union[str, None]:
+                                      oid: str | ObjectId) -> str | None:
         """
         | DB内のコレクションから指定のObjectIDを探し、所属しているコレクションを返す
         | DBに負荷がかかるので使用は注意が必要
@@ -329,8 +328,8 @@ class DB:
                 break
         return result
 
-    def doc(self, collection: str, oid: Union[ObjectId, str],
-            query: Union[list, None], reference_delete=True) -> dict:
+    def doc(self, collection: str, oid: ObjectId | str,
+            query: list | None, reference_delete=True) -> dict | None:
         """
         | refもしくはembのドキュメントを取得する
         | オプションでedman特有のデータ含んで取得することもできる
@@ -342,7 +341,7 @@ class DB:
         :type query: list or None
         :param bool reference_delete: default True
         :return: result
-        :rtype: dict
+        :rtype: dict or None
         """
         doc = self.db[collection].find_one({'_id': Utils.conv_objectid(oid)})
 
@@ -385,8 +384,8 @@ class DB:
 
         return result
 
-    def item_delete(self, collection: str, oid: Union[ObjectId, str],
-                    delete_key: str, query: Union[list, None]) -> bool:
+    def item_delete(self, collection: str, oid: ObjectId | str,
+                    delete_key: str, query: list | None) -> bool:
         """
         ドキュメントの項目を削除する
 
@@ -457,7 +456,7 @@ class DB:
                     f'日付変換に失敗しました.構造に問題があります. {amend}')
         return result
 
-    def update(self, collection: str, oid: Union[str, ObjectId],
+    def update(self, collection: str, oid: str | ObjectId,
                amend_data: dict, structure: str) -> bool:
         """
         修正データを用いてDBデータをアップデート
@@ -542,7 +541,7 @@ class DB:
                 result[item] = amend[item]
         return result
 
-    def delete(self, oid: Union[str, ObjectId], collection: str,
+    def delete(self, oid: str | ObjectId, collection: str,
                structure: str) -> bool:
         """
         | ドキュメントを削除する
@@ -688,7 +687,7 @@ class DB:
             doc['_id']: {self.file_ref: doc.get(self.file_ref, {})}}}
 
     def _recursive_extract_elements_from_doc(self, doc: dict,
-                                             collection: str) -> dict:
+                                             collection: str) -> Generator:
         """
         再帰処理で
         コレクション別の、oidとファイルリファレンスの辞書を取り出すジェネレータ
@@ -696,7 +695,7 @@ class DB:
         :param dict doc:
         :param str collection:
         :return:
-        :rtype: dict
+        :rtype: Generator
         """
         yield self._extract_elements_from_doc(doc, collection)
         if doc.get(self.child):
@@ -704,14 +703,14 @@ class DB:
                 yield from self._recursive_extract_elements_from_doc(
                     self.db.dereference(child_ref), child_ref.collection)
 
-    def _collect_emb_file_ref(self, doc: dict, request_key: str) -> list:
+    def _collect_emb_file_ref(self, doc: dict, request_key: str) -> Generator:
         """
         emb構造のデータからファイルリファレンスのリストだけを取り出すジェネレータ
 
         :param dict doc:
         :param str request_key:
         :return: value
-        :rtype: list
+        :rtype: Generator
         """
         for key, value in doc.items():
             if isinstance(value, dict):
@@ -1123,7 +1122,7 @@ class DB:
         :return: result
         :rtype: dict
         """
-        result = {}
+        result: dict[str, Any] = {}
 
         for collection, items in bson_data.items():
 
@@ -1225,7 +1224,7 @@ class DB:
                     self.db.dereference(doc[reference_key]), reference_key)
         return result
 
-    def get_root_dbref(self, doc: dict) -> Union[None, DBRef]:
+    def get_root_dbref(self, doc: dict) -> None | DBRef:
         """
         ref形式のドキュメントのルートのDBRef要素を取得する
         ※root要素内にはparentのdbref要素は存在しないので、上から2階層目のparentのdbrefを取得する
