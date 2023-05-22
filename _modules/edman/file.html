@@ -36,7 +36,7 @@
 <span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">IO</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">IO</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">gridfs</span>
 <span class="kn">from</span> <span class="nn">gridfs.errors</span> <span class="kn">import</span> <span class="n">NoFile</span><span class="p">,</span> <span class="n">GridFSError</span>
@@ -80,7 +80,7 @@
             <span class="k">yield</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">fp</span></div>
 
 <div class="viewcode-block" id="File.delete"><a class="viewcode-back" href="../../edman.html#edman.file.File.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delete_oid</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-               <span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+               <span class="n">oid</span><span class="p">:</span> <span class="n">ObjectId</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        該当のoidをファイルリファレンスから削除し、GridFSからファイルを削除</span>
 
@@ -170,7 +170,7 @@
 
         <span class="k">return</span> <span class="n">files_list</span></div>
 
-<div class="viewcode-block" id="File.get_file_names"><a class="viewcode-back" href="../../edman.html#edman.file.File.get_file_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+<div class="viewcode-block" id="File.get_file_names"><a class="viewcode-back" href="../../edman.html#edman.file.File.get_file_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">ObjectId</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
                        <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ファイル一覧を取得</span>
@@ -202,8 +202,7 @@
                 <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">file_oid</span><span class="p">:</span> <span class="n">fs_out</span><span class="o">.</span><span class="n">filename</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="File.download"><a class="viewcode-back" href="../../edman.html#edman.file.File.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_oid</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">],</span>
-                 <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="File.download"><a class="viewcode-back" href="../../edman.html#edman.file.File.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_oid</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gridfsからデータをダウンロードし、ファイルに保存</span>
 
@@ -217,7 +216,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_out</span><span class="p">(</span><span class="n">file_oid</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_grid_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_oid_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">],</span>
-                  <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+                  <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gridfsからデータを取得し、ファイルに保存</span>
 <span class="sd">        複数のファイルを指定すると、複数のファイルが作成される</span>
@@ -256,7 +255,7 @@
 
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
-<div class="viewcode-block" id="File.upload"><a class="viewcode-back" href="../../edman.html#edman.file.File.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+<div class="viewcode-block" id="File.upload"><a class="viewcode-back" href="../../edman.html#edman.file.File.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">ObjectId</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
                <span class="n">file_path</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]],</span> <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -306,7 +305,7 @@
 
         <span class="k">return</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="File.grid_in"><a class="viewcode-back" href="../../edman.html#edman.file.File.grid_in">[docs]</a>    <span class="k">def</span> <span class="nf">grid_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">]:</span>
+<div class="viewcode-block" id="File.grid_in"><a class="viewcode-back" href="../../edman.html#edman.file.File.grid_in">[docs]</a>    <span class="k">def</span> <span class="nf">grid_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gridfsへ複数のデータをアップロード</span>
 
@@ -573,9 +572,9 @@
                 <span class="c1"># 解凍したデータ内に、実際にデータが存在するか照合する(ダウンロードするパスを接合する)</span>
                 <span class="n">path_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_file_path_dict</span><span class="p">(</span><span class="n">files_list</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
                 <span class="c1"># gridfsにファイルを格納するために専用のタプルを作成</span>
-                <span class="n">paths</span> <span class="o">=</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">path_list</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+                <span class="n">paths</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="n">v</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">path_list</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
                 <span class="c1"># grid.fsに入れる</span>
-                <span class="n">grid_in_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_in</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">paths</span><span class="p">))</span>
+                <span class="n">grid_in_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_in</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
                 <span class="c1"># grid_inはinserted_idしか返さないため、jsonのファイルパスをキーとしてinserted_oidをバリューとする辞書を作成する</span>
                 <span class="n">gf_inserted_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
                                     <span class="nb">zip</span><span class="p">(</span><span class="n">path_list</span><span class="p">,</span> <span class="n">grid_in_results</span><span class="p">)}</span>

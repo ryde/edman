@@ -31,7 +31,7 @@
   <h1>Source code for edman.utils</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generator</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">dateutil.parser</span>
 <span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">ObjectId</span><span class="p">,</span> <span class="n">errors</span>
@@ -47,7 +47,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;not allowed&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Utils.item_literal_check"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.item_literal_check">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">item_literal_check</span><span class="p">(</span><span class="n">list_child</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">item_literal_check</span><span class="p">(</span><span class="n">list_child</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | リストデータ内にリテラルやオブジェクトのデータだけあればTrue</span>
 <span class="sd">        | それ以外はFalse</span>
@@ -162,7 +162,7 @@
         <span class="k">return</span> <span class="n">doc</span></div>
 
 <div class="viewcode-block" id="Utils.conv_objectid"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.conv_objectid">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ObjectId</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ObjectId</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">ObjectId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObjectId</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | 文字列だった場合ObjectIdを変換する</span>
 <span class="sd">        | 元々ObjectIdならそのまま</span>
@@ -183,7 +183,7 @@
         <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="Utils.to_datetime"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.to_datetime">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">to_datetime</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">to_datetime</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | 日付もしくは日付時間をdatetimeオブジェクトに変換</span>
 <span class="sd">        | 日付や日付時間にならないものは文字列に変換</span>
@@ -239,7 +239,7 @@
         <span class="k">return</span> <span class="n">doc</span></div>
 
 <div class="viewcode-block" id="Utils.child_combine"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.child_combine">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">child_combine</span><span class="p">(</span><span class="n">rec_result</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">child_combine</span><span class="p">(</span><span class="n">rec_result</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        | 同じコレクションのデータをリストでまとめるジェネレータ</span>
 <span class="sd">        |</span>
@@ -248,7 +248,7 @@
 
 <span class="sd">        :param list rec_result:</span>
 <span class="sd">        :return:</span>
-<span class="sd">        :rtype: dict</span>
+<span class="sd">        :rtype: Generator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">bros</span> <span class="ow">in</span> <span class="n">rec_result</span><span class="p">:</span>
             <span class="n">tmp_bros</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
@@ -328,14 +328,13 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Utils.type_cast_conv"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.type_cast_conv">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">type_cast_conv</span><span class="p">(</span><span class="n">datatype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">type_cast_conv</span><span class="p">(</span><span class="n">datatype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        データタイプに合わせて型を選択する</span>
 
-<span class="sd">        :param int datatype:</span>
+<span class="sd">        :param str datatype:</span>
 <span class="sd">        :return:</span>
-<span class="sd">        :rtype: bool or int or float or str or dateutil.parser.parse</span>
+<span class="sd">        :rtype: object or callable</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">type_table</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;bool&#39;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -344,7 +343,8 @@
             <span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="s1">&#39;datetime&#39;</span><span class="p">:</span> <span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span>
         <span class="p">}</span>
-        <span class="k">return</span> <span class="n">type_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">datatype</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span></div>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">type_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">datatype</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="Utils.generate_jms_query"><a class="viewcode-back" href="../../edman.html#edman.utils.Utils.generate_jms_query">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">generate_jms_query</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
