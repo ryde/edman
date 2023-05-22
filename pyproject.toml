@@ -23,7 +23,7 @@ dependencies = [
     "python-dateutil~=2.8.2",
     "jmespath~=1.0.1",
 ]
-version = "2023.5.22"
+version = "2023.5.22.2"
 # dynamic = ["version"]
 
 [project.urls]
@@ -32,7 +32,7 @@ version = "2023.5.22"
 
 [tool.setuptools.packages.find]
 exclude = ["tests"]
-include = ["edman*"]
+include = ["edman*", "edman/py.typed"]
 
 #[tool.setuptools_scm]
 #write_to = "edman/_version.py"
