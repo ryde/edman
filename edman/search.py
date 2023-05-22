@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Union
 from pymongo import errors
 from bson import errors as bson_errors, ObjectId
 from edman.utils import Utils
@@ -175,7 +174,7 @@ class Search:
         return result
 
     @staticmethod
-    def _build_to_doc_parent(parent_data_list: list) -> dict:
+    def _build_to_doc_parent(parent_data_list: list) -> dict | None:
         """
         | 親の検索結果（リスト）を入れ子辞書に組み立てる
         |
@@ -184,7 +183,7 @@ class Search:
 
         :param list parent_data_list:
         :return: result
-        :rtype: dict
+        :rtype: dict or None
         """
         result = None
         for read_data in parent_data_list:
@@ -234,32 +233,29 @@ class Search:
                 # リストデータは中身を型変換する
                 elif isinstance(data[key], list) and Utils.item_literal_check(
                         data[key]):
-                    data[key] = [self._format_datetime(j) for j in data[key]]
+                    data[key] = [self._format_datetime(j)
+                                 if isinstance(j, datetime) else j
+                                 for j in data[key]]
                 elif isinstance(data[key], list):
                     for item in data[key]:
                         recursive(Utils.item_delete(item, refs))
                 else:
                     try:  # 型変換
-                        data[key] = self._format_datetime(data[key])
+                        if isinstance(data[key], datetime):
+                            data[key] = self._format_datetime(data[key])
                     except Exception:
                         raise
 
         recursive(result_dict)
         return result_dict
 
-    def _format_datetime(self, item: Union[str, int, float, bool, datetime]
-                         ) -> Union[dict, str, int, float, bool, datetime]:
+    def _format_datetime(self, item: datetime) -> dict[str, str]:
         """
         datetime型なら書式変更して辞書に入れる
-        その場合は辞書を返し、それ以外の時は入ってきた値をそのまま返す
 
         :param item:
-        :type item: str or int or float or bool or datetime
+        :type item: datetime
         :return: result
-        :rtype: dict or str or int or float or bool or datetime
+        :rtype: dict
         """
-        # datetimeそのままだと%Y-%m-%dと%H:%M:%Sの間に"T"が入るため書式変更
-        result = item
-        if isinstance(item, datetime):
-            result = {self.date: item.strftime("%Y-%m-%d %H:%M:%S")}
-        return result
+        return {self.date: item.strftime("%Y-%m-%d %H:%M:%S")}

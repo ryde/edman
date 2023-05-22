@@ -297,14 +297,13 @@ class Utils:
         return True
 
     @staticmethod
-    def type_cast_conv(datatype: str) -> Union[bool, int, float, str,
-    dateutil.parser.parse]:
+    def type_cast_conv(datatype: str) -> object | Callable:
         """
         データタイプに合わせて型を選択する
 
-        :param int datatype:
+        :param str datatype:
         :return:
-        :rtype: bool or int or float or str or dateutil.parser.parse
+        :rtype: object or callable
         """
         type_table = {
             'bool': bool,
@@ -313,7 +312,8 @@ class Utils:
             'str': str,
             'datetime': dateutil.parser.parse
         }
-        return type_table.get(datatype, str)
+        result = type_table.get(datatype, str)
+        return result
 
     @staticmethod
     def generate_jms_query(query):

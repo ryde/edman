@@ -85,7 +85,7 @@ class DB:
                 statement += connector + option
 
         mongo_uri = f'mongodb://{user}:{password}@{host}:{port}/{statement}'
-        client = MongoClient(mongo_uri)
+        client: MongoClient = MongoClient(mongo_uri)
 
         try:  # サーバの接続確認
             client.admin.command('ping')
@@ -600,7 +600,7 @@ class DB:
         :param str collection:
         :return:
         """
-        delete_doc_id_dict = {}
+        delete_doc_id_dict: dict[str, list[ObjectId]] = {}
         delete_file_ref_list = []
         for element in self._recursive_extract_elements_from_doc(db_result,
                                                                  collection):
@@ -846,7 +846,7 @@ class DB:
                 if tmp:
                     recursive(tmp)
 
-        result = []  # recによって書き換えられる
+        result: list = []  # recによって書き換えられる
         recursive([self_doc])  # 再帰関数をシンプルにするため、初期データをリストで囲む
         return self._build_to_doc_child(result)  # 親子構造に組み立て
 

@@ -274,7 +274,7 @@ class File:
 
         return result
 
-    def grid_in(self, files: Tuple[Tuple[Path, bool]]) -> list[ObjectId]:
+    def grid_in(self, files: Tuple[Tuple[Path, bool], ...]) -> list[ObjectId]:
         """
         Gridfsへ複数のデータをアップロード
 
@@ -541,9 +541,9 @@ class File:
                 # 解凍したデータ内に、実際にデータが存在するか照合する(ダウンロードするパスを接合する)
                 path_list = self.generate_file_path_dict(files_list, p)
                 # gridfsにファイルを格納するために専用のタプルを作成
-                paths = [(v, False) for k, v in path_list.items()]
+                paths = tuple([(v, False) for v in path_list.values()])
                 # grid.fsに入れる
-                grid_in_results = self.grid_in(tuple(paths))
+                grid_in_results = self.grid_in(paths)
                 # grid_inはinserted_idしか返さないため、jsonのファイルパスをキーとしてinserted_oidをバリューとする辞書を作成する
                 gf_inserted_dict = {i: j for i, j in
                                     zip(path_list, grid_in_results)}
