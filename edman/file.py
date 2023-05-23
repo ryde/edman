@@ -587,7 +587,7 @@ class File:
         :return:
         :rtype: dict
         """
-        result = {}
+        result:dict[str, Any] = {}
         for key, value in data.items():
             if isinstance(value, dict):
                 result.update(

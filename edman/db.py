@@ -5,6 +5,7 @@ from jmespath import exceptions as jms_exceptions, search as jms_search
 from pymongo import MongoClient, errors
 from bson import ObjectId, DBRef
 from edman.utils import Utils
+from datetime import datetime
 from edman.exceptions import (EdmanDbConnectError, EdmanInternalError,
                               EdmanDbProcessError, EdmanFormatError)
 from edman import Config, Convert, File
@@ -437,12 +438,14 @@ class DB:
         :return: result
         :rtype: dict
         """
+
         result = copy.deepcopy(amend)
         if isinstance(amend, dict):
             try:
                 for key, value in amend.items():
                     if isinstance(value, dict) and self.date in value:
-                        buff = Utils.to_datetime(amend[key][self.date])
+                        buff: str | datetime | Any = Utils.to_datetime(
+                            amend[key][self.date])
                     elif isinstance(value, list):
                         buff = [Utils.to_datetime(i[self.date])
                                 if isinstance(i, dict) and self.date in i
@@ -871,16 +874,18 @@ class DB:
                 # ここでデータを取得する
                 for doc in doc_list:
                     if tmp := self._child_storaged(doc):
-                        result.append(tmp)
+                        data.append(tmp)
                 d -= 1
                 # 子データがある時は繰り返す
                 if tmp:
                     recursive(tmp, d)
 
-        result = []  # recによって書き換えられる
+        data: list = []  # recによって書き換えられる
         if depth >= 1:  # depthが効くのは必ず1以上
             recursive([self_doc], depth)  # 再帰関数をシンプルにするため、初期データをリストで囲む
-            result = self._build_to_doc_child(result)  # 親子構造に組み立て
+            result: dict = self._build_to_doc_child(data)  # 親子構造に組み立て
+        else:
+            result = {}
         return result
 
     def _child_storaged(self, doc: dict) -> list:
@@ -972,7 +977,7 @@ class DB:
         """
         ドキュメント内の特定の項目(リファレンスも)を削除する
 
-        :param dict emb_data:
+        :param dict or list emb_data:
         :param tuple reference:
         :return:
         :rtype: dict

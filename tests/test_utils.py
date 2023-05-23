@@ -56,10 +56,10 @@ class TestUtils(TestCase):
         del_keys = ['f']
         query = ['b', '0', 'd']
 
-        def delete(doc, keys):
+        def delete(d, keys):
             for key in keys:
-                if key in doc:
-                    del doc[key]
+                if key in d:
+                    del d[key]
 
         actual = Utils.doc_traverse(doc, del_keys, query, delete)
         expected = {
@@ -125,7 +125,7 @@ class TestUtils(TestCase):
         # 異常系 oidにならない文字列
         oid = str(ObjectId())
         oid = oid[:-1]
-        with self.assertRaises(errors.InvalidId) as cm:
+        with self.assertRaises(errors.InvalidId):
             _ = Utils.conv_objectid(oid)
 
     def test__to_datetime(self):

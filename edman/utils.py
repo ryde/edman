@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-from typing import Union, Callable, Generator
+from typing import Callable, Generator,Any
 from datetime import datetime
 import dateutil.parser
 from bson import ObjectId, errors
@@ -297,13 +297,13 @@ class Utils:
         return True
 
     @staticmethod
-    def type_cast_conv(datatype: str) -> object | Callable:
+    def type_cast_conv(datatype: str) -> Any:
         """
         データタイプに合わせて型を選択する
 
         :param str datatype:
         :return:
-        :rtype: object or callable
+        :rtype: Any
         """
         type_table = {
             'bool': bool,
