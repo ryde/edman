@@ -24,6 +24,7 @@ jobs:
       - run:  source ./venv/bin/activate
       - run:  pip install -U pip setuptools
       - run:  pip install sphinx pytest mypy
+      - run:  pip install -r ./requirements.txt
       - run:  pip install .
       - run:  cp ./tests/ini/test_db.ini.sample ./tests/ini/test_db.ini
 
