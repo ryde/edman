@@ -32,7 +32,9 @@ version = "2023.5.22.2"
 
 [tool.setuptools.packages.find]
 exclude = ["tests"]
-include = ["edman*", "edman/py.typed"]
+
+[tool.setuptools.package-data]
+edman = ["py.typed"]
 
 #[tool.setuptools_scm]
 #write_to = "edman/_version.py"
