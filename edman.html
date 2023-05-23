@@ -367,7 +367,7 @@ admin権限のみ使える</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>emb_data</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>emb_data</strong> (<em>dict</em><em> or </em><em>list</em>) – </p></li>
 <li><p><strong>reference</strong> (<em>tuple</em>) – </p></li>
 </ul>
 </dd>
@@ -1486,7 +1486,7 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.utils.Utils.type_cast_conv">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type_cast_conv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datatype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">object</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.type_cast_conv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.type_cast_conv" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type_cast_conv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datatype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/edman/utils.html#Utils.type_cast_conv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.utils.Utils.type_cast_conv" title="Permalink to this definition">¶</a></dt>
 <dd><p>データタイプに合わせて型を選択する</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1496,7 +1496,7 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 <dd class="field-even"><p></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>object or callable</p>
+<dd class="field-odd"><p>Any</p>
 </dd>
 </dl>
 </dd></dl>
