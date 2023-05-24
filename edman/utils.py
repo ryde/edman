@@ -1,7 +1,8 @@
 import re
 from collections import defaultdict
-from typing import Callable, Generator,Any
 from datetime import datetime
+from typing import Any, Callable, Generator
+
 import dateutil.parser
 from bson import ObjectId, errors
 

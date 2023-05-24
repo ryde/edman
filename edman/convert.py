@@ -1,11 +1,13 @@
 import copy
 import datetime
-from typing import Union, Any
 from collections import defaultdict
-from bson import ObjectId, DBRef
-from edman.utils import Utils
-from edman.exceptions import (EdmanInternalError, EdmanFormatError)
+from typing import Any, Union
+
+from bson import DBRef, ObjectId
+
 from edman import Config
+from edman.exceptions import EdmanFormatError, EdmanInternalError
+from edman.utils import Utils
 
 
 class Convert:

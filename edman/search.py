@@ -1,9 +1,12 @@
 from datetime import datetime
+
+from bson import ObjectId
+from bson import errors as bson_errors
 from pymongo import errors
-from bson import errors as bson_errors, ObjectId
-from edman.utils import Utils
-from edman.exceptions import EdmanDbProcessError
+
 from edman import Config
+from edman.exceptions import EdmanDbProcessError
+from edman.utils import Utils
 
 
 class Search:

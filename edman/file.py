@@ -1,20 +1,22 @@
+import copy
+import datetime
+import json
 import os
 import shutil
-import copy
-import json
-from tempfile import TemporaryDirectory
-import datetime
 import zipfile
-from typing import Tuple, Iterator, List, Any, IO
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import IO, Any, Iterator, List, Tuple
+
 import gridfs
-from gridfs.errors import NoFile, GridFSError
 import jmespath
 from bson import ObjectId
-from edman.utils import Utils
-from edman.exceptions import (EdmanFormatError, EdmanDbProcessError,
-                              EdmanInternalError)
+from gridfs.errors import GridFSError, NoFile
+
 from edman import Config
+from edman.exceptions import (EdmanDbProcessError, EdmanFormatError,
+                              EdmanInternalError)
+from edman.utils import Utils
 
 
 class File:

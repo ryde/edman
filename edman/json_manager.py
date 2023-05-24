@@ -1,8 +1,10 @@
 import os
 from datetime import datetime
-from pathlib import Path
 from enum import Enum, auto
+from pathlib import Path
+
 from bson.json_util import dumps
+
 from edman.exceptions import EdmanFormatError
 
 
