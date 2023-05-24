@@ -145,7 +145,7 @@ class DB:
         except (errors.OperationFailure, errors.InvalidName):
             self.client[db_name].command('dropRole', role_name)
             raise EdmanDbProcessError('ユーザの作成処理でエラーが起きました')
-        except:
+        except Exception:
             raise
 
     def create_role_for_dbuser(self, db_name: str, role_name: str,
@@ -182,7 +182,7 @@ class DB:
             raise EdmanDbProcessError('接続処理されていません')
         except (errors.OperationFailure, errors.InvalidName):
             raise EdmanDbProcessError('ロール作成処理でエラーが起きました')
-        except:
+        except Exception:
             raise
 
     def create_role(self, db_name: str, role_name: str,
@@ -219,7 +219,7 @@ class DB:
             raise EdmanDbProcessError('接続処理されていません')
         except (errors.OperationFailure, errors.InvalidName):
             raise EdmanDbProcessError('ロール作成処理でエラーが起きました')
-        except:
+        except Exception:
             raise
 
     def delete_user_and_role(self, user_name: str, db_name: str,
@@ -244,7 +244,7 @@ class DB:
             raise EdmanDbProcessError('接続処理されていません')
         except (errors.OperationFailure, errors.InvalidName):
             raise EdmanDbProcessError('ユーザ及びロールの削除処理でエラーが起きました')
-        except:
+        except Exception:
             raise
 
     def delete_db(self, delete_db_name: str, admin_db='admin') -> None:
@@ -265,7 +265,7 @@ class DB:
             raise EdmanDbProcessError('接続処理されていません')
         except errors.OperationFailure:
             raise EdmanDbProcessError('DBの削除処理でエラーが起きました')
-        except:
+        except Exception:
             raise
 
     def delete_role(self, role_name: str, target_db: str) -> None:
@@ -286,7 +286,7 @@ class DB:
             raise EdmanDbProcessError('ロール名が不正です')
         except errors.OperationFailure:
             raise EdmanDbProcessError('ロール削除処理でエラーが起きました')
-        except:
+        except Exception:
             raise
 
     def insert(self, insert_data: list) -> list[dict[str, list[ObjectId]]]:
@@ -355,8 +355,10 @@ class DB:
             # embの場合は指定階層のドキュメントを引き抜く
             # refの場合はdocの結果をそのまま入れる
             try:
-                doc_result = self._get_emb_doc(dict(doc),
-                                               query) if query is not None else doc
+                if query is not None:
+                    doc_result = self._get_emb_doc(dict(doc), query)
+                else:
+                    doc_result = doc
             except EdmanInternalError:
                 raise
 

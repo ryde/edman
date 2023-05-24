@@ -14,7 +14,7 @@ class JsonManager:
     """
 
     @staticmethod
-    def save(report_data: dict, path: str| Path, name: str,
+    def save(report_data: dict, path: str | Path, name: str,
              date=False) -> None:
         """
         JSONファイルに書き出し

@@ -141,8 +141,8 @@ class Convert:
             key_list = [k for k, v in doc.items()
                         if self.parent != k and self.child != k and (
                                 isinstance(v, dict) or (
-                                isinstance(v, list) and (
-                            not Utils.item_literal_check(v))))]
+                                    isinstance(v, list) and (
+                                        not Utils.item_literal_check(v))))]
 
             # 該当データがtmpにあれば削除
             tmp = {k: v for k, v in tmp.items() if k not in key_list}
@@ -334,7 +334,7 @@ class Convert:
             if isinstance(value, dict):
                 if key in ex_keys:
                     continue
-                o:dict = {key: self.exclusion_key(value, ex_keys)}
+                o: dict = {key: self.exclusion_key(value, ex_keys)}
             elif isinstance(value, list) and Utils.item_literal_check(value):
                 o = {key: value}
             elif isinstance(value, list):
@@ -401,7 +401,7 @@ class Convert:
                 if not Utils.collection_name_check(key):
                     raise EdmanFormatError(f'この名前は使用できません {key}')
                 converted_value = self._convert_datetime(value)
-                o:dict = {key: self.emb(converted_value)}
+                o: dict = {key: self.emb(converted_value)}
 
             elif isinstance(value, list):
                 # 日付データが含まれていたらdatetimeオブジェクトに変換

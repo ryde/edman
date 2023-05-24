@@ -15,8 +15,8 @@ class Config:
     file = '_ed_file'  # Grid.fsのリファレンス情報
     date = '#date'  # 日付に変換する場合のタグ
 
-    fs_files = 'fs.files' # Grid.fsのファイルコレクション名
-    fs_chunks = 'fs.chunks' # Grid.fsのファイルチャンクコレクション名
+    fs_files = 'fs.files'  # Grid.fsのファイルコレクション名
+    fs_chunks = 'fs.chunks'  # Grid.fsのファイルチャンクコレクション名
 
     file_attachment = '_ed_attachment'  # 添付ファイルのキー
 

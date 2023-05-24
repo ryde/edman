@@ -234,7 +234,7 @@ class Utils:
         | MongoDBの命名規則チェック(フィールド名)
         | void, None(Null), 文字列先頭に($ .)は使用不可
         |
-        | https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names
+        | https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names  # noqa
 
         :param str field_name:
         :return:
@@ -268,7 +268,7 @@ class Utils:
         | ただし、子のメソッド利用時はDB名を取得するタイミングではないため、
         | 文字数のチェックは行えないことを留意すること
         |
-        | https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names
+        | https://docs.mongodb.com/manual/reference/limits/#Restriction-on-Collection-Names  # noqa
 
         :param str collection_name:
         :return:
