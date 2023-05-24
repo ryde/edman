@@ -31,15 +31,18 @@
   <h1>Source code for edman.db</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">urllib.parse</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Any</span>
-<span class="kn">from</span> <span class="nn">jmespath</span> <span class="kn">import</span> <span class="n">exceptions</span> <span class="k">as</span> <span class="n">jms_exceptions</span><span class="p">,</span> <span class="n">search</span> <span class="k">as</span> <span class="n">jms_search</span>
-<span class="kn">from</span> <span class="nn">pymongo</span> <span class="kn">import</span> <span class="n">MongoClient</span><span class="p">,</span> <span class="n">errors</span>
-<span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">ObjectId</span><span class="p">,</span> <span class="n">DBRef</span>
-<span class="kn">from</span> <span class="nn">edman.utils</span> <span class="kn">import</span> <span class="n">Utils</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">edman.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">EdmanDbConnectError</span><span class="p">,</span> <span class="n">EdmanInternalError</span><span class="p">,</span>
-                              <span class="n">EdmanDbProcessError</span><span class="p">,</span> <span class="n">EdmanFormatError</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generator</span>
+
+<span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">DBRef</span><span class="p">,</span> <span class="n">ObjectId</span>
+<span class="kn">from</span> <span class="nn">jmespath</span> <span class="kn">import</span> <span class="n">exceptions</span> <span class="k">as</span> <span class="n">jms_exceptions</span>
+<span class="kn">from</span> <span class="nn">jmespath</span> <span class="kn">import</span> <span class="n">search</span> <span class="k">as</span> <span class="n">jms_search</span>
+<span class="kn">from</span> <span class="nn">pymongo</span> <span class="kn">import</span> <span class="n">MongoClient</span><span class="p">,</span> <span class="n">errors</span>
+
 <span class="kn">from</span> <span class="nn">edman</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Convert</span><span class="p">,</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">edman.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">EdmanDbConnectError</span><span class="p">,</span> <span class="n">EdmanDbProcessError</span><span class="p">,</span>
+                              <span class="n">EdmanFormatError</span><span class="p">,</span> <span class="n">EdmanInternalError</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">edman.utils</span> <span class="kn">import</span> <span class="n">Utils</span>
 
 
 <div class="viewcode-block" id="DB"><a class="viewcode-back" href="../../edman.html#edman.db.DB">[docs]</a><span class="k">class</span> <span class="nc">DB</span><span class="p">:</span>
@@ -173,7 +176,7 @@
         <span class="k">except</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">OperationFailure</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">InvalidName</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">[</span><span class="n">db_name</span><span class="p">]</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s1">&#39;dropRole&#39;</span><span class="p">,</span> <span class="n">role_name</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;ユーザの作成処理でエラーが起きました&#39;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span></div>
 
 <div class="viewcode-block" id="DB.create_role_for_dbuser"><a class="viewcode-back" href="../../edman.html#edman.db.DB.create_role_for_dbuser">[docs]</a>    <span class="k">def</span> <span class="nf">create_role_for_dbuser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -210,7 +213,7 @@
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;接続処理されていません&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">OperationFailure</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">InvalidName</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;ロール作成処理でエラーが起きました&#39;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span></div>
 
 <div class="viewcode-block" id="DB.create_role"><a class="viewcode-back" href="../../edman.html#edman.db.DB.create_role">[docs]</a>    <span class="k">def</span> <span class="nf">create_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -247,7 +250,7 @@
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;接続処理されていません&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">OperationFailure</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">InvalidName</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;ロール作成処理でエラーが起きました&#39;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span></div>
 
 <div class="viewcode-block" id="DB.delete_user_and_role"><a class="viewcode-back" href="../../edman.html#edman.db.DB.delete_user_and_role">[docs]</a>    <span class="k">def</span> <span class="nf">delete_user_and_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -272,7 +275,7 @@
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;接続処理されていません&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">OperationFailure</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">InvalidName</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;ユーザ及びロールの削除処理でエラーが起きました&#39;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span></div>
 
 <div class="viewcode-block" id="DB.delete_db"><a class="viewcode-back" href="../../edman.html#edman.db.DB.delete_db">[docs]</a>    <span class="k">def</span> <span class="nf">delete_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delete_db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">admin_db</span><span class="o">=</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -293,7 +296,7 @@
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;接続処理されていません&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">OperationFailure</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;DBの削除処理でエラーが起きました&#39;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span></div>
 
 <div class="viewcode-block" id="DB.delete_role"><a class="viewcode-back" href="../../edman.html#edman.db.DB.delete_role">[docs]</a>    <span class="k">def</span> <span class="nf">delete_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_db</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -314,7 +317,7 @@
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;ロール名が不正です&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">OperationFailure</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;ロール削除処理でエラーが起きました&#39;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span></div>
 
 <div class="viewcode-block" id="DB.insert"><a class="viewcode-back" href="../../edman.html#edman.db.DB.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">insert_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">]]]:</span>
@@ -383,8 +386,10 @@
             <span class="c1"># embの場合は指定階層のドキュメントを引き抜く</span>
             <span class="c1"># refの場合はdocの結果をそのまま入れる</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">doc_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_emb_doc</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">doc</span><span class="p">),</span>
-                                               <span class="n">query</span><span class="p">)</span> <span class="k">if</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">doc</span>
+                <span class="k">if</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">doc_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_emb_doc</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">doc</span><span class="p">),</span> <span class="n">query</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">doc_result</span> <span class="o">=</span> <span class="n">doc</span>
             <span class="k">except</span> <span class="n">EdmanInternalError</span><span class="p">:</span>
                 <span class="k">raise</span>
 
