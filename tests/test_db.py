@@ -158,18 +158,18 @@ class TestDB(TestCase):
             with self.subTest(i=i, idx=idx):
                 self.assertDictEqual(i, actual[idx])
 
-        data2 = [
-            {'collection1': [
-                {'name': 'IBM 5100', 'value': 100},
-                {'name': 'Apple II', 'value': 200}
-            ]
-            },
-            {'collection2': [
-                {'maker': 'HONDA', 'car': 'S600'},
-                {'maker': 'SUZUKI', 'car': 'Cappuccino'},
-            ]
-            }
-        ]
+        # data2 = [
+        #     {'collection1': [
+        #         {'name': 'IBM 5100', 'value': 100},
+        #         {'name': 'Apple II', 'value': 200}
+        #     ]
+        #     },
+        #     {'collection2': [
+        #         {'maker': 'HONDA', 'car': 'S600'},
+        #         {'maker': 'SUZUKI', 'car': 'Cappuccino'},
+        #     ]
+        #     }
+        # ]
 
     def test_doc(self):
         if not self.db_server_connect:
@@ -1257,9 +1257,11 @@ class TestDB(TestCase):
         attached_file_oid = inserted_report[0]['engine'][0]
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            p_files = self.make_txt_files(tmp_dir, name='file_ref',text='test ref')
+            p_files = self.make_txt_files(tmp_dir, name='file_ref',
+                                          text='test ref')
             for p_file in p_files:
-                file.upload('engine', attached_file_oid,((p_file,False),),'ref')
+                file.upload('engine', attached_file_oid, ((p_file, False),),
+                            'ref')
 
         oid = inserted_report[1][target_collection][1]
         new_collection = 'new_collection'
@@ -1592,7 +1594,7 @@ class TestDB(TestCase):
                 },
             ]
         }
-        with self.assertRaises(ValueError) as e:
+        with self.assertRaises(ValueError):
             _ = self.db._get_uni_parent(data)
 
     def test_delete_reference(self):
@@ -1735,7 +1737,7 @@ class TestDB(TestCase):
         }
         expected = []
         for collection, doc in test_data.items():
-            insert_result = self.testdb[collection].insert_one(doc)
+            _ = self.testdb[collection].insert_one(doc)
             expected.append(collection)
             # print(self.testdb[collection].find_one(
             #     {'_id': insert_result.inserted_id}))
