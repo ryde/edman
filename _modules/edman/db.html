@@ -1277,7 +1277,24 @@
             <span class="k">if</span> <span class="p">(</span><span class="n">over_first_degree_ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_root_dbref</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">Config</span><span class="o">.</span><span class="n">parent</span><span class="p">])))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">parent_ref</span> <span class="o">=</span> <span class="n">over_first_degree_ref</span>
-        <span class="k">return</span> <span class="n">parent_ref</span></div></div>
+        <span class="k">return</span> <span class="n">parent_ref</span></div>
+
+<div class="viewcode-block" id="DB.delete_collections"><a class="viewcode-back" href="../../edman.html#edman.db.DB.delete_collections">[docs]</a>    <span class="k">def</span> <span class="nf">delete_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DB内のコレクション及びドキュメントを全て削除する</span>
+<span class="sd">        grid.fsのコレクションも含む</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">collection</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_collections</span><span class="p">(</span><span class="n">gf_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">OperationFailure</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;コレクションの削除に失敗しました&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">after_collections</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_collections</span><span class="p">(</span><span class="n">gf_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;削除できないコレクションがあります </span><span class="si">{</span><span class="n">after_collections</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
