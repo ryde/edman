@@ -2327,3 +2327,49 @@ class TestDB(TestCase):
         actual = self.db.get_root_dbref(docs)
         expected = None
         self.assertEqual(expected, actual)
+
+    def test__delete_collections(self):
+        if not self.db_server_connect:
+            return
+
+        # docをDBに入れる
+        parent_id = ObjectId()
+        doc_id = ObjectId()
+        child_id = ObjectId()
+        parent_col = 'parent_col'
+        doc_col = 'doc_col'
+        child_col = 'child_col'
+        insert_docs = [
+            {
+                'col': parent_col,
+                'doc': {
+                    '_id': parent_id,
+                    'name': 'parent',
+                    Config.child: [DBRef(doc_col, doc_id)]
+                },
+            },
+            {
+                'col': doc_col,
+                'doc': {
+                    '_id': doc_id,
+                    'name': 'doc',
+                    Config.parent: DBRef(parent_col, parent_id),
+                    Config.child: [DBRef(child_col, child_id)]
+                }
+            },
+            {
+                'col': child_col,
+                'doc': {
+                    '_id': child_id,
+                    'name': 'child',
+                    Config.parent: DBRef(doc_col, doc_id),
+                }
+            }]
+
+        for i in insert_docs:
+            _ = self.testdb[i['col']].insert_one(i['doc'])
+
+        # 正常系
+        self.db.delete_collections()
+        actual = self.db.get_collections(gf_filter=False)
+        self.assertListEqual([], actual)

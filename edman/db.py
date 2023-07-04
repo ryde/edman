@@ -1247,3 +1247,20 @@ class DB:
                     self.db.dereference(doc[Config.parent]))) is not None:
                 parent_ref = over_first_degree_ref
         return parent_ref
+
+    def delete_collections(self):
+        """
+        DB内のコレクション及びドキュメントを全て削除する
+        grid.fsのコレクションも含む
+
+        :return:
+        """
+        try:
+            for collection in self.get_collections(gf_filter=False):
+                self.get_db[collection].drop()
+        except errors.OperationFailure:
+            raise EdmanDbProcessError('コレクションの削除に失敗しました')
+        else:
+            if after_collections := self.get_collections(gf_filter=False):
+                raise EdmanDbProcessError(
+                    f'削除できないコレクションがあります {after_collections}')
