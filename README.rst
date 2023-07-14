@@ -171,6 +171,10 @@ API Document
 ------------
 https://ryde.github.io/edman/
 
+PyPI Project
+------------
+https://pypi.org/project/edman/
+
 Author
 ------
 
