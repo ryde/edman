@@ -526,10 +526,12 @@ class TestFile(TestCase):
             # # ドキュメントを取得する
             search = Search(self.db)
             exclusion = ['_id', Config.file]
-            docs = search.find(doc_col, {'_id': result[doc_col]}, 1, 1,
-                               exclusion)
-            result_with_filepath, downloads = self.file.get_fileref_and_generate_dl_list(
-                docs, "_ed_attachment")
+            docs = search.find(
+                doc_col, {'_id': result[doc_col]},
+                1, 1, exclusion)
+            result_with_filepath, downloads = (
+                self.file.get_fileref_and_generate_dl_list(
+                    docs, "_ed_attachment"))
             res = search.process_data_derived_from_mongodb(
                 result_with_filepath)
 
@@ -590,8 +592,8 @@ class TestFile(TestCase):
                 'test__get_fileref_and_generate_dl_list'].find_one(
                 {'_id': insert_result.inserted_id})
             # 実行
-            new_docs, dl_list = self.file.get_fileref_and_generate_dl_list(res,
-                                                                           '_ed_attachment')
+            new_docs, dl_list = self.file.get_fileref_and_generate_dl_list(
+                res, '_ed_attachment')
             # 正常系 docsを比較
             expected = {'_id': insert_result.inserted_id, 'name': 'test1',
                         '_ed_attachment': [
@@ -921,9 +923,10 @@ class TestFile(TestCase):
             tmp_p = Path(tmp)
             p = tmp_p / 'sub'
             p.mkdir()
-            sample_files = self.make_txt_files(p,
-                                               name='generate_file_path_dict_test',
-                                               qty=2)
+            sample_files = self.make_txt_files(
+                p,
+                name='generate_file_path_dict_test',
+                qty=2)
             file_list = list(map(str, sample_files))
             expected = {k: v for k, v in zip(file_list, sample_files)}
             actual = self.file.generate_file_path_dict(file_list, p)
@@ -959,7 +962,13 @@ class TestFile(TestCase):
                 "structure_4": {
                     "data1": 45,
                     "_ed_attachment": ['ccc/01.jpg']}
+            },
+            "structure_5": {
+                "structure_6": {
+                    "data1": ["123", "456"]
+                },
             }
+
         }
         expected = ['aaa/01.jpg', 'bbb/01.jpg', 'bbb/02.jpg', 'ccc/01.jpg']
         actual = self.file.generate_upload_list(json_dict)
@@ -982,6 +991,7 @@ class TestFile(TestCase):
                 {
                     "maker": "Ferrari",
                     "carname": "458 Italia",
+                    "list_test": ["123", "456"],
                     "_ed_attachment": ['bbb/01.jpg', 'bbb/02.jpg'],
 
                 }],
@@ -1011,6 +1021,7 @@ class TestFile(TestCase):
                 {
                     "maker": "Ferrari",
                     "carname": "458 Italia",
+                    "list_test": ["123", "456"],
                     "_ed_file": [b01_file, b02_file]
                 }],
             "structure_3": {

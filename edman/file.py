@@ -70,7 +70,8 @@ class File:
 
         # ドキュメント存在確認&コレクション存在確認&対象ドキュメント取得
         if (doc := self.db[collection].find_one({'_id': oid})) is None:
-            raise EdmanInternalError('対象のコレクション、またはドキュメントが存在しません')
+            raise EdmanInternalError(
+                '対象のコレクション、またはドキュメントが存在しません')
 
         # ファイルリスト取得
         files_list = self.get_file_ref(doc, structure, query)
@@ -130,7 +131,8 @@ class File:
             files_list = doc.get(self.file_ref, [])
         else:
             if not Utils.query_check(query, doc):
-                EdmanFormatError('対象のドキュメントに対してクエリーが一致しません.')
+                EdmanFormatError(
+                    '対象のドキュメントに対してクエリーが一致しません.')
             # docから対象クエリを利用してファイルのリストを取得
             # deepcopyを使用しないとなぜか子のスコープのqueryがクリヤーされる
             query_c = copy.deepcopy(query)
@@ -253,7 +255,8 @@ class File:
         if structure == 'emb':
             # クエリーがドキュメントのキーとして存在するかチェック
             if not Utils.query_check(query, doc):
-                raise EdmanFormatError('対象のドキュメントに対してクエリーが一致しません.')
+                raise EdmanFormatError(
+                    '対象のドキュメントに対してクエリーが一致しません.')
 
         # ファイルのインサート
         inserted_file_oids = self.grid_in(file_path)
@@ -337,7 +340,8 @@ class File:
             else:
                 del doc[self.file_ref]
         else:
-            raise ValueError(f'{self.file_ref}がないか削除された可能性があります')
+            raise ValueError(
+                f'{self.file_ref}がないか削除された可能性があります')
         return doc
 
     def _get_emb_files_list(self, doc: dict, query: list) -> list:
@@ -396,7 +400,8 @@ class File:
                 try:
                     content = self.fs.get(file_ref)
                 except NoFile:
-                    raise EdmanDbProcessError('指定の関連ファイルが存在しません')
+                    raise EdmanDbProcessError(
+                        '指定の関連ファイルが存在しません')
                 except GridFSError:
                     raise
 
@@ -406,7 +411,8 @@ class File:
                     with open(filepath, 'wb') as f:
                         f.write(content.read())
                 except (FileNotFoundError, IOError):
-                    EdmanInternalError('ファイルを保存することが出来ませんでした')
+                    EdmanInternalError(
+                        'ファイルを保存することが出来ませんでした')
 
             # jsonファイルを保存
             json_file = json_tree_file_name + '.json'
@@ -489,7 +495,8 @@ class File:
                         try:
                             file_out = [self.fs.get(i) for i in value]
                         except NoFile:
-                            raise EdmanDbProcessError('指定の関連ファイルが存在しません')
+                            raise EdmanDbProcessError(
+                                '指定の関連ファイルが存在しません')
                         except GridFSError:
                             raise
                         # ファイルパス生成
@@ -532,7 +539,8 @@ class File:
             if not json_list:
                 raise EdmanInternalError('jsonファイルが存在しません')
             if len(json_list) > 1:
-                raise EdmanInternalError('jsonファイルは一つだけしか含めることはできません')
+                raise EdmanInternalError(
+                    'jsonファイルは一つだけしか含めることはできません')
             target_json = json_list[0]
             # jsonデータ取り出し
             with target_json.open() as f:
@@ -569,6 +577,10 @@ class File:
         for key, value in data.items():
             if isinstance(value, dict):
                 result.extend(self.generate_upload_list(value))
+            elif isinstance(value, list) and Utils.item_literal_check(
+                    value) and (key != self.file_attachment):
+                # 配列の中身が連続データなら処理しないでスキップ
+                continue
             elif isinstance(value, list):
                 # ファイル添付のキーをフック
                 if key == self.file_attachment:
@@ -594,6 +606,10 @@ class File:
             if isinstance(value, dict):
                 result.update(
                     {key: self.json_rewrite(value, files_dict)})
+            elif isinstance(value, list) and Utils.item_literal_check(
+                    value) and (key != self.file_attachment):
+                # キー名が添付ファイルを示すキーではなく、配列の中身がリテラルなら処理しないで書き換え
+                result.update({key: value})
             elif isinstance(value, list):
                 if key == self.file_attachment:
                     buff = []
