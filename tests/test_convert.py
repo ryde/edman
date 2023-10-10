@@ -316,7 +316,6 @@ class TestConvert(TestCase):
         #
         # with open('./test_json_files/ref_test_premo_result.json', 'w') as f:
         #     f.write(dumps(actual, ensure_ascii=False, indent=4))
-        # TODO あとでテストデータを追加し、assertできるようにする
 
     def test__emb(self):
         pass
@@ -326,7 +325,6 @@ class TestConvert(TestCase):
         # actual = self.convert._emb(jsondict)
         # with open('./test_json_files/emb_test_premo_result.json', 'w') as f:
         #     f.write(dumps(actual, ensure_ascii=False, indent=4))
-        # TODO あとでテストデータを追加し、assertできるようにする
 
     #
     # def test_dict_to_edman(self):

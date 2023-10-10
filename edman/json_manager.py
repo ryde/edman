@@ -36,7 +36,6 @@ class JsonManager:
         savepath = p / filename
 
         with savepath.open("w", encoding='utf8') as file:
-            # TODO try except
             file.write(dumps(report_data, ensure_ascii=False, indent=4))
             file.flush()
             os.fsync(file.fileno())

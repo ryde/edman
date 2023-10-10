@@ -21,7 +21,8 @@ class TestMultiUser(TestCase):
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
         cls.test_ini = dict(settings.items('DB'))
-        cls.test_ini['port'] = int(cls.test_ini['port'])
+        port: int  = int(cls.test_ini['port'])
+        cls.test_ini['port'] = port
 
         # DB作成のため、pymongoから接続
         cls.client = MongoClient(cls.test_ini['host'], cls.test_ini['port'])
@@ -41,8 +42,8 @@ class TestMultiUser(TestCase):
         # 人数分のユーザ名とパスワードをランダムで作成
         for i in range(users_count):
             tmp = string.digits + string.ascii_lowercase + string.ascii_uppercase
-            tmp_name = ''.join([random.choice(tmp) for i in range(8)])
-            tmp_pass = ''.join([random.choice(tmp) for i in range(8)])
+            tmp_name = ''.join([random.choice(tmp) for _ in range(8)])
+            tmp_pass = ''.join([random.choice(tmp) for _ in range(8)])
             test_account.append(
                 {
                     'username': tmp_name,

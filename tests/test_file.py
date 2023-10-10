@@ -29,7 +29,8 @@ class TestFile(TestCase):
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
         cls.test_ini = dict(settings.items('DB'))
-        cls.test_ini['port'] = int(cls.test_ini['port'])
+        port: int  = int(cls.test_ini['port'])
+        cls.test_ini['port'] = port
 
         # DB作成のため、pymongoから接続
         cls.client = MongoClient(cls.test_ini['host'], cls.test_ini['port'])

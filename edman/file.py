@@ -229,7 +229,7 @@ class File:
         return all(results)
 
     def upload(self, collection: str, oid: ObjectId | str,
-               file_path: Tuple[Tuple[Any, bool]], structure: str,
+               file_path: Tuple[Tuple[Path, bool]], structure: str,
                query=None) -> bool:
         """
         ドキュメントにファイルリファレンスを追加する
