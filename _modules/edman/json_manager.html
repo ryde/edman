@@ -71,7 +71,6 @@
         <span class="n">savepath</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">filename</span>
 
         <span class="k">with</span> <span class="n">savepath</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-            <span class="c1"># TODO try except</span>
             <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dumps</span><span class="p">(</span><span class="n">report_data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
             <span class="n">file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span></div>
