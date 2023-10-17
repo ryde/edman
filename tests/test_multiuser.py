@@ -41,7 +41,8 @@ class TestMultiUser(TestCase):
 
         # 人数分のユーザ名とパスワードをランダムで作成
         for i in range(users_count):
-            tmp = string.digits + string.ascii_lowercase + string.ascii_uppercase
+            tmp = (string.digits + string.ascii_lowercase
+                   + string.ascii_uppercase)
             tmp_name = ''.join([random.choice(tmp) for _ in range(8)])
             tmp_pass = ''.join([random.choice(tmp) for _ in range(8)])
             test_account.append(
