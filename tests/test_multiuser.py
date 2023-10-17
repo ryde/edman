@@ -11,9 +11,9 @@ from edman.exceptions import EdmanDbConnectError
 
 class TestMultiUser(TestCase):
     db_server_connect = False
-    test_ini = []
+    test_ini: dict = {}
     client = None
-    connections = []
+    connections: list = []
 
     @classmethod
     def setUpClass(cls):
@@ -21,7 +21,7 @@ class TestMultiUser(TestCase):
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
         cls.test_ini = dict(settings.items('DB'))
-        port: int  = int(cls.test_ini['port'])
+        port = int(cls.test_ini['port'])
         cls.test_ini['port'] = port
 
         # DB作成のため、pymongoから接続

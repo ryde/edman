@@ -19,7 +19,7 @@ from edman.exceptions import EdmanDbProcessError
 class TestFile(TestCase):
     db = None
     db_server_connect = False
-    test_ini = []
+    test_ini: dict = {}
     client = None
 
     @classmethod
@@ -29,7 +29,7 @@ class TestFile(TestCase):
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
         cls.test_ini = dict(settings.items('DB'))
-        port: int  = int(cls.test_ini['port'])
+        port = int(cls.test_ini['port'])
         cls.test_ini['port'] = port
 
         # DB作成のため、pymongoから接続

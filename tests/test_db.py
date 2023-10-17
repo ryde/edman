@@ -16,7 +16,7 @@ class TestDB(TestCase):
     db = None
     testdb = None
     db_server_connect = False
-    test_ini = []
+    test_ini: dict = {}
     client = None
 
     @classmethod
@@ -26,7 +26,7 @@ class TestDB(TestCase):
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
         cls.test_ini = dict(settings.items('DB'))
-        port: int  = int(cls.test_ini['port'])
+        port = int(cls.test_ini['port'])
         cls.test_ini['port'] = port
 
         # DB作成のため、pymongoから接続
@@ -91,7 +91,7 @@ class TestDB(TestCase):
             cls.testdb.command("dropUser", cls.test_ini['user'])
 
     def tearDown(self) -> None:
-        if self.db_server_connect:
+        if self.db_server_connect and self.testdb is not None:
             # システムログ以外のコレクションを削除
             collections_all = self.testdb.list_collection_names()
             log_coll = 'system.profile'

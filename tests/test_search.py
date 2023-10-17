@@ -11,7 +11,7 @@ from edman import Config, DB, Search
 
 class TestSearch(TestCase):
     db_server_connect = False
-    test_ini = []
+    test_ini: dict = {}
     client = None
     testdb = None
 
@@ -21,7 +21,7 @@ class TestSearch(TestCase):
         settings = configparser.ConfigParser()
         settings.read(Path.cwd() / 'ini' / 'test_db.ini')
         cls.test_ini = dict(settings.items('DB'))
-        port: int  = int(cls.test_ini['port'])
+        port = int(cls.test_ini['port'])
         cls.test_ini['port'] = port
 
         # DB作成のため、pymongoから接続
@@ -477,7 +477,6 @@ class TestSearch(TestCase):
             self.assertIsInstance(actual, dict)
             self.assertIsInstance(actual[self.date], str)
             self.assertEqual(self.date, list(actual.keys())[0])
-
 
         # 正常系 階層指定 中身がdb.find()なので割愛
         # all_docs = self.search.get_documents(1, doc_col, doc_id,
