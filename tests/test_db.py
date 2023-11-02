@@ -1980,7 +1980,6 @@ class TestDB(TestCase):
         actual = self.testdb[collection].find_one(
             {'_id': insert_result.inserted_id},
             projection={'_id': 0, '_ed_child': 0})
-        # print('actual', actual)
 
         # expected作成
         # データ作成が複雑になるのでホワイトテストであることを利用し、ベタに
@@ -1989,6 +1988,98 @@ class TestDB(TestCase):
                     'list_data3': ['1', 2, '3', 4, 5, 6],
                     'list_data4': [1, 2, 3, 4, 5, 6]}
         self.assertDictEqual(actual, expected)
+
+        # 対象の値がNone(null)だった場合
+        collection = 'test_get_bson_type6'
+        test_data6 = {
+            collection: {
+                'str_data': None,
+                'list_data1': ['125', 'UK', None],
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items = list(test_data6.values())[0]
+        insert_result = self.testdb[list(test_data6.keys())[0]].insert_one(
+            input_items)
+        _ = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        input_json = {
+            collection: {
+                'str_data': 'str',
+                'list_data1': ['int', 'str', 'bool'],
+            }
+        }
+        _ = self.db.bson_type(input_json)
+        actual = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        # expected作成
+        expected = {'str_data': None, 'list_data1': [125, 'UK', None]}
+        self.assertDictEqual(actual, expected)
+
+        # TODO 複数回実行した場合
+        collection = 'test_get_bson_type7'
+        test_data7 = {
+            collection: {
+                'str_data': 'str_value',
+                'date': '2018-03-20 02:56:59',
+                'list_data1': ['125', None, '2018-03-20 02:56:59'],
+                'null_data': None,
+                'float_data': '345.789',
+                'bool_data': 'true',
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items = list(test_data7.values())[0]
+        insert_result = self.testdb[list(test_data7.keys())[0]].insert_one(
+            input_items)
+        _ = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        input_json = {
+            collection: {
+                'str_data': 'str',
+                'date': 'datetime',
+                'list_data1': ['int', 'str', 'datetime'],
+                'float_data': 'float',
+                'bool_data': 'bool',
+            }
+        }
+        _ = self.db.bson_type(input_json)
+        actual1 = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        input_json2 = {
+            collection: {
+                'str_data': 'str',
+                'date': 'datetime',
+                'list_data1': ['int', 'str', 'datetime'],
+                'float_data': 'float',
+                'bool_data': 'bool',
+            }
+        }
+        _ = self.db.bson_type(input_json2)
+        actual2 = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        # expected作成
+        f = type_table.get('datetime')
+        expected = {'str_data': 'str_value',
+                'date': f('2018-03-20 02:56:59'),
+                'list_data1': [125, None, f('2018-03-20 02:56:59')],
+                'null_data': None,
+                'float_data': 345.789,
+                'bool_data': True,
+                }
+        self.assertDictEqual(actual1, actual2)
+        self.assertDictEqual(actual1, expected)
+        self.assertDictEqual(actual2, expected)
 
     def test_create_user_and_role(self):
         if not self.db_server_connect:

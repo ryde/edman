@@ -1166,7 +1166,17 @@ class DB:
                                 list_buff = []
                                 for idx, list_value in enumerate(db_value):
                                     f = Utils.type_cast_conv(j[idx])
-                                    list_buff.append(f(list_value))
+
+                                    # datetimeからdatetimeには変換できない.
+                                    # その他もデータも念のために一度strに変換してからfに渡す
+                                    # Noneは変換しない
+                                    if list_value is not None:
+                                        if not isinstance(list_value, str):
+                                            list_value = str(list_value)
+                                        u_param = f(list_value)
+                                    else:
+                                        u_param = None
+                                    list_buff.append(u_param)
                                 param = {item_key: list_buff}
                             else:
                                 # DB側がリストじゃない時は無視
@@ -1178,7 +1188,16 @@ class DB:
                             else:
                                 # DBもJSONも単一の型の時
                                 f = Utils.type_cast_conv(json_value)
-                                param = {item_key: f(db_value)}
+
+                                # datetimeからdatetimeには変換できない.
+                                # その他もデータも念のために一度strに変換してからfに渡す
+                                # Noneは変換しない
+                                if db_value is not None:
+                                    if not isinstance(db_value, str):
+                                        db_value = str(db_value)
+                                    param = {item_key: f(db_value)}
+                                else:
+                                    param = {}
 
                         if param:
                             update_params.update(param)
