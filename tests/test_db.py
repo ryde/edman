@@ -2020,7 +2020,7 @@ class TestDB(TestCase):
         expected = {'str_data': None, 'list_data1': [125, 'UK', None]}
         self.assertDictEqual(actual, expected)
 
-        # TODO 複数回実行した場合
+        # 複数回実行した場合
         collection = 'test_get_bson_type7'
         test_data7 = {
             collection: {
