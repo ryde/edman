@@ -1,9 +1,9 @@
+import binascii
 import copy
 import datetime
+import gzip
 import json
 import os
-import binascii
-import gzip
 import shutil
 import zipfile
 from pathlib import Path
