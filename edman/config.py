@@ -20,5 +20,9 @@ class Config:
     fs_chunks = 'fs.chunks'  # ファイルチャンクコレクション名
 
     # ユーザがJSON内で使用するキー
-    date = '#date'  # 日付に変換する場合のキー 例: "startDate": {"#date": "2020-07-01 00:00:00"}
-    file_attachment = '_ed_attachment'  # JSON内で使用する添付ファイルディレクトリ用のキー 例: "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
+    # 日付に変換する場合
+    # 例: "startDate": {"#date": "2020-07-01 00:00:00"}
+    date = '#date'
+    # JSON内で使用する添付ファイルディレクトリ用
+    # 例: "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
+    file_attachment = '_ed_attachment'
