@@ -2,6 +2,8 @@ import copy
 import datetime
 import json
 import os
+import binascii
+import gzip
 import shutil
 import zipfile
 from pathlib import Path
@@ -30,7 +32,7 @@ class File:
             self.db = db
             self.fs = gridfs.GridFS(self.db)
         self.file_ref = Config.file
-        self.comp_level = Config.gzip_compress_level
+        # self.comp_level = Config.gzip_compress_level
         self.file_attachment = Config.file_attachment
 
     @staticmethod
@@ -407,12 +409,20 @@ class File:
 
                 # 添付ファイルを保存
                 filepath = dir_path / content.name
+
+                content_data = content.read()
+                try:
+                    # gzip圧縮されている場合は解凍する
+                    if binascii.hexlify(content_data[:2]) == b'1f8b':
+                        content_data = gzip.decompress(content_data)
+                except binascii.Error:
+                    EdmanInternalError('gzipファイルの解凍に失敗しました: ' + content.name)
                 try:
                     with open(filepath, 'wb') as f:
-                        f.write(content.read())
+                        f.write(content_data)
                 except (FileNotFoundError, IOError):
                     EdmanInternalError(
-                        'ファイルを保存することが出来ませんでした')
+                        'ファイルを保存することが出来ませんでした: ' + content.name)
 
             # jsonファイルを保存
             json_file = json_tree_file_name + '.json'
@@ -421,7 +431,7 @@ class File:
                 with json_path.open('wb') as f:
                     f.write(encoded_json)
             except (FileNotFoundError, IOError):
-                EdmanInternalError('ファイルを保存することが出来ませんでした')
+                EdmanInternalError('JSONファイルを保存することが出来ませんでした')
 
         # 最終的にDLするzipファイルを作成
         base = work / 'dl'
