@@ -136,6 +136,8 @@ Json Format
 | 予約フィールド名
 |   ・日付表現の変換に使用(#date) ※システム構築時にのみ変更可
 |   ・ObjectIdと同じフィールド名(_id)
+|
+|  :ref:`設定変更についてはConfiguration Detailsへ <configuration-details>`
 | その他MongoDBで禁止されているフィールド名は使用不可
 |      https://docs.mongodb.com/manual/reference/limits/#naming-restrictions
 |
@@ -149,8 +151,12 @@ Json Format
 |  refはjsonの親子構造を解析し、オブジェクト単位をコレクションとし、親子それぞれをドキュメントとして保存します。
 |   ・親子関係はリファレンスによって繋がっているので指定のツリーを呼び出すことができます。
 
-|  ◯型変換について
-|   ・DB.bson_type()にて値の型変換を行うことができます
+
+Type Conversion
+---------------
+
+|  ◯型変換について(refのみ)
+|   ・edman.DB.bson_type()にて値の型変換をコレクション別に一度に行うことができます
 |   ・DB内のすべてのコレクションが変換されます
 |   ・DBにあってJSONファイルにないキーは無視されます
 |   ・型一覧にない型を指定した時はstrに変換します
@@ -183,6 +189,97 @@ Json Format
               "キー": ["変更する型","変更する型"],
           }
       }
+
+Attached FIle Management
+------------------------
+
+|  ◯ドキュメントへのファイル添付について
+|   ・DB内のすべてのドキュメントは関連ファイルを添付することができます
+|   ・ドキュメント内でのGrid.fsへのリファレンスのデフォルトのキーは「_ed_file」です(JSONファイルには記述されません)
+|   ・zipで圧縮してjsonファイルと添付ファイルを一緒に投入することができます
+|   ・拡張子は「.zip」のみ。パスワードは利用不可
+|   ・jsonファイルの「_ed_attachment」キーにディレクトリ及びファイル名のパスを設定
+|   ・ディレクトリはJSONファイルからの相対パスで記述
+
+
+::
+
+
+    zip_dir
+    ├─dir1
+    │ ├─sample_photo.jpg
+    │ └─experiment.cbf
+    ├─dir2
+    │ └─sample_photo2.jpg
+    ├─dir3
+    │ ├─sample_photo3.jpg
+    │ └─memo.txt
+    └─tree.json
+
+
+|  ・上記構造の場合のtree.jsonの内容例
+
+
+::
+
+    {
+    "beamtime":
+        {
+            "date": {"#date": "2023-11-01 16:00:00"},
+            "beamline": "AR-NE3A",
+            ""float_data: 234.56,
+            "expInfo": {
+                "userid": "user1"
+                "bool_flg": true,
+            },
+            "file":[
+                    {
+                        "int_data": 1234,
+                        "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
+                    },
+                    {
+                        "list_data": ["A","B"],
+                        "_ed_attachment":["dir2/sample_photo2.jpg"]
+                    }
+                ],
+            "sample": {
+                    "date": {"#date": "2023-11-01 16:00:00"},
+                    "sampleid": "sample1",
+                    "_ed_attachment":["dir3/sample_photo3.jpg", "dir3/memo.txt"]
+            }
+        }
+    }
+
+
+.. _configuration-details:
+
+Configuration Details
+---------------------
+|  ◯設定について
+
+::
+
+
+class Config:
+
+    # ドキュメント内でedmanが使用するリファレンス用のキー
+    parent = '_ed_parent'  # 親のリファレンス情報
+    child = '_ed_child'  # 子のリファレンス情報
+    file = '_ed_file'  # Grid.fsのリファレンス情報
+
+    # Grid.fsのデフォルトコレクション名
+    fs_files = 'fs.files'  # ファイルコレクション名
+    fs_chunks = 'fs.chunks'  # ファイルチャンクコレクション名
+
+    # ユーザがJSON内で使用するキー
+    date = '#date'  # 日付に変換する場合のキー　例: "startDate": {"#date": "2020-07-01 00:00:00"}
+    file_attachment = '_ed_attachment'  # JSON内で使用する添付ファイルディレクトリ用のキー　例: "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
+
+
+|  ◯設定の変更について
+|   ・edman.Configクラスにてクラス変数を変更することによりシステム稼働時に設定変更が可能です
+|   ・通常はデフォルト設定のままで問題ありませんが、特定のキー名をデータ内で利用したい場合のみ変更してください
+|   ・キー名「#date」、「_ed_attachment」以外はJSONデータでは使用しないでください
 
 
 Scripts Usage
