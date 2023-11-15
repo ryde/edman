@@ -137,7 +137,7 @@ Json Format
 |   ・日付表現の変換に使用(#date) ※システム構築時にのみ変更可
 |   ・ObjectIdと同じフィールド名(_id)
 |
-|  :ref:`設定変更についてはConfiguration Detailsへ <configuration-details>`
+|  設定変更については_'configuration-details'へ
 | その他MongoDBで禁止されているフィールド名は使用不可
 |      https://docs.mongodb.com/manual/reference/limits/#naming-restrictions
 |
@@ -263,24 +263,24 @@ Configuration Details
 
 
 |  class Config:
-
-|      ドキュメント内でedmanが使用するリファレンス用のキー
-|      parent = '_ed_parent'   親のリファレンス情報
-|      child = '_ed_child'   子のリファレンス情報
-|      file = '_ed_file'   Grid.fsのリファレンス情報
-
-|      Grid.fsのデフォルトコレクション名
-|      fs_files = 'fs.files'   ファイルコレクション名
-|      fs_chunks = 'fs.chunks'   ファイルチャンクコレクション名
-
-|      ユーザがJSON内で使用するキー
-|      日付に変換する場合のキー　例: "startDate": {"#date": "2020-07-01 00:00:00"}
+|
+|      # ドキュメント内でedmanが使用するリファレンス用のキー
+|      parent = '_ed_parent'  # 親のリファレンス情報
+|      child = '_ed_child'  # 子のリファレンス情報
+|      file = '_ed_file'  # Grid.fsのリファレンス情報
+|
+|      # Grid.fsのデフォルトコレクション名
+|      fs_files = 'fs.files'  # ファイルコレクション名
+|      fs_chunks = 'fs.chunks'  # ファイルチャンクコレクション名
+|
+|      # ユーザがJSON内で使用するキー
+|      # 日付に変換する場合のキー　例: "startDate": {"#date": "2020-07-01 00:00:00"}
 |      date = '#date'
-
-|      JSON内で使用する添付ファイルディレクトリ用のキー
-|  　   例: "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
+|
+|      # JSON内で使用する添付ファイルディレクトリ用のキー
+|  　  # 例: "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
 |      file_attachment = '_ed_attachment'
-
+|
 
 |  ◯設定の変更について
 |   ・edman.Configクラスにてクラス変数を変更することによりシステム稼働時に設定変更が可能です
