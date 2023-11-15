@@ -175,7 +175,8 @@ Type Conversion
 |           JSON:['str'、'int']
 |           DB:['1',2,3,4,5]
 
- ・型変換用の辞書の例:
+
+| ・型変換用の辞書の例:
 
 ::
 
@@ -257,23 +258,24 @@ Configuration Details
 ---------------------
 |  ◯設定について
 
+
 ::
 
 
 class Config:
 
-    # ドキュメント内でedmanが使用するリファレンス用のキー
+    ドキュメント内でedmanが使用するリファレンス用のキー
     parent = '_ed_parent'  # 親のリファレンス情報
     child = '_ed_child'  # 子のリファレンス情報
     file = '_ed_file'  # Grid.fsのリファレンス情報
 
-    # Grid.fsのデフォルトコレクション名
+    Grid.fsのデフォルトコレクション名
     fs_files = 'fs.files'  # ファイルコレクション名
     fs_chunks = 'fs.chunks'  # ファイルチャンクコレクション名
 
-    # ユーザがJSON内で使用するキー
+    ユーザがJSON内で使用するキー
     date = '#date'  # 日付に変換する場合のキー　例: "startDate": {"#date": "2020-07-01 00:00:00"}
-    file_attachment = '_ed_attachment'  # JSON内で使用する添付ファイルディレクトリ用のキー　例: "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
+    file_attachment = '_ed_attachment'  JSON内で使用する添付ファイルディレクトリ用のキー　例: "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
 
 
 |  ◯設定の変更について
