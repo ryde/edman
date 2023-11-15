@@ -29,8 +29,10 @@
           <div class="body" role="main">
             
   <h1>Source code for edman.file</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span></span><span class="kn">import</span> <span class="nn">binascii</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
@@ -63,7 +65,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="n">gridfs</span><span class="o">.</span><span class="n">GridFS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">comp_level</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">gzip_compress_level</span>
+        <span class="c1"># self.comp_level = Config.gzip_compress_level</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">file_attachment</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">file_attachment</span>
 
 <div class="viewcode-block" id="File.file_gen">
@@ -475,12 +477,20 @@
 
                 <span class="c1"># 添付ファイルを保存</span>
                 <span class="n">filepath</span> <span class="o">=</span> <span class="n">dir_path</span> <span class="o">/</span> <span class="n">content</span><span class="o">.</span><span class="n">name</span>
+
+                <span class="n">content_data</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># gzip圧縮されている場合は解凍する</span>
+                    <span class="k">if</span> <span class="n">binascii</span><span class="o">.</span><span class="n">hexlify</span><span class="p">(</span><span class="n">content_data</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;1f8b&#39;</span><span class="p">:</span>
+                        <span class="n">content_data</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">content_data</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">binascii</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                    <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;gzipファイルの解凍に失敗しました: &#39;</span> <span class="o">+</span> <span class="n">content</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content_data</span><span class="p">)</span>
                 <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
                     <span class="n">EdmanInternalError</span><span class="p">(</span>
-                        <span class="s1">&#39;ファイルを保存することが出来ませんでした&#39;</span><span class="p">)</span>
+                        <span class="s1">&#39;ファイルを保存することが出来ませんでした: &#39;</span> <span class="o">+</span> <span class="n">content</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
             <span class="c1"># jsonファイルを保存</span>
             <span class="n">json_file</span> <span class="o">=</span> <span class="n">json_tree_file_name</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span>
@@ -489,7 +499,7 @@
                 <span class="k">with</span> <span class="n">json_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">)</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
-                <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;ファイルを保存することが出来ませんでした&#39;</span><span class="p">)</span>
+                <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;JSONファイルを保存することが出来ませんでした&#39;</span><span class="p">)</span>
 
         <span class="c1"># 最終的にDLするzipファイルを作成</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">work</span> <span class="o">/</span> <span class="s1">&#39;dl&#39;</span>

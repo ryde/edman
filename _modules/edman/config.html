@@ -35,31 +35,31 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    このパッケージを利用したシステム上での共通の定義</span>
 
-<span class="sd">    **デフォルトのままをおすすめする**</span>
+<span class="sd">    **デフォルトのままをおすすめします**</span>
 
-<span class="sd">      | 定義を変更した場合、このパッケージを利用している他のシステムと、データ交換ができなくなる</span>
-<span class="sd">      | DBにデータが入っている状態で、この定義を変更した場合、データが破壊される可能性が高い</span>
+<span class="sd">      | 定義を変更した場合、このパッケージを利用している他のシステムと、データ交換ができなくなります</span>
+<span class="sd">      | DBにデータが入っている状態で、この定義を変更した場合、データが破壊される可能性があります</span>
 
 <span class="sd">    | それでも変更したい場合は、単一、もしくは同じシステム内で定義を統一すること</span>
-<span class="sd">    | その場合、他のシステムとデータ交換したくなった場合は独自に変換スクリプトを作成すること</span>
+<span class="sd">    | その場合、他のシステムとデータ交換したくなった場合は独自に変換スクリプトを作成してください</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ドキュメント内でedmanが使用するリファレンス用のキー</span>
     <span class="n">parent</span> <span class="o">=</span> <span class="s1">&#39;_ed_parent&#39;</span>  <span class="c1"># 親のリファレンス情報</span>
     <span class="n">child</span> <span class="o">=</span> <span class="s1">&#39;_ed_child&#39;</span>  <span class="c1"># 子のリファレンス情報</span>
     <span class="n">file</span> <span class="o">=</span> <span class="s1">&#39;_ed_file&#39;</span>  <span class="c1"># Grid.fsのリファレンス情報</span>
-    <span class="n">date</span> <span class="o">=</span> <span class="s1">&#39;#date&#39;</span>  <span class="c1"># 日付に変換する場合のタグ</span>
 
-    <span class="n">fs_files</span> <span class="o">=</span> <span class="s1">&#39;fs.files&#39;</span>  <span class="c1"># Grid.fsのファイルコレクション名</span>
-    <span class="n">fs_chunks</span> <span class="o">=</span> <span class="s1">&#39;fs.chunks&#39;</span>  <span class="c1"># Grid.fsのファイルチャンクコレクション名</span>
+    <span class="c1"># Grid.fsのデフォルトコレクション名</span>
+    <span class="n">fs_files</span> <span class="o">=</span> <span class="s1">&#39;fs.files&#39;</span>  <span class="c1"># ファイルコレクション名</span>
+    <span class="n">fs_chunks</span> <span class="o">=</span> <span class="s1">&#39;fs.chunks&#39;</span>  <span class="c1"># ファイルチャンクコレクション名</span>
 
-    <span class="n">file_attachment</span> <span class="o">=</span> <span class="s1">&#39;_ed_attachment&#39;</span>  <span class="c1"># 添付ファイルのキー</span>
+    <span class="c1"># ユーザがJSON内で使用するキー</span>
+    <span class="c1"># 日付に変換する場合</span>
+    <span class="c1"># 例: &quot;startDate&quot;: {&quot;#date&quot;: &quot;2020-07-01 00:00:00&quot;}</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="s1">&#39;#date&#39;</span>
+    <span class="c1"># JSON内で使用する添付ファイルディレクトリ用</span>
+    <span class="c1"># 例: &quot;_ed_attachment&quot;:[&quot;dir1/sample_photo.jpg&quot;, &quot;dir1/experiment.cbf&quot;]</span>
+    <span class="n">file_attachment</span> <span class="o">=</span> <span class="s1">&#39;_ed_attachment&#39;</span></div>
 
-    <span class="c1"># Gzip 圧縮レベル (ファイル圧縮時に使用)</span>
-    <span class="n">gzip_compress_level</span> <span class="o">=</span> <span class="mi">6</span></div>
-
-
-    <span class="c1"># 再帰で回数の上限に達した場合、下記を適切な値で設定</span>
-    <span class="c1"># import sys</span>
-    <span class="c1"># sys.setrecursionlimit(1000)  # pythonのデフォルトは1000</span>
 </pre></div>
 
           </div>
