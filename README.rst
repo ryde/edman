@@ -137,7 +137,7 @@ Json Format
 |   ・日付表現の変換に使用(#date) ※システム構築時にのみ変更可
 |   ・ObjectIdと同じフィールド名(_id)
 |
-|  設定変更については_'configuration-details'へ
+|  設定変更については_`configuration-details`へ
 | その他MongoDBで禁止されているフィールド名は使用不可
 |      https://docs.mongodb.com/manual/reference/limits/#naming-restrictions
 |
