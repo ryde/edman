@@ -257,11 +257,7 @@ Attached FIle Management
 Configuration Details
 ---------------------
 |  ◯設定について
-
-
-::
-
-
+|
 |  class Config:
 |
 |      # ドキュメント内でedmanが使用するリファレンス用のキー
@@ -281,7 +277,6 @@ Configuration Details
 |  　  # 例: "_ed_attachment":["dir1/sample_photo.jpg", "dir1/experiment.cbf"]
 |      file_attachment = '_ed_attachment'
 |
-
 |  ◯設定の変更について
 |   ・edman.Configクラスにてクラス変数を変更することによりシステム稼働時に設定変更が可能です
 |   ・通常はデフォルト設定のままで問題ありませんが、特定のキー名をデータ内で利用したい場合のみ変更してください
