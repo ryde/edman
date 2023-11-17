@@ -868,9 +868,8 @@ class TestFile(TestCase):
             collection = 'structure_5'
             oid = [i[collection][0] for i in insert_result if collection in i][
                 0]
-            p_files = tuple([(i, True) for i in files])
-            insert_file_result = self.file.upload(collection, oid,
-                                                  p_files,
+            p_files = tuple([i for i in files])
+            insert_file_result = self.file.upload(collection, oid, p_files,
                                                   'ref')
 
             # DBからデータ取得
@@ -970,7 +969,7 @@ class TestFile(TestCase):
             oid = insert_result.inserted_id
             query = ['structure_2', '1']
 
-            files_obj2 = tuple([(i, True) for i in files_obj])
+            files_obj2 = tuple([i for i in files_obj])
             # メソッド実行
             insert_file_emb_result = self.file.upload(
                 collection, oid, files_obj2, 'emb', query)
@@ -1003,22 +1002,20 @@ class TestFile(TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             sample_files = self.make_txt_files(tmp_dir, name='grid_in_test',
                                                qty=2)
-            compress_settings = [False, False]
-            td = tuple(
-                [(p, b) for (p, b) in zip(sample_files, compress_settings)])
+
+            td = tuple([p for p in sample_files])
 
             self.fs = gridfs.GridFS(self.testdb)
             actual = []
             for oid in self.file.grid_in(td):
                 data = self.fs.get(oid)
                 f_data = data.read().decode()
-                b_data = False
-                actual.append([data.filename, f_data, b_data])
+                actual.append([data.filename, f_data])
 
             expected = []
-            for file_path, compress in zip(sample_files, compress_settings):
+            for file_path in sample_files:
                 with file_path.open() as f:
-                    expected.append([file_path.name, f.read(), compress])
+                    expected.append([file_path.name, f.read()])
 
             self.assertListEqual(sorted(actual), sorted(expected))
 

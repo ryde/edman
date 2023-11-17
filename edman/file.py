@@ -231,7 +231,7 @@ class File:
         return all(results)
 
     def upload(self, collection: str, oid: ObjectId | str,
-               file_path: Tuple[Tuple[Path, bool]], structure: str,
+               file_path: Tuple[Path], structure: str,
                query=None) -> bool:
         """
         ドキュメントにファイルリファレンスを追加する
@@ -281,7 +281,7 @@ class File:
 
         return result
 
-    def grid_in(self, files: Tuple[Tuple[Path, bool], ...]) -> list[ObjectId]:
+    def grid_in(self, files: Tuple[Path, ...]) -> list[ObjectId]:
         """
         Gridfsへ複数のデータをアップロード
 
@@ -290,7 +290,7 @@ class File:
         :rtype: list
         """
         inserted = []
-        for file, compress in files:
+        for file in files:
             try:
                 with file.open('rb') as f:
                     fb = f.read()
@@ -561,7 +561,7 @@ class File:
                 # 解凍したデータ内に、実際にデータが存在するか照合する(ダウンロードするパスを接合する)
                 path_list = self.generate_file_path_dict(files_list, p)
                 # gridfsにファイルを格納するために専用のタプルを作成
-                paths = tuple([(v, False) for v in path_list.values()])
+                paths = tuple([v for v in path_list.values()])
                 # grid.fsに入れる
                 grid_in_results = self.grid_in(paths)
                 # grid_inはinserted_idしか返さないため、jsonのファイルパスをキーとしてinserted_oidをバリューとする辞書を作成する
