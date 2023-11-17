@@ -284,7 +284,7 @@
 <div class="viewcode-block" id="File.upload">
 <a class="viewcode-back" href="../../edman.html#edman.file.File.upload">[docs]</a>
     <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">ObjectId</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
-               <span class="n">file_path</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]],</span> <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+               <span class="n">file_path</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">structure</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ドキュメントにファイルリファレンスを追加する</span>
@@ -337,7 +337,7 @@
 
 <div class="viewcode-block" id="File.grid_in">
 <a class="viewcode-back" href="../../edman.html#edman.file.File.grid_in">[docs]</a>
-    <span class="k">def</span> <span class="nf">grid_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">grid_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ObjectId</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gridfsへ複数のデータをアップロード</span>
 
@@ -346,7 +346,7 @@
 <span class="sd">        :rtype: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inserted</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">compress</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">fb</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -638,7 +638,7 @@
                 <span class="c1"># 解凍したデータ内に、実際にデータが存在するか照合する(ダウンロードするパスを接合する)</span>
                 <span class="n">path_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_file_path_dict</span><span class="p">(</span><span class="n">files_list</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
                 <span class="c1"># gridfsにファイルを格納するために専用のタプルを作成</span>
-                <span class="n">paths</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="n">v</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">path_list</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+                <span class="n">paths</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">path_list</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
                 <span class="c1"># grid.fsに入れる</span>
                 <span class="n">grid_in_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_in</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
                 <span class="c1"># grid_inはinserted_idしか返さないため、jsonのファイルパスをキーとしてinserted_oidをバリューとする辞書を作成する</span>
