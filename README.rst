@@ -40,7 +40,8 @@ Modules Usage
 
 ::
 
-    from path import Path
+    from pathlib import Path
+    from bson import ObjectId
     from edman import DB, JsonManager, Search
 
     con = {'port':'27017', 'host':'localhost', 'user':'mongodb_user_name', 'password':'monogodb_user_password', 'database':'database_name', 'options':['authSource=auth_database_name']}
@@ -49,36 +50,38 @@ Modules Usage
     collection = 'target_collection'
 
     # Same syntax as pymongo's find query
-    query = {'_id':'OBJECTID'}
+    query = {'_id':ObjectId('OBJECTID')}
 
     # example, 2 top levels of parents and 3 lower levels of children (ref mode)
     search_result = search.find(collection, query, parent_depth=2, child_depth=3)
 
     # Save search results
-    dir = Path('path_to')
+    save_dir = Path('path_to')
     jm = JsonManager()
-    jm.save(search_result, dir, name='filename', date=True)
+    jm.save(search_result, save_dir, name='search_result', date=True)
+    # saved. path_to/20231116102047106179_search_result.json
 
 ◯Update
 
 ::
 
     import json
+    from bson import ObjectId
     from edman import DB
 
     modified_data = json.load(modified_json_file)
 
     # emb example
     # Same key will be modified, new key will be added
-    # modified_data = {'key': 'modified value', 'child': {'key': 'value'}}
+    # modified_data = {"key": "modified value", "child": {"key": "value"}}
 
     # ref example
     # Same key will be modified, new key will be added
-    # modified_data = {'key': 'modified value', 'new_key': 'value'}
+    # modified_data = {"key": "modified value", "new_key": "value"}
 
     con = {'port':'27017', 'host':'localhost', 'user':'mongodb_user_name', 'password':'monogodb_user_password', 'database':'database_name', 'options':['authSource=auth_database_name']}
     db = DB(con)
-    result = db.update(collection, objectid, modified_data, structure='ref')
+    result = db.update(collection, ObjectId('objectid'), modified_data, structure='ref')
 
 ◯Delete
 
@@ -89,6 +92,28 @@ Modules Usage
     con = {'port':'27017', 'host':'localhost', 'user':'mongodb_user_name', 'password':'monogodb_user_password', 'database':'database_name', 'options':['authSource=auth_database_name']}
     db = DB(con)
     result = db.delete(objectid, collection, structure='ref')
+
+◯File Upload
+
+::
+
+    from pathlib import Path
+    from bson import ObjectId
+    from edman import DB, File
+
+    con = {'port':'27017', 'host':'localhost', 'user':'mongodb_user_name', 'password':'monogodb_user_password', 'database':'database_name', 'options':['authSource=auth_database_name']}
+    db = DB(con)
+    edman_file = File(db.get_db)
+
+    p = Path()
+    current = p.cwd()
+    upload_path = current / "memo.txt"
+
+    if upload_path.exists():
+        file_path = (upload_path,)
+        result = edman_file.upload('plate', ObjectId('objectid'), file_path, structure='ref')
+        print('upload:', result) # bool
+
 
 Json Format
 -----------
