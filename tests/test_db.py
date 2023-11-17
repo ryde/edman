@@ -1263,8 +1263,8 @@ class TestDB(TestCase):
             p_files = self.make_txt_files(tmp_dir, name='file_ref',
                                           text='test ref')
             for p_file in p_files:
-                file.upload('engine', attached_file_oid, ((p_file, False),),
-                            'ref')
+                file.upload('engine', attached_file_oid,
+                            (p_file,), 'ref')
 
         oid = inserted_report[1][target_collection][1]
         new_collection = 'new_collection'
@@ -2071,12 +2071,12 @@ class TestDB(TestCase):
         # expected作成
         f = type_table.get('datetime')
         expected = {'str_data': 'str_value',
-                'date': f('2018-03-20 02:56:59'),
-                'list_data1': [125, None, f('2018-03-20 02:56:59')],
-                'null_data': None,
-                'float_data': 345.789,
-                'bool_data': True,
-                }
+                    'date': f('2018-03-20 02:56:59'),
+                    'list_data1': [125, None, f('2018-03-20 02:56:59')],
+                    'null_data': None,
+                    'float_data': 345.789,
+                    'bool_data': True,
+                    }
         self.assertDictEqual(actual1, actual2)
         self.assertDictEqual(actual1, expected)
         self.assertDictEqual(actual2, expected)
