@@ -50,10 +50,10 @@ Modules Usage
     collection = 'target_collection'
 
     # Same syntax as pymongo's find query
-    query = {'_id':ObjectId('OBJECTID')}
+    filter = {'_id':ObjectId('OBJECTID')}
 
-    # example, 2 top levels of parents and 3 lower levels of children (ref mode)
-    search_result = search.find(collection, query, parent_depth=2, child_depth=3)
+    # example, 2 top levels of parents and 3 lower levels of children
+    search_result = search.find(collection, filter, parent_depth=2, child_depth=3)
 
     # Save search results
     save_dir = Path('path_to')
@@ -71,11 +71,6 @@ Modules Usage
 
     modified_data = json.load(modified_json_file)
 
-    # emb example
-    # Same key will be modified, new key will be added
-    # modified_data = {"key": "modified value", "child": {"key": "value"}}
-
-    # ref example
     # Same key will be modified, new key will be added
     # modified_data = {"key": "modified value", "new_key": "value"}
 
@@ -156,8 +151,33 @@ Json Format
 | 使用できる型はjsonに準拠。整数、浮動小数点数、ブール値、null型、配列も使用可。
 | jsonのオブジェクト型はEdmanでは階層構造として認識されます。
 |
+| 親子構造のみで{key:value}のデータを含まない場合は認識されません。
+
+::
+
+    # NGパターン(a_colとb_colに{key:value}のデータがない)
+    {
+        "a_col": {
+            "b_col": {
+                "c_col":{"key":"data"}
+            }
+        }
+    }
+
+    # OKパターン
+    {
+        "a_col": {
+            "key":"data",
+            "b_col": {
+                "key":"data",
+                "c_col":{"key":"data"}
+            }
+        }
+    }
+
+
 | 予約コレクション名
-|   ・他ドキュメントのリファレンスと同じ名前(_ed_parent,_ed_child,_ed_file) ※システム構築時にのみ変更可
+|   ・他ドキュメントのリファレンスと同じ名前(_ed_parent,_ed_child,_ed_file,_ed_attachment) ※システム構築時にのみ変更可
 | 予約フィールド名
 |   ・日付表現の変換に使用(#date) ※システム構築時にのみ変更可
 |   ・ObjectIdと同じフィールド名(_id)
@@ -170,17 +190,12 @@ Json Format
 |     emb形式の場合はObjectId及びファイル追加ごとのリファレンスデータを含むため、16MBより少なくなります。
 |     ref形式の場合は1階層につきObjectId、及びroot(一番上の親)以外は親への参照もデフォルトで含め、子要素やファイルが多いほど参照が増えるため16MBより少なくなります。
 |
-|  ◯emb(Embedded)とref(reference)について
-|  embはjsonファイルの構造をそのままドキュメントとしてMongoDBに投入します。
-|   ・親子構造を含め全て一つのコレクションに保存します。
-|  refはjsonの親子構造を解析し、オブジェクト単位をコレクションとし、親子それぞれをドキュメントとして保存します。
-|   ・親子関係はリファレンスによって繋がっているので指定のツリーを呼び出すことができます。
 
 
 Type Conversion
 ---------------
 
-|  ◯型変換について(refのみ)
+|  ◯型変換について
 |   ・edman.DB.bson_type()にて値の型変換をコレクション別に一度に行うことができます
 |   ・指定したコレクションのみ変換します
 |   ・DBにあってJSONファイルにないキーは無視されます
