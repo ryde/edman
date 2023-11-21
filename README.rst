@@ -182,7 +182,7 @@ Type Conversion
 
 |  ◯型変換について(refのみ)
 |   ・edman.DB.bson_type()にて値の型変換をコレクション別に一度に行うことができます
-|   ・DB内のすべてのコレクションが変換されます
+|   ・指定したコレクションのみ変換します
 |   ・DBにあってJSONファイルにないキーは無視されます
 |   ・型一覧にない型を指定した時はstrに変換します
 |   ・型一覧:
@@ -201,7 +201,7 @@ Type Conversion
 |           DB:['1',2,3,4,5]
 
 
-| ・型変換用の辞書の例:
+| ・型変換用の辞書の構造:
 
 ::
 
@@ -215,6 +215,29 @@ Type Conversion
               "キー": ["変更する型","変更する型"],
           }
       }
+
+
+| ・型変換用の辞書の例:
+
+::
+
+    {
+        "beamtime":{
+                "date":"datetime"
+        },
+        "expInfo":{
+            "executiontime":"datetime",
+            "subnumber":"int",
+            "pixelSizeX":"float",
+            "pixelSizeY":"float",
+        },
+        "file":{
+            "bytes":"int",
+            "modifiedTime":"datetime",
+            "exampleLogList":["datetime", "str", "int", "float", "bool"]
+        },
+    }
+
 
 Attached FIle Management
 ------------------------
