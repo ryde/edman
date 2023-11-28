@@ -875,15 +875,14 @@ class DB:
             再帰で結果リスト組み立て
             """
             if d > 0:
-                tmp = []
                 # ここでデータを取得する
                 for doc in doc_list:
                     if tmp := self._child_storaged(doc):
                         data.append(tmp)
-                d -= 1
-                # 子データがある時は繰り返す
-                if tmp:
-                    recursive(tmp, d)
+                    d -= 1
+                    # 子データがある時は繰り返す
+                    if tmp:
+                        recursive(tmp, d)
 
         data: list = []  # recによって書き換えられる
         if depth >= 1:  # depthが効くのは必ず1以上

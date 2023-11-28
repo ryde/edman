@@ -8,7 +8,7 @@ from datetime import datetime
 import dateutil.parser
 from pymongo import errors, MongoClient
 from bson import ObjectId, DBRef
-from edman import Config, DB, Convert, File
+from edman import Config, DB, Convert, File, Search
 from edman.exceptions import EdmanDbProcessError
 
 
@@ -1474,6 +1474,55 @@ class TestDB(TestCase):
         # -1は指定不可能
         actual = self.db.get_child({parent_col: parent_data}, -1)
         self.assertEqual(0, len(actual))
+
+        # 取得したドキュメントのdepthが入力したデータと合致するかのテスト
+        parent_col = 'Beamtime'
+        target_col = 'expInfo'
+        d = {
+            parent_col:
+                [
+                    {
+                        "test_data": "test",
+                        target_col: [
+                            {
+                                "layer_test1b": "data",
+                                "layer_test1a": [{
+                                    "test2_data": "data",
+                                    "layer_test2": [{
+                                        "layer_test3a": "data",
+                                        "layer_test3b": [{
+                                            "layer_test4a": "data",
+                                            "layer_test4b": [{
+                                                "layer_test5a": "data"
+                                            }]
+                                        }]
+                                    }]
+                                }]
+                            }
+                        ]
+                    }
+                ]
+        }
+        convert = Convert()
+        converted_edman = convert.dict_to_edman(d)
+        insert_result = self.db.insert(converted_edman)
+        b = []
+        for i in insert_result:
+            for k, v in i.items():
+                if k == parent_col:
+                    b.extend(v)
+        insert_root_oid = b[0]
+        doc = self.db.doc(parent_col, insert_root_oid, query=None,
+                          reference_delete=False)
+        # children_count = self.db.get_ref_depth(doc, self.child) # この値を使用しても同じだが、テストの為にdepthを直接指定
+        children_result = self.db.get_child({parent_col: doc},
+                                            10)  # 実際の子要素より多めでも良いので10にしてみる
+        s = Search(self.db)
+        # 入力の辞書と出力の辞書が同一かテスト
+        expect = {target_col: d[parent_col][0][target_col]}  # 期待値
+        actual = s.process_data_derived_from_mongodb(
+            children_result)  # edman特有の要素を取り除く
+        self.assertDictEqual(expect, actual)
 
     def test__child_storaged(self):
         if not self.db_server_connect:

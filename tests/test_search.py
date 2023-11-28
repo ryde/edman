@@ -6,7 +6,7 @@ from unittest import TestCase
 import dateutil.parser
 from pymongo import errors as py_errors, MongoClient
 from bson import ObjectId, DBRef, errors
-from edman import Config, DB, Search
+from edman import Config, DB, Search, Convert
 
 
 class TestSearch(TestCase):
@@ -64,6 +64,7 @@ class TestSearch(TestCase):
             db = DB(con)
             cls.testdb = db.get_db
             cls.search = Search(db)
+            cls.db = db
         else:
             cls.search = Search()
 
@@ -488,8 +489,119 @@ class TestSearch(TestCase):
         # print('all_docs:', all_docs)
 
     # def test_find(self):
-    #     # 中身は別のメソッドが中心なのでテストは割愛
     #     pass
+
+        # d = {
+        #     "Beamtime":
+        #         [
+        #             {
+        #                 "date": {"#date": "2019-09-17"},
+        #                 "expInfo": [
+        #                     {
+        #                         "time": {"#date": "2019/09/17 13:21:45"},
+        #                         "int_value": 135,
+        #                         "float_value": 24.98
+        #                     },
+        #                     {
+        #                         "time": {"#date": "2019/09/17 13:29:12"},
+        #                         "string_value": "hello world"
+        #                     },
+        #                     {"layer_test1a": {
+        #                         "layer_test2": {
+        #                             "layer_test3a": "data",
+        #                             "layer_test3b": {
+        #                                 "layer_test4a": "data",
+        #                                 "layer_test4b": {
+        #                                     "layer_test5a": "data"
+        #                                 },
+        #                                 "data": "data"
+        #                             },
+        #                         },
+        #                         "test2_data": "data"
+        #                     },
+        #                         "layer_test1b": "data"}
+        #                 ]
+        #             },
+        #             {
+        #                 "date": {"#date": "2019-09-18"},
+        #                 "expInfo": [
+        #                     {
+        #                         "array_value": ["string", 1234, 56.78, True,
+        #                                         None],
+        #                         "Bool": False,
+        #                         "Null type": None
+        #                     }
+        #                 ]
+        #             }
+        #         ]
+        # }
+
+        # OKパターン
+        # d = {
+        #     "a_col": {
+        #         "key1": "data"
+        #     }
+        # }
+
+        # OKパターン
+        # d = {
+        #     "a_col": {
+        #         "b_col": {"key":"data"}
+        #     }
+        # }
+
+        # # NGパターン
+        # d = {
+        #     "a_col": {
+        #         "b_col": {
+        #             "c_col":{"key":"data"}
+        #         }
+        #     }
+        # }
+
+        # # OKパターン
+        # d = {
+        #     "a_col": {
+        #         "key":"data",
+        #         "b_col": {
+        #             "key":"data",
+        #             "c_col":{"key":"data"}
+        #         }
+        #     }
+        # }
+        #
+
+        # convert = Convert()
+        # converted_edman = convert.dict_to_edman(d)
+        # print(f"{converted_edman=}")
+        # insert_result = self.db.insert(converted_edman)
+        # print(f"{insert_result=}")
+
+        # b= []
+        # for i in insert_result:
+        #     for k ,v in i.items():
+        #         if k == 'Beamtime':
+        #             b.extend(v)
+        #
+        # oid = b[0]
+        # r = self.search.find('Beamtime',{'_id':oid},parent_depth=1, child_depth=5)
+        # print(f"{r=}")
+
+
+        # d = DB({'port': '27017', 'host': 'localhost', 'user': 'admin',
+        #         'password': 'admin', 'database': 'pxs_edman-user02_db',
+        #         'options': ['authSource=admin']})
+        # s = Search(d)
+        # collection = 'plate'
+        # query = {'_id': ObjectId('655c0b0854e5efe89ad26747')}
+        # search_result = s.find(collection, query, parent_depth=0,
+        #                        child_depth=1, exclusion=['_id'])
+        # print('result', search_result)
+
+        # r = d.get_child_all(search_result)
+        # r = d.get_child(search_result, 0)
+        # print('r', r)
+
     #
     # def test__self_data_select(self):
     #     # 画面上の選択処理なので、テストは割愛
