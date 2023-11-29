@@ -279,7 +279,8 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">user_name</span> <span class="o">==</span> <span class="n">admin_name</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">admin_name</span><span class="si">}</span><span class="s2">は管理者なので削除できません&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">admin_name</span><span class="si">}</span><span class="s2">は管理者なので削除できません&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">cl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span>
             <span class="n">cl</span><span class="p">[</span><span class="n">db_name</span><span class="p">]</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;dropUser&quot;</span><span class="p">,</span> <span class="n">user_name</span><span class="p">)</span>
@@ -287,7 +288,8 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;接続処理されていません&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">OperationFailure</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">InvalidName</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span><span class="s1">&#39;ユーザ及びロールの削除処理でエラーが起きました&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">EdmanDbProcessError</span><span class="p">(</span>
+                <span class="s1">&#39;ユーザ及びロールの削除処理でエラーが起きました&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span></div>
 
@@ -423,7 +425,8 @@
 
             <span class="c1"># クエリの指定によってはリストデータなども取得出てしまうため</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doc_result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;指定されたクエリはドキュメントではありません </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;指定されたクエリはドキュメントではありません </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_delete</span><span class="p">(</span>
                 <span class="n">doc_result</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;_id&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span><span class="p">)</span>
@@ -749,7 +752,8 @@
                     <span class="p">{</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">ref</span><span class="o">.</span><span class="n">id</span><span class="p">},</span> <span class="n">parent_doc</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">modified_count</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;親となる</span><span class="si">{</span><span class="n">parent_doc</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">は変更できませんでした&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;親となる</span><span class="si">{</span><span class="n">parent_doc</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">は変更できませんでした&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_extract_elements_from_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -962,13 +966,13 @@
                 <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">doc_list</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">tmp</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_child_storaged</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
                         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
-                    <span class="n">d</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="n">d</span> <span class="o">-=</span> <span class="mi">1</span>
                     <span class="c1"># 子データがある時は繰り返す</span>
                     <span class="k">if</span> <span class="n">tmp</span><span class="p">:</span>
                         <span class="n">recursive</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
 
         <span class="n">data</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># recによって書き換えられる</span>
-        <span class="k">if</span> <span class="n">depth</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># depthが効くのは必ず1以上</span>
+        <span class="k">if</span> <span class="n">depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># depthが効くのは必ず1以上</span>
             <span class="n">recursive</span><span class="p">([</span><span class="n">self_doc</span><span class="p">],</span> <span class="n">depth</span><span class="p">)</span>  <span class="c1"># 再帰関数をシンプルにするため、初期データをリストで囲む</span>
             <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_to_doc_child</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># 親子構造に組み立て</span>
         <span class="k">else</span><span class="p">:</span>
@@ -988,7 +992,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># 単純にリスト内に辞書データを入れたい場合</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># {コレクション:ドキュメント}なのでドキュメントだけ分離</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
             <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">{</span><span class="n">child_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">child_ref</span><span class="p">)}</span>
@@ -1058,7 +1062,8 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">parent_list</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">parent_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;兄弟間で親のObjectIDが異なっています </span><span class="si">{</span><span class="n">parent_list</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;兄弟間で親のObjectIDが異なっています </span><span class="si">{</span><span class="n">parent_list</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DB.delete_reference">
 <a class="viewcode-back" href="../../edman.html#edman.db.DB.delete_reference">[docs]</a>
@@ -1133,7 +1138,8 @@
             <span class="k">if</span> <span class="n">exclusion</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">convert</span><span class="o">.</span><span class="n">exclusion_key</span><span class="p">(</span><span class="n">pull_result</span><span class="p">,</span> <span class="n">exclusion</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">pull_result</span> <span class="o">==</span> <span class="n">result</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">exclusion</span><span class="p">)</span><span class="si">}</span><span class="s1">は存在しません&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">exclusion</span><span class="p">)</span><span class="si">}</span><span class="s1">は存在しません&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">pull_result</span>
 
@@ -1339,13 +1345,14 @@
             <span class="c1"># 子要素の場合はリストで入っている</span>
             <span class="c1"># 各枝の中で一番多い数を取得する=最大の世代数</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">reference_key</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span>
                 <span class="n">result_list</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">dbref_doc</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="n">reference_key</span><span class="p">]:</span>
-                    <span class="n">tmp</span> <span class="o">=</span> <span class="mi">1</span>
-                    <span class="n">tmp</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ref_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">dbref_doc</span><span class="p">),</span>
-                                              <span class="n">reference_key</span><span class="p">)</span>
+                    <span class="c1"># tmp = 1</span>
+                    <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ref_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">dereference</span><span class="p">(</span><span class="n">dbref_doc</span><span class="p">),</span>
+                                             <span class="n">reference_key</span><span class="p">)</span>
                     <span class="n">result_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">result_list</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="nb">max</span><span class="p">(</span><span class="n">result_list</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># 親要素はツリーを遡っていくだけ</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span>

@@ -1222,6 +1222,30 @@ zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>検索関連クラス</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="edman.search.Search.doc2">
+<span class="sig-name descname"><span class="pre">doc2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.doc2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.doc2" title="Link to this definition">¶</a></dt>
+<dd><p>指定するドキュメントを取得する
+doc()の置き換え版 リファクタリング完了後にdoc()を削除する
+embは対象外</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em>) – </p></li>
+<li><p><strong>exclude_keys</strong> (<em>None</em><em> or </em><em>list</em>) – e.g.
+[‘_id’, ‘parent’, ‘child’, ‘file’]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="edman.search.Search.find">
 <span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.find"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.find" title="Link to this definition">¶</a></dt>
 <dd><p>検索用メソッド</p>
@@ -1241,11 +1265,59 @@ zipファイル内部にjson_tree_file_name.jsonのjsonファイルを含む
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="edman.search.Search.generate_json_dict">
+<span class="sig-name descname"><span class="pre">generate_json_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.generate_json_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.generate_json_dict" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>edman依存の項目を処理する::</dt><dd><p>_idとrefの削除
+型をJSONに合わせる</p>
+</dd>
+</dl>
+<p>process_data_derived_from_mongodb()の置き換え版
+process_data_derived_from_mongodb()は廃止予定</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result_dict</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>include</strong> (<em>List</em><em> or </em><em>None</em>) – e.g. [‘_id’, self.parent, self.child, self.file]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result_dict</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edman.search.Search.get_tree">
+<span class="sig-name descname"><span class="pre">get_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObjectId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.get_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.get_tree" title="Link to this definition">¶</a></dt>
+<dd><p>oidで指定するドキュメントが所属するツリーを全て取得する</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection</strong> (<em>str</em>) – </p></li>
+<li><p><strong>oid</strong> (<em>ObjectId</em>) – </p></li>
+<li><p><strong>include</strong> (<em>None</em><em> or </em><em>list</em>) – e.g. [‘_id’, ‘parent’, ‘child’, ‘file’]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="edman.search.Search.process_data_derived_from_mongodb">
 <span class="sig-name descname"><span class="pre">process_data_derived_from_mongodb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/search.html#Search.process_data_derived_from_mongodb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.search.Search.process_data_derived_from_mongodb" title="Link to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dd><dl>
 <dt>MongoDB依存の項目を処理する::</dt><dd><p>_idとrefの削除
 型をJSONに合わせる</p>
+<p>廃止予定 代替 generate_json_dict()</p>
 </dd>
 </dl>
 <dl class="field-list simple">
@@ -1640,7 +1712,10 @@ _id、親と子のリファレンス、ファイルリファレンスなど</p>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-edman.search">edman.search module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#edman.search.Search"><code class="docutils literal notranslate"><span class="pre">Search</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.doc2"><code class="docutils literal notranslate"><span class="pre">Search.doc2()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.find"><code class="docutils literal notranslate"><span class="pre">Search.find()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.generate_json_dict"><code class="docutils literal notranslate"><span class="pre">Search.generate_json_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.get_tree"><code class="docutils literal notranslate"><span class="pre">Search.get_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edman.search.Search.process_data_derived_from_mongodb"><code class="docutils literal notranslate"><span class="pre">Search.process_data_derived_from_mongodb()</span></code></a></li>
 </ul>
 </li>

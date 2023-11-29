@@ -31,12 +31,13 @@
   <h1>Source code for edman.search</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">ObjectId</span>
+<span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">DBRef</span><span class="p">,</span> <span class="n">ObjectId</span>
 <span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">errors</span> <span class="k">as</span> <span class="n">bson_errors</span>
 <span class="kn">from</span> <span class="nn">pymongo</span> <span class="kn">import</span> <span class="n">errors</span>
 
 <span class="kn">from</span> <span class="nn">edman</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span> <span class="nn">edman.exceptions</span> <span class="kn">import</span> <span class="n">EdmanDbProcessError</span>
+<span class="kn">from</span> <span class="nn">edman.exceptions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">EdmanDbProcessError</span><span class="p">,</span> <span class="n">EdmanFormatError</span><span class="p">,</span>
+                              <span class="n">EdmanInternalError</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">edman.utils</span> <span class="kn">import</span> <span class="n">Utils</span>
 
 
@@ -245,26 +246,136 @@
 <span class="sd">          _idとrefの削除</span>
 <span class="sd">          型をJSONに合わせる</span>
 
+<span class="sd">          廃止予定 代替 generate_json_dict()</span>
+
 <span class="sd">        :param dict result_dict:</span>
 <span class="sd">        :param List or None exclusion:</span>
 <span class="sd">            default [&#39;_id&#39;, self.parent, self.child, self.file]</span>
 <span class="sd">        :return: result_dict</span>
 <span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_json_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="n">exclusion</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result_dict</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_format_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        datetime型なら書式変更して辞書に入れる</span>
+
+<span class="sd">        :param item:</span>
+<span class="sd">        :type item: datetime</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)}</span>
+
+<div class="viewcode-block" id="Search.doc2">
+<a class="viewcode-back" href="../../edman.html#edman.search.Search.doc2">[docs]</a>
+    <span class="k">def</span> <span class="nf">doc2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">ObjectId</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+             <span class="n">exclude_keys</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        指定するドキュメントを取得する</span>
+<span class="sd">        doc()の置き換え版 リファクタリング完了後にdoc()を削除する</span>
+<span class="sd">        embは対象外</span>
+
+<span class="sd">        :param str collection:</span>
+<span class="sd">        :param ObjectId oid:</span>
+<span class="sd">        :param None or list exclude_keys: e.g.</span>
+<span class="sd">            [&#39;_id&#39;, &#39;parent&#39;, &#39;child&#39;, &#39;file&#39;]</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclude_keys</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">exclude_keys</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">exclude_keys</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">exclude_keys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EdmanFormatError</span><span class="p">(</span><span class="s1">&#39;exclude_keysはlistで指定してください&#39;</span><span class="p">)</span>
+
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected_db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="n">Utils</span><span class="o">.</span><span class="n">conv_objectid</span><span class="p">(</span><span class="n">oid</span><span class="p">)})</span>
+        <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">item_delete</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">doc</span><span class="p">),</span>
+                                       <span class="n">exclude_keys</span><span class="p">)</span> <span class="k">if</span> <span class="n">exclude_keys</span> <span class="k">else</span> <span class="n">doc</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Search.get_tree">
+<a class="viewcode-back" href="../../edman.html#edman.search.Search.get_tree">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oid</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        oidで指定するドキュメントが所属するツリーを全て取得する</span>
+
+<span class="sd">        :param str collection:</span>
+<span class="sd">        :param ObjectId oid:</span>
+<span class="sd">        :param None or list include: e.g. [&#39;_id&#39;, &#39;parent&#39;, &#39;child&#39;, &#39;file&#39;]</span>
+<span class="sd">        :return: result</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">self_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc2</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">oid</span><span class="p">)</span>
+        <span class="n">root_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_root_dbref</span><span class="p">(</span><span class="n">self_doc</span><span class="p">)</span>
+
+        <span class="c1"># root_refがNoneの場合は親ドキュメント</span>
+        <span class="k">if</span> <span class="n">root_ref</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">root_doc</span> <span class="o">=</span> <span class="n">self_doc</span>
+            <span class="n">root_ref</span> <span class="o">=</span> <span class="n">DBRef</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">oid</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">root_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc2</span><span class="p">(</span><span class="n">root_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">,</span> <span class="n">root_ref</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="n">children</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_child_all</span><span class="p">({</span><span class="n">root_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span> <span class="n">root_doc</span><span class="p">})</span>
+
+        <span class="n">parents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">children</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">parents</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">root_ref</span><span class="p">]):</span>
+            <span class="n">result_docs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="o">**</span><span class="n">root_doc</span><span class="p">,</span> <span class="o">**</span><span class="n">children</span><span class="p">)</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="p">{</span><span class="n">root_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span> <span class="n">result_docs</span><span class="p">}</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_json_dict</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="n">include</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EdmanInternalError</span><span class="p">(</span>
+                <span class="s1">&#39;ルートのドキュメントと子要素が一致しません&#39;</span>
+                <span class="o">+</span> <span class="n">root_ref</span><span class="o">.</span><span class="n">collection</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">root_ref</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Search.generate_json_dict">
+<a class="viewcode-back" href="../../edman.html#edman.search.Search.generate_json_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_json_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        edman依存の項目を処理する::</span>
+<span class="sd">          _idとrefの削除</span>
+<span class="sd">          型をJSONに合わせる</span>
+
+<span class="sd">        process_data_derived_from_mongodb()の置き換え版</span>
+<span class="sd">        process_data_derived_from_mongodb()は廃止予定</span>
+
+<span class="sd">        :param dict result_dict:</span>
+<span class="sd">        :param List or None include:</span>
+<span class="sd">            e.g. [&#39;_id&#39;, self.parent, self.child, self.file]</span>
+<span class="sd">        :return: result_dict</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">default_refs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">exclusion</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">include</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">refs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">default_refs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclusion</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;listもしくはNoneが必要です&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exclusion</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">include</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">default_refs</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="s1">&#39;の中から選択する必要があります&#39;</span><span class="p">)</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">default_refs</span><span class="si">}</span><span class="s2">の中から選択する必要があります&quot;</span><span class="p">)</span>
             <span class="c1"># デフォルトの値からexclusionを差し引く</span>
-            <span class="n">refs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">default_refs</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">exclusion</span><span class="p">))</span>
+            <span class="n">refs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">default_refs</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">include</span><span class="p">))</span>
 
         <span class="k">def</span> <span class="nf">recursive</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="c1"># idとrefの削除</span>
@@ -289,18 +400,7 @@
 
         <span class="n">recursive</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result_dict</span></div>
-
-
-    <span class="k">def</span> <span class="nf">_format_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        datetime型なら書式変更して辞書に入れる</span>
-
-<span class="sd">        :param item:</span>
-<span class="sd">        :type item: datetime</span>
-<span class="sd">        :return: result</span>
-<span class="sd">        :rtype: dict</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)}</span></div>
+</div>
 
 </pre></div>
 
