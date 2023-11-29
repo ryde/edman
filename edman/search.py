@@ -1,11 +1,12 @@
 from datetime import datetime
 
-from bson import ObjectId
+from bson import DBRef, ObjectId
 from bson import errors as bson_errors
 from pymongo import errors
 
 from edman import Config
-from edman.exceptions import EdmanDbProcessError
+from edman.exceptions import (EdmanDbProcessError, EdmanFormatError,
+                              EdmanInternalError)
 from edman.utils import Utils
 
 
@@ -207,26 +208,127 @@ class Search:
           _idとrefの削除
           型をJSONに合わせる
 
+          廃止予定 代替 generate_json_dict()
+
         :param dict result_dict:
         :param List or None exclusion:
             default ['_id', self.parent, self.child, self.file]
         :return: result_dict
         :rtype: dict
         """
+        result_dict = self.generate_json_dict(result_dict, include=exclusion)
+
+        return result_dict
+
+    def _format_datetime(self, item: datetime) -> dict[str, str]:
+        """
+        datetime型なら書式変更して辞書に入れる
+
+        :param item:
+        :type item: datetime
+        :return: result
+        :rtype: dict
+        """
+        return {self.date: item.strftime("%Y-%m-%d %H:%M:%S")}
+
+    def doc2(self, collection: str, oid: ObjectId | str,
+             exclude_keys=None) -> dict:
+        """
+        指定するドキュメントを取得する
+        doc()の置き換え版 リファクタリング完了後にdoc()を削除する
+        embは対象外
+
+        :param str collection:
+        :param ObjectId oid:
+        :param None or list exclude_keys: e.g.
+            ['_id', 'parent', 'child', 'file']
+        :return: result
+        :rtype: dict
+        """
+
+        if isinstance(exclude_keys, list):
+            exclude_keys = tuple(exclude_keys)
+        elif exclude_keys is not None:
+            raise EdmanFormatError('exclude_keysはlistで指定してください')
+
+        doc = self.connected_db[collection].find_one(
+            {'_id': Utils.conv_objectid(oid)})
+        if doc is None:
+            result = {}
+        else:
+            result = Utils.item_delete(dict(doc),
+                                       exclude_keys) if exclude_keys else doc
+
+        return result
+
+    def get_tree(self, collection: str, oid: ObjectId, include=None) -> dict:
+        """
+        oidで指定するドキュメントが所属するツリーを全て取得する
+
+        :param str collection:
+        :param ObjectId oid:
+        :param None or list include: e.g. ['_id', 'parent', 'child', 'file']
+        :return: result
+        :rtype: dict
+        """
+
+        self_doc = self.doc2(collection, oid)
+        root_ref = self.db.get_root_dbref(self_doc)
+
+        # root_refがNoneの場合は親ドキュメント
+        if root_ref is None:
+            root_doc = self_doc
+            root_ref = DBRef(collection, oid)
+        else:
+            root_doc = self.doc2(root_ref.collection, root_ref.id)
+
+        children = self.db.get_child_all({root_ref.collection: root_doc})
+
+        parents = []
+        for d in list(children.values()):
+            for i in d:
+                parents.append(i[self.parent])
+
+        if all([i for i in parents if i == root_ref]):
+            result_docs = dict(**root_doc, **children)
+            tree = {root_ref.collection: result_docs}
+            result = self.generate_json_dict(tree, include=include)
+
+        else:
+            raise EdmanInternalError(
+                'ルートのドキュメントと子要素が一致しません'
+                + root_ref.collection + ':' + str(root_ref.id))
+
+        return result
+
+    def generate_json_dict(self, result_dict: dict, include=None) -> dict:
+        """
+        edman依存の項目を処理する::
+          _idとrefの削除
+          型をJSONに合わせる
+
+        process_data_derived_from_mongodb()の置き換え版
+        process_data_derived_from_mongodb()は廃止予定
+
+        :param dict result_dict:
+        :param List or None include:
+            e.g. ['_id', self.parent, self.child, self.file]
+        :return: result_dict
+        :rtype: dict
+        """
         default_refs = ['_id', self.parent, self.child, self.file]
-        if exclusion is None:
+        if include is None:
             refs = tuple(default_refs)
         else:
-            if not isinstance(exclusion, list):
+            if not isinstance(include, list):
                 raise ValueError('listもしくはNoneが必要です')
             else:
-                for i in exclusion:
+                for i in include:
                     if i not in default_refs:
                         raise ValueError(
-                            f"{['_id', self.parent, self.child, self.file]}"
-                            'の中から選択する必要があります')
+                            f"{default_refs}の中から選択する必要があります")
             # デフォルトの値からexclusionを差し引く
-            refs = tuple(set(default_refs) - set(exclusion))
+            refs = tuple(set(default_refs) - set(include))
 
         def recursive(data: dict):
             # idとrefの削除
@@ -251,14 +353,3 @@ class Search:
 
         recursive(result_dict)
         return result_dict
-
-    def _format_datetime(self, item: datetime) -> dict[str, str]:
-        """
-        datetime型なら書式変更して辞書に入れる
-
-        :param item:
-        :type item: datetime
-        :return: result
-        :rtype: dict
-        """
-        return {self.date: item.strftime("%Y-%m-%d %H:%M:%S")}

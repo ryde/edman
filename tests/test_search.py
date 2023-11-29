@@ -235,7 +235,7 @@ class TestSearch(TestCase):
         expected = actual['parent_1']['parent_2']['car_name']
         self.assertEqual('STORATOS', expected)
 
-    def test_process_data_derived_from_mongodb(self):
+    def test_generate_json_dict(self):
 
         # 正常系
         data = {
@@ -308,7 +308,7 @@ class TestSearch(TestCase):
                 else:
                     detect_date(val)
 
-        actual = self.search.process_data_derived_from_mongodb(data)
+        actual = self.search.generate_json_dict(data)
         self.assertIsInstance(actual, dict)
         self.assertIsNone(rec(actual))
 
@@ -345,8 +345,7 @@ class TestSearch(TestCase):
         expected = copy.deepcopy(data)
         del expected['coll1']['coll2']['coll3'][0][self.file]
         refs = ['_id', self.parent, self.child]
-        actual = self.search.process_data_derived_from_mongodb(data,
-                                                               exclusion=refs)
+        actual = self.search.generate_json_dict(data, include=refs)
         self.assertDictEqual(actual, expected)
 
         # 正常系 refsに設定するが空リストの場合
@@ -392,8 +391,7 @@ class TestSearch(TestCase):
         del expected['coll1']['coll2']['coll3'][1]['_id']
         del expected['coll1']['coll2']['coll3'][1][self.parent]
         del expected['coll1']['coll2']['coll3'][1][self.child]
-        actual = self.search.process_data_derived_from_mongodb(data,
-                                                               exclusion=[])
+        actual = self.search.generate_json_dict(data, include=[])
         self.assertDictEqual(actual, expected)
 
         # 異常系 リファレンス系以外のキーを指定した場合
@@ -427,9 +425,7 @@ class TestSearch(TestCase):
             }
         }
         with self.assertRaises(ValueError):
-            _ = self.search.process_data_derived_from_mongodb(data_e1,
-                                                              exclusion=[
-                                                                  'test'])
+            _ = self.search.generate_json_dict(data_e1, include=['test'])
 
         # 異常系 exclusionにリストとNone以外の値が入力された場合
         data_e2 = {
@@ -462,8 +458,7 @@ class TestSearch(TestCase):
             }
         }
         with self.assertRaises(ValueError):
-            _ = self.search.process_data_derived_from_mongodb(data_e2,
-                                                              exclusion=(1, 2))
+            _ = self.search.generate_json_dict(data_e2, include=(1, 2))
 
     def test__format_datetime(self):
         # 正常系
@@ -488,119 +483,253 @@ class TestSearch(TestCase):
         #                                      parent_depth=0, child_depth=0)
         # print('all_docs:', all_docs)
 
+    def test_get_tree(self):
+        if not self.db_server_connect:
+            return
+
+        # テストデータ
+        parent_col = 'Beamtime'
+        target_col = 'expInfo'
+        d = {
+            parent_col:
+                {
+                    "test_data": "test",
+                    target_col: [
+                        {
+                            "layer_test1b": "data",
+                            "layer_test1a": [
+                                {
+                                    "test2_data": "data",
+                                    "layer_test2": [
+                                        {
+                                            "layer_test3a": "data",
+                                            "layer_test3b": [
+                                                {
+                                                    "layer_test4a": "data",
+                                                    "layer_test4b": [
+                                                        {
+                                                            "layer_test5a": "data"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "test3_data": "data",
+                                    "layer_test2": [
+                                        {
+                                            "layer_test3a_2": "data3_2",
+                                            "layer_test3b": [
+                                                {
+                                                    "layer_test4a_2": "data_2",
+                                                    "layer_test4b": [
+                                                        {
+                                                            "layer_test5a_2": "data_2"
+                                                        },
+                                                        {
+                                                            "elen": "elen",
+                                                            "layer_test5": [
+                                                                {
+                                                                    "mario": "mario"
+                                                                },
+                                                                {
+                                                                    "mario2": "mario22"
+                                                                },
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+        }
+
+        convert = Convert()
+        insert_result = self.db.insert(convert.dict_to_edman(d))
+
+        # インサート結果からtopのoidを取得
+        b = []
+        for i in insert_result:
+            for k, v in i.items():
+                if k == parent_col:
+                    b.extend(v)
+        insert_root_oid = b[0]
+
+        # rootのドキュメントを取得
+        docs = self.search.doc2(parent_col, insert_root_oid)
+
+        # tree取得でrootを指定した場合(Config.parentなし)
+        top_all_tree = self.search.get_tree(parent_col, docs['_id'])
+
+        # 中間子要素と最後の子要素のテスト用データ取得のために子要素を全部取得
+        o = self.db.get_child_all({parent_col: docs})
+        x = self.search.generate_json_dict(o, include=['_id', Config.parent,
+                                                       Config.child])
+
+        # tree取得で中間の場合
+        self_doc_id = x['expInfo'][0]['_id']
+        mid_all_tree = self.search.get_tree('expInfo', self_doc_id)
+
+        # tree取得で最後の子要素を指定した場合(Config.childなし)
+        self_doc_id = (x['expInfo'][0]['layer_test1a'][1]['layer_test2'][0]
+        ['layer_test3b'][0]['layer_test4b'][1]['layer_test5'][0]['_id'])
+        last_all_tree = self.search.get_tree('layer_test5', self_doc_id)
+
+        self.assertDictEqual(top_all_tree, mid_all_tree)
+        self.assertDictEqual(mid_all_tree, last_all_tree)
+        self.assertDictEqual(last_all_tree, top_all_tree)
+
+        # oidを含むツリーを取得する場合(例としてpx-appの詳細画面のtree取得を想定)
+        # test_tree = self.search.get_tree('layer_test5', self_doc_id, include=['_id'])
+        # print(test_tree)
+
+    def test_doc2(self):
+        if not self.db_server_connect:
+            return
+
+        # テストデータ
+        doc = {
+            'test': 'star',
+            'val': 456,
+            self.parent: ObjectId(),
+            self.child: [ObjectId(), ObjectId()],
+            self.file: [ObjectId(), ObjectId()]
+        }
+        collection = 'test_doc'
+        insert_result = self.testdb[collection].insert_one(doc)
+        oid = insert_result.inserted_id
+
+        # 正常系 リファレンスデータを除く
+        actual = self.search.doc2(
+            collection, oid,
+            exclude_keys=['_id', self.parent, self.child, self.file])
+        expected = {'test': 'star', 'val': 456}
+        self.assertDictEqual(actual, expected)
+
+        # 正常系 リファレンスデータあり
+        actual = self.search.doc2(collection, oid)
+        expected = copy.deepcopy(doc)
+        self.assertDictEqual(actual, expected)
+
     # def test_find(self):
     #     pass
 
-        # d = {
-        #     "Beamtime":
-        #         [
-        #             {
-        #                 "date": {"#date": "2019-09-17"},
-        #                 "expInfo": [
-        #                     {
-        #                         "time": {"#date": "2019/09/17 13:21:45"},
-        #                         "int_value": 135,
-        #                         "float_value": 24.98
-        #                     },
-        #                     {
-        #                         "time": {"#date": "2019/09/17 13:29:12"},
-        #                         "string_value": "hello world"
-        #                     },
-        #                     {"layer_test1a": {
-        #                         "layer_test2": {
-        #                             "layer_test3a": "data",
-        #                             "layer_test3b": {
-        #                                 "layer_test4a": "data",
-        #                                 "layer_test4b": {
-        #                                     "layer_test5a": "data"
-        #                                 },
-        #                                 "data": "data"
-        #                             },
-        #                         },
-        #                         "test2_data": "data"
-        #                     },
-        #                         "layer_test1b": "data"}
-        #                 ]
-        #             },
-        #             {
-        #                 "date": {"#date": "2019-09-18"},
-        #                 "expInfo": [
-        #                     {
-        #                         "array_value": ["string", 1234, 56.78, True,
-        #                                         None],
-        #                         "Bool": False,
-        #                         "Null type": None
-        #                     }
-        #                 ]
-        #             }
-        #         ]
-        # }
+    # d = {
+    #     "Beamtime":
+    #         [
+    #             {
+    #                 "date": {"#date": "2019-09-17"},
+    #                 "expInfo": [
+    #                     {
+    #                         "time": {"#date": "2019/09/17 13:21:45"},
+    #                         "int_value": 135,
+    #                         "float_value": 24.98
+    #                     },
+    #                     {
+    #                         "time": {"#date": "2019/09/17 13:29:12"},
+    #                         "string_value": "hello world"
+    #                     },
+    #                     {"layer_test1a": {
+    #                         "layer_test2": {
+    #                             "layer_test3a": "data",
+    #                             "layer_test3b": {
+    #                                 "layer_test4a": "data",
+    #                                 "layer_test4b": {
+    #                                     "layer_test5a": "data"
+    #                                 },
+    #                                 "data": "data"
+    #                             },
+    #                         },
+    #                         "test2_data": "data"
+    #                     },
+    #                         "layer_test1b": "data"}
+    #                 ]
+    #             },
+    #             {
+    #                 "date": {"#date": "2019-09-18"},
+    #                 "expInfo": [
+    #                     {
+    #                         "array_value": ["string", 1234, 56.78, True,
+    #                                         None],
+    #                         "Bool": False,
+    #                         "Null type": None
+    #                     }
+    #                 ]
+    #             }
+    #         ]
+    # }
 
-        # OKパターン
-        # d = {
-        #     "a_col": {
-        #         "key1": "data"
-        #     }
-        # }
+    # OKパターン
+    # d = {
+    #     "a_col": {
+    #         "key1": "data"
+    #     }
+    # }
 
-        # OKパターン
-        # d = {
-        #     "a_col": {
-        #         "b_col": {"key":"data"}
-        #     }
-        # }
+    # OKパターン
+    # d = {
+    #     "a_col": {
+    #         "b_col": {"key":"data"}
+    #     }
+    # }
 
-        # # NGパターン
-        # d = {
-        #     "a_col": {
-        #         "b_col": {
-        #             "c_col":{"key":"data"}
-        #         }
-        #     }
-        # }
+    # # NGパターン
+    # d = {
+    #     "a_col": {
+    #         "b_col": {
+    #             "c_col":{"key":"data"}
+    #         }
+    #     }
+    # }
 
-        # # OKパターン
-        # d = {
-        #     "a_col": {
-        #         "key":"data",
-        #         "b_col": {
-        #             "key":"data",
-        #             "c_col":{"key":"data"}
-        #         }
-        #     }
-        # }
-        #
+    # # OKパターン
+    # d = {
+    #     "a_col": {
+    #         "key":"data",
+    #         "b_col": {
+    #             "key":"data",
+    #             "c_col":{"key":"data"}
+    #         }
+    #     }
+    # }
+    #
 
-        # convert = Convert()
-        # converted_edman = convert.dict_to_edman(d)
-        # print(f"{converted_edman=}")
-        # insert_result = self.db.insert(converted_edman)
-        # print(f"{insert_result=}")
+    # convert = Convert()
+    # converted_edman = convert.dict_to_edman(d)
+    # print(f"{converted_edman=}")
+    # insert_result = self.db.insert(converted_edman)
+    # print(f"{insert_result=}")
 
-        # b= []
-        # for i in insert_result:
-        #     for k ,v in i.items():
-        #         if k == 'Beamtime':
-        #             b.extend(v)
-        #
-        # oid = b[0]
-        # r = self.search.find('Beamtime',{'_id':oid},parent_depth=1, child_depth=5)
-        # print(f"{r=}")
+    # b= []
+    # for i in insert_result:
+    #     for k ,v in i.items():
+    #         if k == 'Beamtime':
+    #             b.extend(v)
+    #
+    # oid = b[0]
+    # r = self.search.find('Beamtime',{'_id':oid},parent_depth=1, child_depth=5)
+    # print(f"{r=}")
 
+    # d = DB({'port': '27017', 'host': 'localhost', 'user': 'admin',
+    #         'password': 'admin', 'database': 'pxs_edman-user02_db',
+    #         'options': ['authSource=admin']})
+    # s = Search(d)
+    # collection = 'plate'
+    # query = {'_id': ObjectId('655c0b0854e5efe89ad26747')}
+    # search_result = s.find(collection, query, parent_depth=0,
+    #                        child_depth=1, exclusion=['_id'])
+    # print('result', search_result)
 
-        # d = DB({'port': '27017', 'host': 'localhost', 'user': 'admin',
-        #         'password': 'admin', 'database': 'pxs_edman-user02_db',
-        #         'options': ['authSource=admin']})
-        # s = Search(d)
-        # collection = 'plate'
-        # query = {'_id': ObjectId('655c0b0854e5efe89ad26747')}
-        # search_result = s.find(collection, query, parent_depth=0,
-        #                        child_depth=1, exclusion=['_id'])
-        # print('result', search_result)
-
-        # r = d.get_child_all(search_result)
-        # r = d.get_child(search_result, 0)
-        # print('r', r)
+    # r = d.get_child_all(search_result)
+    # r = d.get_child(search_result, 0)
+    # print('r', r)
 
     #
     # def test__self_data_select(self):

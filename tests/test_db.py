@@ -2414,6 +2414,245 @@ class TestDB(TestCase):
         expected = 0
         self.assertEqual(expected, actual)
 
+        # # 深い階層
+        # parent_col = 'Beamtime'
+        # target_col = 'expInfo'
+        #
+        # d = {
+        #     parent_col:
+        #         {
+        #             "test_data": "test",
+        #             target_col: [
+        #                 {
+        #                     "layer_test1b": "data",
+        #                     "layer_test1a": [
+        #                         {
+        #                             "test2_data": "data",
+        #                             "layer_test2": [
+        #                                 {
+        #                                     "layer_test3a": "data",
+        #                                     "layer_test3b": [
+        #                                         {
+        #                                             "layer_test4a": "data",
+        #                                             "layer_test4b": [
+        #                                                 {
+        #                                                     "layer_test5a": "data"
+        #                                                 }
+        #                                             ]
+        #                                         }
+        #                                     ]
+        #                                 }
+        #                             ]
+        #                         },
+        #                         {
+        #                             "test3_data": "data",
+        #                             "layer_test2": [
+        #                                 {
+        #                                     "layer_test3a_2": "data3_2",
+        #                                     "layer_test3b": [
+        #                                         {
+        #                                             "layer_test4a_2": "data_2",
+        #                                             "layer_test4b": [
+        #                                                 {
+        #                                                     "layer_test5a_2": "data_2"
+        #                                                 },
+        #                                                 {
+        #                                                     "elen": "elen",
+        #                                                     "layer_test5": [
+        #                                                         {
+        #                                                             "mario": "mario"
+        #                                                         },
+        #                                                         {
+        #                                                             "mario2": "mario22"
+        #                                                         },
+        #                                                     ]
+        #                                                 }
+        #                                             ]
+        #                                         }
+        #                                     ]
+        #                                 }
+        #                             ]
+        #                         }
+        #                     ]
+        #                 }
+        #             ]
+        #         }
+        # }
+        #
+        # # d = {
+        # # parent_col:
+        # #     {
+        # #         "test_data": "test",
+        # #         target_col: [
+        # #             {
+        # #                 "layer_test1b": "data",
+        # #                 "layer_test1a": [
+        # #                     {
+        # #                         "test2_data": "data",
+        # #                     }]
+        # #
+        # #             }]}}
+        #
+        # convert = Convert()
+        # converted_edman = convert.dict_to_edman(d)
+        # insert_result = self.db.insert(converted_edman)
+        # b = []
+        # for i in insert_result:
+        #     for k, v in i.items():
+        #         if k == parent_col:
+        #             b.extend(v)
+        # insert_root_oid = b[0]
+        # doc = self.db.doc(parent_col, insert_root_oid, query=None,
+        #                   reference_delete=False)
+        # children_count = self.db.get_ref_depth(doc, self.child)
+        # # print(children_count)
+        # # target_doc = {target_col: d[parent_col][target_col]}
+        #
+        # s = Search(self.db)
+        # t = s.find(parent_col, {'_id': insert_root_oid}, 0, 6)
+        # # print('元のデータ: ', d)
+        # # print('取得データ: ', t)
+        #
+        # # rootのドキュメントを取得
+        # docs = self.db.doc2(parent_col, insert_root_oid)
+        #
+        # # tree取得でrootを指定した場合(Config.parentなし)
+        # top_all_tree = self.db.get_tree(parent_col, docs['_id'])
+        #
+        # # 中間子要素と最後の子要素のテスト用データ取得のために子要素を全部取得
+        # o = self.db.get_child_all({parent_col: docs})
+        # x = s.process_data_derived_from_mongodb(o, exclusion=['_id',
+        #                                                       Config.parent,
+        #                                                       Config.child])
+        #
+        # # tree取得で中間の場合
+        # self_doc_id = x['expInfo'][0]['_id']
+        # mid_all_tree = self.db.get_tree('expInfo', self_doc_id)
+        #
+        # # tree取得で最後の子要素を指定した場合(Config.childなし)
+        # self_doc_id = \
+        #     x['expInfo'][0]['layer_test1a'][1]['layer_test2'][0][
+        #         'layer_test3b'][
+        #         0]['layer_test4b'][1]['layer_test5'][0]['_id']
+        # last_all_tree = self.db.get_tree('layer_test5', self_doc_id)
+        #
+        # self.assertDictEqual(top_all_tree, mid_all_tree)
+        # self.assertDictEqual(last_all_tree, mid_all_tree)
+        # self.assertDictEqual(last_all_tree, top_all_tree)
+        #
+        # test_tree = self.db.get_tree('layer_test5', self_doc_id,
+        #                              include=['_id'])
+        # print(test_tree)
+
+        # self.assertDictEqual(s.process_data_derived_from_mongodb(o), {target_col:d[parent_col][target_col]})
+
+    # def test_get_tree(self):
+    #     if not self.db_server_connect:
+    #         return
+    #
+    #     # テストデータ
+    #     parent_col = 'Beamtime'
+    #     target_col = 'expInfo'
+    #     d = {
+    #         parent_col:
+    #             {
+    #                 "test_data": "test",
+    #                 target_col: [
+    #                     {
+    #                         "layer_test1b": "data",
+    #                         "layer_test1a": [
+    #                             {
+    #                                 "test2_data": "data",
+    #                                 "layer_test2": [
+    #                                     {
+    #                                         "layer_test3a": "data",
+    #                                         "layer_test3b": [
+    #                                             {
+    #                                                 "layer_test4a": "data",
+    #                                                 "layer_test4b": [
+    #                                                     {
+    #                                                         "layer_test5a": "data"
+    #                                                     }
+    #                                                 ]
+    #                                             }
+    #                                         ]
+    #                                     }
+    #                                 ]
+    #                             },
+    #                             {
+    #                                 "test3_data": "data",
+    #                                 "layer_test2": [
+    #                                     {
+    #                                         "layer_test3a_2": "data3_2",
+    #                                         "layer_test3b": [
+    #                                             {
+    #                                                 "layer_test4a_2": "data_2",
+    #                                                 "layer_test4b": [
+    #                                                     {
+    #                                                         "layer_test5a_2": "data_2"
+    #                                                     },
+    #                                                     {
+    #                                                         "elen": "elen",
+    #                                                         "layer_test5": [
+    #                                                             {
+    #                                                                 "mario": "mario"
+    #                                                             },
+    #                                                             {
+    #                                                                 "mario2": "mario22"
+    #                                                             },
+    #                                                         ]
+    #                                                     }
+    #                                                 ]
+    #                                             }
+    #                                         ]
+    #                                     }
+    #                                 ]
+    #                             }
+    #                         ]
+    #                     }
+    #                 ]
+    #             }
+    #     }
+    #
+    #     convert = Convert()
+    #     insert_result = self.db.insert(convert.dict_to_edman(d))
+    #
+    #     # インサート結果からtopのoidを取得
+    #     b = []
+    #     for i in insert_result:
+    #         for k, v in i.items():
+    #             if k == parent_col:
+    #                 b.extend(v)
+    #     insert_root_oid = b[0]
+    #
+    #     # rootのドキュメントを取得
+    #     docs = self.db.doc2(parent_col, insert_root_oid)
+    #
+    #     # tree取得でrootを指定した場合(Config.parentなし)
+    #     top_all_tree = self.db.get_tree(parent_col, docs['_id'])
+    #
+    #     # 中間子要素と最後の子要素のテスト用データ取得のために子要素を全部取得
+    #     o = self.db.get_child_all({parent_col: docs})
+    #     x = self.db.generate_json_dict(o, include=['_id', Config.parent,
+    #                                                Config.child])
+    #
+    #     # tree取得で中間の場合
+    #     self_doc_id = x['expInfo'][0]['_id']
+    #     mid_all_tree = self.db.get_tree('expInfo', self_doc_id)
+    #
+    #     # tree取得で最後の子要素を指定した場合(Config.childなし)
+    #     self_doc_id = (x['expInfo'][0]['layer_test1a'][1]['layer_test2'][0]
+    #     ['layer_test3b'][0]['layer_test4b'][1]['layer_test5'][0]['_id'])
+    #     last_all_tree = self.db.get_tree('layer_test5', self_doc_id)
+    #
+    #     self.assertDictEqual(top_all_tree, mid_all_tree)
+    #     self.assertDictEqual(mid_all_tree, last_all_tree)
+    #     self.assertDictEqual(last_all_tree, top_all_tree)
+    #
+    #     # oidを含むツリーを取得する場合(例としてpx-appの詳細画面のtree取得を想定)
+    #     # test_tree = self.db.get_tree('layer_test5', self_doc_id, include=['_id'])
+    #     # print(test_tree)
+
     def test__get_root_dbref(self):
         if not self.db_server_connect:
             return

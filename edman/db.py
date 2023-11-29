@@ -235,7 +235,8 @@ class DB:
         :return:
         """
         if user_name == admin_name:
-            raise EdmanDbProcessError(f"{admin_name}は管理者なので削除できません")
+            raise EdmanDbProcessError(
+                f"{admin_name}は管理者なので削除できません")
         try:
             cl = self.client
             cl[db_name].command("dropUser", user_name)
@@ -243,7 +244,8 @@ class DB:
         except AttributeError:
             raise EdmanDbProcessError('接続処理されていません')
         except (errors.OperationFailure, errors.InvalidName):
-            raise EdmanDbProcessError('ユーザ及びロールの削除処理でエラーが起きました')
+            raise EdmanDbProcessError(
+                'ユーザ及びロールの削除処理でエラーが起きました')
         except Exception:
             raise
 
@@ -364,7 +366,8 @@ class DB:
 
             # クエリの指定によってはリストデータなども取得出てしまうため
             if not isinstance(doc_result, dict):
-                raise EdmanInternalError(f'指定されたクエリはドキュメントではありません {query}')
+                raise EdmanInternalError(
+                    f'指定されたクエリはドキュメントではありません {query}')
 
             result = Utils.item_delete(
                 doc_result, ('_id', self.parent, self.child, self.file_ref)
@@ -680,7 +683,8 @@ class DB:
                     {'_id': ref.id}, parent_doc)
 
         if not result.modified_count:
-            raise ValueError(f'親となる{parent_doc["id"]}は変更できませんでした')
+            raise ValueError(
+                f'親となる{parent_doc["id"]}は変更できませんでした')
 
     def _extract_elements_from_doc(self, doc: dict, collection: str) -> dict:
         """
@@ -879,13 +883,13 @@ class DB:
                 for doc in doc_list:
                     if tmp := self._child_storaged(doc):
                         data.append(tmp)
-                    d -= 1
+                        d -= 1
                     # 子データがある時は繰り返す
                     if tmp:
                         recursive(tmp, d)
 
         data: list = []  # recによって書き換えられる
-        if depth >= 1:  # depthが効くのは必ず1以上
+        if depth > 0:  # depthが効くのは必ず1以上
             recursive([self_doc], depth)  # 再帰関数をシンプルにするため、初期データをリストで囲む
             result: dict = self._build_to_doc_child(data)  # 親子構造に組み立て
         else:
@@ -904,7 +908,7 @@ class DB:
         """
         children = []
         # 単純にリスト内に辞書データを入れたい場合
-        doc = list(doc.values())[0]
+        doc = list(doc.values())[0]  # {コレクション:ドキュメント}なのでドキュメントだけ分離
         if self.child in doc:
             children = [
                 {child_ref.collection: self.db.dereference(child_ref)}
@@ -974,7 +978,8 @@ class DB:
         if len(set(parent_list)) == 1:
             return list(parent_list)[0]
         else:
-            raise ValueError(f'兄弟間で親のObjectIDが異なっています {parent_list}')
+            raise ValueError(
+                f'兄弟間で親のObjectIDが異なっています {parent_list}')
 
     @staticmethod
     def delete_reference(emb_data: dict, reference: tuple) -> dict:
@@ -1044,7 +1049,8 @@ class DB:
             if exclusion:
                 result = convert.exclusion_key(pull_result, exclusion)
                 if pull_result == result:
-                    raise EdmanInternalError(f'{list(exclusion)}は存在しません')
+                    raise EdmanInternalError(
+                        f'{list(exclusion)}は存在しません')
             else:
                 result = pull_result
 
@@ -1238,13 +1244,14 @@ class DB:
             # 子要素の場合はリストで入っている
             # 各枝の中で一番多い数を取得する=最大の世代数
             if isinstance(doc[reference_key], list):
+                result = 1
                 result_list = []
                 for dbref_doc in doc[reference_key]:
-                    tmp = 1
-                    tmp += self.get_ref_depth(self.db.dereference(dbref_doc),
-                                              reference_key)
+                    # tmp = 1
+                    tmp = self.get_ref_depth(self.db.dereference(dbref_doc),
+                                             reference_key)
                     result_list.append(tmp)
-                result = max(result_list)
+                result += max(result_list)
             else:
                 # 親要素はツリーを遡っていくだけ
                 result = 1
