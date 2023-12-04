@@ -30,6 +30,7 @@
             
   <h1>Source code for edman.search</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">getLogger</span>
 
 <span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">DBRef</span><span class="p">,</span> <span class="n">ObjectId</span>
 <span class="kn">from</span> <span class="nn">bson</span> <span class="kn">import</span> <span class="n">errors</span> <span class="k">as</span> <span class="n">bson_errors</span>
@@ -40,6 +41,8 @@
                               <span class="n">EdmanInternalError</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">edman.utils</span> <span class="kn">import</span> <span class="n">Utils</span>
 
+
+<span class="c1"># from collections import deque</span>
 
 <div class="viewcode-block" id="Search">
 <a class="viewcode-back" href="../../edman.html#edman.search.Search">[docs]</a>
@@ -57,13 +60,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
 
+        <span class="c1"># ログ設定(トップに伝搬し、利用側でログとして取得してもらう)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connected_db</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_db</span>
 
 <div class="viewcode-block" id="Search.find">
 <a class="viewcode-back" href="../../edman.html#edman.search.Search.find">[docs]</a>
-    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">parent_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-             <span class="n">child_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">exclusion</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">parent_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+             <span class="n">child_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">exclusion</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        検索用メソッド</span>
 
@@ -109,8 +117,7 @@
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_parent</span><span class="p">(</span><span class="n">parent_result</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 
         <span class="c1"># JSONデータ用に変換</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_data_derived_from_mongodb</span><span class="p">(</span><span class="n">result</span><span class="p">,</span>
-                                                        <span class="n">exclusion</span><span class="o">=</span><span class="n">exclusion</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_json_dict</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="n">exclusion</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
 
@@ -243,7 +250,7 @@
                                           <span class="n">exclusion</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        MongoDB依存の項目を処理する::</span>
-<span class="sd">          _idとrefの削除</span>
+<span class="sd">          _idやrefの削除</span>
 <span class="sd">          型をJSONに合わせる</span>
 
 <span class="sd">          廃止予定 代替 generate_json_dict()</span>
@@ -402,6 +409,33 @@
         <span class="k">return</span> <span class="n">result_dict</span></div>
 </div>
 
+
+    <span class="c1"># def logger_test(self):</span>
+    <span class="c1">#     self.logger.error(&#39;logger test メソッド内 エラー&#39;)</span>
+    <span class="c1">#     raise EdmanInternalError(&#39;logger test メソッド内 例外&#39;)</span>
+
+    <span class="c1"># def get_ref_depth_bfs(self, collection, oid):</span>
+    <span class="c1">#     # 子要素の最大の深さを取得する</span>
+    <span class="c1">#     max_depth = 0</span>
+    <span class="c1">#     doc = self.doc2(collection, oid)</span>
+    <span class="c1">#     if self.child not in doc:</span>
+    <span class="c1">#         raise EdmanDbProcessError(&#39;子要素が存在しません&#39;)  # これではなく0を返すべき?</span>
+    <span class="c1">#</span>
+    <span class="c1">#     q = deque([])  # キュー</span>
+    <span class="c1">#     q.append(doc[self.child])</span>
+    <span class="c1">#</span>
+    <span class="c1">#     while len(q) &gt; 0:</span>
+    <span class="c1">#</span>
+    <span class="c1">#         children = q.popleft()  # キュー取りだし（先頭）</span>
+    <span class="c1">#         # このへんに別の配列を用意?</span>
+    <span class="c1">#         for ref in children: # whileにする?</span>
+    <span class="c1">#             d = self.connected_db.dereference(ref)</span>
+    <span class="c1">#             if self.child in d:</span>
+    <span class="c1">#                 q.append(d[self.child]) #ここでキューに言えるのは変?</span>
+    <span class="c1">#</span>
+    <span class="c1">#         max_depth += 1  # これを増やすタイミングは配列が空になったとき?</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return max_depth</span>
 </pre></div>
 
           </div>

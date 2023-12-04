@@ -37,6 +37,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
@@ -67,6 +68,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">file_ref</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">file</span>
         <span class="c1"># self.comp_level = Config.gzip_compress_level</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">file_attachment</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">file_attachment</span>
+
+        <span class="c1"># ログ設定(トップに伝搬し、利用側でログとして取得してもらう)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="File.file_gen">
 <a class="viewcode-back" href="../../edman.html#edman.file.File.file_gen">[docs]</a>
@@ -484,7 +490,8 @@
                     <span class="k">if</span> <span class="n">binascii</span><span class="o">.</span><span class="n">hexlify</span><span class="p">(</span><span class="n">content_data</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;1f8b&#39;</span><span class="p">:</span>
                         <span class="n">content_data</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">content_data</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">binascii</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-                    <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;gzipファイルの解凍に失敗しました: &#39;</span> <span class="o">+</span> <span class="n">content</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">EdmanInternalError</span><span class="p">(</span>
+                        <span class="s1">&#39;gzipファイルの解凍に失敗しました: &#39;</span> <span class="o">+</span> <span class="n">content</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content_data</span><span class="p">)</span>
@@ -499,7 +506,8 @@
                 <span class="k">with</span> <span class="n">json_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encoded_json</span><span class="p">)</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
-                <span class="n">EdmanInternalError</span><span class="p">(</span><span class="s1">&#39;JSONファイルを保存することが出来ませんでした&#39;</span><span class="p">)</span>
+                <span class="n">EdmanInternalError</span><span class="p">(</span>
+                    <span class="s1">&#39;JSONファイルを保存することが出来ませんでした&#39;</span><span class="p">)</span>
 
         <span class="c1"># 最終的にDLするzipファイルを作成</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">work</span> <span class="o">/</span> <span class="s1">&#39;dl&#39;</span>
