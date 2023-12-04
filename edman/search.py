@@ -10,6 +10,8 @@ from edman.exceptions import (EdmanDbProcessError, EdmanFormatError,
 from edman.utils import Utils
 
 
+# from collections import deque
+
 class Search:
     """
     検索関連クラス
@@ -27,8 +29,8 @@ class Search:
         if self.db is not None:
             self.connected_db = db.get_db
 
-    def find(self, collection: str, query: dict, parent_depth: int,
-             child_depth: int, exclusion=None) -> dict:
+    def find(self, collection: str, query: dict, parent_depth=0,
+             child_depth=0, exclusion=None) -> dict:
         """
         検索用メソッド
 
@@ -353,3 +355,26 @@ class Search:
 
         recursive(result_dict)
         return result_dict
+
+    # def get_ref_depth_bfs(self, collection, oid):
+    #     # 子要素の最大の深さを取得する
+    #     max_depth = 0
+    #     doc = self.doc2(collection, oid)
+    #     if self.child not in doc:
+    #         raise EdmanDbProcessError('子要素が存在しません')  # これではなく0を返すべき?
+    #
+    #     q = deque([])  # キュー
+    #     q.append(doc[self.child])
+    #
+    #     while len(q) > 0:
+    #
+    #         children = q.popleft()  # キュー取りだし（先頭）
+    #         # このへんに別の配列を用意?
+    #         for ref in children: # whileにする?
+    #             d = self.connected_db.dereference(ref)
+    #             if self.child in d:
+    #                 q.append(d[self.child]) #ここでキューに言えるのは変?
+    #
+    #         max_depth += 1  # これを増やすタイミングは配列が空になったとき?
+    #
+    #     return max_depth
