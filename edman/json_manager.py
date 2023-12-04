@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from enum import Enum, auto
+from logging import INFO, getLogger
 from pathlib import Path
 
 from bson.json_util import dumps
@@ -12,6 +13,12 @@ class JsonManager:
     """
     JSONファイルの取扱いクラス
     """
+
+    def __init__(self) -> None:
+        # ログ設定(トップに伝搬し、利用側でログとして取得してもらう)
+        self.logger = getLogger(__name__)
+        self.logger.setLevel(INFO)
+        self.logger.propagate = True
 
     @staticmethod
     def save(report_data: dict, path: str | Path, name: str,

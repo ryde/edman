@@ -139,6 +139,7 @@ dmypy.json
 cython_debug/
 
 tests/ini/test_db.ini
+tests/tests.log
 
 # circleci
 .circleci/config.yml.bak

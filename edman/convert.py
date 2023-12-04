@@ -1,6 +1,7 @@
 import copy
 import datetime
 from collections import defaultdict
+from logging import INFO, getLogger
 from typing import Any, Union
 
 from bson import DBRef, ObjectId
@@ -20,6 +21,11 @@ class Convert:
         self.parent = config.parent
         self.child = config.child
         self.date = config.date
+
+        # ログ設定(トップに伝搬し、利用側でログとして取得してもらう)
+        self.logger = getLogger(__name__)
+        self.logger.setLevel(INFO)
+        self.logger.propagate = True
 
     def _get_child_reference(self, child_data: dict) -> dict:
         """

@@ -1,6 +1,7 @@
 import copy
 import urllib.parse
 from datetime import datetime
+from logging import INFO, getLogger
 from typing import Any, Generator
 
 from bson import DBRef, ObjectId
@@ -35,6 +36,11 @@ class DB:
         self.child = Config.child
         self.file_ref = Config.file
         self.date = Config.date
+
+        # ログ設定(トップに伝搬し、利用側でログとして取得してもらう)
+        self.logger = getLogger(__name__)
+        self.logger.setLevel(INFO)
+        self.logger.propagate = True
 
     @property
     def get_db(self):

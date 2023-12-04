@@ -1,12 +1,17 @@
 import configparser
 import copy
-from pathlib import Path
 from datetime import datetime
+# from logging import getLogger,  FileHandler, ERROR
+from logging import ERROR, StreamHandler, getLogger
+from pathlib import Path
 from unittest import TestCase
+
 import dateutil.parser
-from pymongo import errors as py_errors, MongoClient
-from bson import ObjectId, DBRef, errors
-from edman import Config, DB, Search, Convert
+from bson import DBRef, ObjectId, errors
+from pymongo import MongoClient
+from pymongo import errors as py_errors
+
+from edman import DB, Config, Convert, Search
 
 
 class TestSearch(TestCase):
@@ -67,6 +72,19 @@ class TestSearch(TestCase):
             cls.db = db
         else:
             cls.search = Search()
+
+        cls.logger = getLogger()
+
+        # ログを画面に出力
+        ch = StreamHandler()
+        ch.setLevel(ERROR)  # ハンドラーにもそれぞれログレベル、フォーマットの設定が可能
+        cls.logger.addHandler(ch)  # StreamHandlerの追加
+
+        # ログをファイルに出力
+        # fh = FileHandler('./tests.log')  # 引数には出力ファイルのパスを指定
+        # fh.setLevel(ERROR)  # ハンドラーには、logger以下のログレベルを設定することは出来ない(この場合、DEBUGは不可)
+        # cls.logger.addHandler(fh)  # FileHandlerの追加
+
 
     @classmethod
     def tearDownClass(cls):
@@ -807,6 +825,9 @@ class TestSearch(TestCase):
         actual = self.search.doc2(collection, oid)
         expected = copy.deepcopy(doc)
         self.assertDictEqual(actual, expected)
+
+    # def test_logger_test(self):
+    #     self.search.logger_test()
 
     # def test_find(self):
     #     pass

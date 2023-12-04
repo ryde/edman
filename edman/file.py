@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import zipfile
+from logging import INFO, getLogger
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import IO, Any, Iterator, List, Tuple
@@ -34,6 +35,11 @@ class File:
         self.file_ref = Config.file
         # self.comp_level = Config.gzip_compress_level
         self.file_attachment = Config.file_attachment
+
+        # ログ設定(トップに伝搬し、利用側でログとして取得してもらう)
+        self.logger = getLogger(__name__)
+        self.logger.setLevel(INFO)
+        self.logger.propagate = True
 
     @staticmethod
     def file_gen(files: Tuple[Path]) -> Iterator:
@@ -416,7 +422,8 @@ class File:
                     if binascii.hexlify(content_data[:2]) == b'1f8b':
                         content_data = gzip.decompress(content_data)
                 except binascii.Error:
-                    EdmanInternalError('gzipファイルの解凍に失敗しました: ' + content.name)
+                    EdmanInternalError(
+                        'gzipファイルの解凍に失敗しました: ' + content.name)
                 try:
                     with open(filepath, 'wb') as f:
                         f.write(content_data)
@@ -431,7 +438,8 @@ class File:
                 with json_path.open('wb') as f:
                     f.write(encoded_json)
             except (FileNotFoundError, IOError):
-                EdmanInternalError('JSONファイルを保存することが出来ませんでした')
+                EdmanInternalError(
+                    'JSONファイルを保存することが出来ませんでした')
 
         # 最終的にDLするzipファイルを作成
         base = work / 'dl'

@@ -1,4 +1,5 @@
 from datetime import datetime
+from logging import INFO, getLogger
 
 from bson import DBRef, ObjectId
 from bson import errors as bson_errors
@@ -25,6 +26,11 @@ class Search:
         self.date = config.date
         self.file = config.file
         self.db = db
+
+        # ログ設定(トップに伝搬し、利用側でログとして取得してもらう)
+        self.logger = getLogger(__name__)
+        self.logger.setLevel(INFO)
+        self.logger.propagate = True
 
         if self.db is not None:
             self.connected_db = db.get_db
@@ -354,6 +360,10 @@ class Search:
 
         recursive(result_dict)
         return result_dict
+
+    # def logger_test(self):
+    #     self.logger.error('logger test メソッド内 エラー')
+    #     raise EdmanInternalError('logger test メソッド内 例外')
 
     # def get_ref_depth_bfs(self, collection, oid):
     #     # 子要素の最大の深さを取得する

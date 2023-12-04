@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
 from datetime import datetime
+from logging import INFO, getLogger
 from typing import Any, Callable, Generator
 
 import dateutil.parser
@@ -14,6 +15,12 @@ class Utils:
     """
 
     def __init__(self):
+
+        # ログ設定(トップに伝搬し、利用側でログとして取得してもらう)
+        self.logger = getLogger(__name__)
+        self.logger.setLevel(INFO)
+        self.logger.propagate = True
+
         raise NotImplementedError('not allowed')
 
     @staticmethod

@@ -1,6 +1,10 @@
-from unittest import TestCase
 from datetime import datetime
-from bson import ObjectId, DBRef
+# from logging import getLogger,  FileHandler, ERROR
+from logging import ERROR, StreamHandler, getLogger
+from unittest import TestCase
+
+from bson import DBRef, ObjectId
+
 from edman import Config, Convert
 
 
@@ -12,6 +16,20 @@ class TestConvert(TestCase):
         self.parent = self.config.parent
         self.child = self.config.child
         self.date = self.config.date
+
+    @classmethod
+    def setUpClass(cls):
+        cls.logger = getLogger()
+
+        # ログを画面に出力
+        ch = StreamHandler()
+        ch.setLevel(ERROR)  # ハンドラーにもそれぞれログレベル、フォーマットの設定が可能
+        cls.logger.addHandler(ch)  # StreamHandlerの追加
+
+        # ログをファイルに出力
+        # fh = FileHandler('./tests.log')  # 引数には出力ファイルのパスを指定
+        # fh.setLevel(ERROR)  # ハンドラーには、logger以下のログレベルを設定することは出来ない(この場合、DEBUGは不可)
+        # cls.logger.addHandler(fh)  # FileHandlerの追加
 
     def test__get_child_reference(self):
 
