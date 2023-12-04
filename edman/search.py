@@ -206,7 +206,7 @@ class Search:
                                           exclusion=None) -> dict:
         """
         MongoDB依存の項目を処理する::
-          _idとrefの削除
+          _idやrefの削除
           型をJSONに合わせる
 
           廃止予定 代替 generate_json_dict()
