@@ -76,8 +76,7 @@ class Search:
             result = self._merge_parent(parent_result, result)
 
         # JSONデータ用に変換
-        result = self.process_data_derived_from_mongodb(result,
-                                                        exclusion=exclusion)
+        result = self.generate_json_dict(result, include=exclusion)
 
         return result
 

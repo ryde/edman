@@ -533,8 +533,7 @@ class TestFile(TestCase):
             result_with_filepath, downloads = (
                 self.file.get_fileref_and_generate_dl_list(
                     docs, "_ed_attachment"))
-            res = search.process_data_derived_from_mongodb(
-                result_with_filepath)
+            res = search.generate_json_dict(result_with_filepath)
 
         # 実行
         raw_json = dumps(res, ensure_ascii=False, indent=4)
@@ -634,8 +633,7 @@ class TestFile(TestCase):
             result_with_filepath, downloads = (
                 self.file.get_fileref_and_generate_dl_list(
                     docs, "_ed_attachment"))
-            res = search.process_data_derived_from_mongodb(
-                result_with_filepath)
+            res = search.generate_json_dict(result_with_filepath)
 
         # 実行
         raw_json = dumps(res, ensure_ascii=False, indent=4)

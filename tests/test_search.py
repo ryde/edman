@@ -215,6 +215,196 @@ class TestSearch(TestCase):
             self.assertEqual(v[parent2_coll][self.child][0].id, data3['_id'])
             self.assertEqual(v[parent2_coll]['_id'], data3[self.parent].id)
 
+
+        # テスト
+        # parent_col = 'Beamtime'
+        # target_col = 'expInfo'
+        # d = {
+        #     parent_col:
+        #         {
+        #             "test_data": "test",
+        #             target_col: [
+        #                 {
+        #                     "layer_test1b": "data",
+        #                     "layer_test1a": [
+        #                         {
+        #                             "test2_data": "data",
+        #                             "layer_test2": [
+        #                                 {
+        #                                     "layer_test3a": "data",
+        #                                     "layer_test3b": [
+        #                                         {
+        #                                             "layer_test4a": "data",
+        #                                             "layer_test4b": [
+        #                                                 {
+        #                                                     "layer_test5a": "data"
+        #                                                 }
+        #                                             ]
+        #                                         }
+        #                                     ]
+        #                                 }
+        #                             ]
+        #                         },
+        #                         {
+        #                             "test3_data": "data",
+        #                             "layer_test2": [
+        #                                 {
+        #                                     "layer_test3a_2": "data3_2",
+        #                                     "layer_test3b": [
+        #                                         {
+        #                                             "layer_test4a_2": "data_2",
+        #                                             "layer_test4b": [
+        #                                                 {
+        #                                                     "layer_test5a_2": "data_2"
+        #                                                 },
+        #                                                 {
+        #                                                     "elen": "elen",
+        #                                                     "layer_test5": [
+        #                                                         {
+        #                                                             "mario": "mario"
+        #                                                         },
+        #                                                         {
+        #                                                             "mario2": "mario22"
+        #                                                         },
+        #                                                     ]
+        #                                                 }
+        #                                             ]
+        #                                         }
+        #                                     ]
+        #                                 }
+        #                             ]
+        #                         }
+        #                     ]
+        #                 }
+        #             ]
+        #         }
+        # }
+        #
+        # convert = Convert()
+        # insert_result = self.db.insert(convert.dict_to_edman(d))
+        #
+        # # インサート結果からtopのoidを取得
+        # b = []
+        # for i in insert_result:
+        #     for k, v in i.items():
+        #         if k == parent_col:
+        #             b.extend(v)
+        # insert_root_oid = b[0]
+        #
+        # # rootのドキュメントを取得
+        # docs = self.search.doc2(parent_col, insert_root_oid)
+        #
+        # # 中間子要素と最後の子要素のテスト用データ取得のために子要素を全部取得
+        # o = self.db.get_child_all({parent_col: docs})
+        # # x = self.search.generate_json_dict(o, include=['_id', Config.parent,
+        # #                                                Config.child])
+        # x = self.search.generate_json_dict(o, include=[Config.parent,
+        #                                                Config.child])
+        #
+        # # 最下層の子要素を取得
+        # # self_doc_id = (x['expInfo'][0]['layer_test1a'][1]['layer_test2'][0]
+        # # ['layer_test3b'][0]['layer_test4b'][1]['layer_test5'][0]['_id'])
+        #
+        # lower_doc = (x['expInfo'][0]['layer_test1a'][1]['layer_test2'][0]
+        # ['layer_test3b'][0]['layer_test4b'][1]['layer_test5'][0])
+        # print('lower_doc', lower_doc)
+        # a = self.search._get_parent({'layer_test5':lower_doc}, depth=4)
+        # print('a', a)
+
+    # def test_get_ref_depth_bfs(self):
+    #     if not self.db_server_connect:
+    #         return
+    #
+    #     parent_col = 'Beamtime'
+    #     target_col = 'expInfo'
+    #     d = {
+    #         parent_col:
+    #             {
+    #                 "test_data": "test",
+    #                 target_col: [
+    #                     {
+    #                         "layer_test1b": "data",
+    #                         "layer_test1a": [
+    #                             {
+    #                                 "test2_data": "data",
+    #                                 "layer_test2": [
+    #                                     {
+    #                                         "layer_test3a": "data",
+    #                                         "layer_test3b": [
+    #                                             {
+    #                                                 "layer_test4a": "data",
+    #                                                 "layer_test4b": [
+    #                                                     {
+    #                                                         "layer_test5a": "data"
+    #                                                     }
+    #                                                 ]
+    #                                             }
+    #                                         ]
+    #                                     }
+    #                                 ]
+    #                             },
+    #                             {
+    #                                 "test3_data": "data",
+    #                                 "layer_test2": [
+    #                                     {
+    #                                         "layer_test3a_2": "data3_2",
+    #                                         "layer_test3b": [
+    #                                             {
+    #                                                 "layer_test4a_2": "data_2",
+    #                                                 "layer_test4b": [
+    #                                                     {
+    #                                                         "layer_test5a_2": "data_2"
+    #                                                     },
+    #                                                     {
+    #                                                         "elen": "elen",
+    #                                                         "layer_test5": [
+    #                                                             {
+    #                                                                 "mario": "mario"
+    #                                                             },
+    #                                                             {
+    #                                                                 "mario2": "mario22"
+    #                                                             },
+    #                                                         ]
+    #                                                     }
+    #                                                 ]
+    #                                             }
+    #                                         ]
+    #                                     }
+    #                                 ]
+    #                             }
+    #                         ]
+    #                     }
+    #                 ]
+    #             }
+    #     }
+    #
+    #     convert = Convert()
+    #     insert_result = self.db.insert(convert.dict_to_edman(d))
+    #
+    #     # インサート結果からtopのoidを取得
+    #     b = []
+    #     for i in insert_result:
+    #         for k, v in i.items():
+    #             if k == parent_col:
+    #                 b.extend(v)
+    #     insert_root_oid = b[0]
+    #
+    #     # rootのドキュメントを取得
+    #     docs = self.search.doc2(parent_col, insert_root_oid)
+    #
+    #     # 中間子要素と最後の子要素のテスト用データ取得のために子要素を全部取得
+    #     o = self.db.get_child_all({parent_col: docs})
+    #     # x = self.search.generate_json_dict(o, include=['_id', Config.parent,
+    #     #                                                Config.child])
+    #     x = self.search.generate_json_dict(o, include=['_id', Config.parent,
+    #                                                    Config.child])
+    #     target_doc = x['expInfo'][0]
+    #     print('target_doc', target_doc)
+    #
+    #     result = self.search.get_ref_depth_bfs('expInfo',target_doc['_id'])
+    #     print(result)
+
+
     def test__build_to_doc_parent(self):
         # データ構造のテスト
         # parentに近い方から順番に並んでいる(一番最後がrootまたはrootに近い方)

@@ -1520,8 +1520,7 @@ class TestDB(TestCase):
         s = Search(self.db)
         # 入力の辞書と出力の辞書が同一かテスト
         expect = {target_col: d[parent_col][0][target_col]}  # 期待値
-        actual = s.process_data_derived_from_mongodb(
-            children_result)  # edman特有の要素を取り除く
+        actual = s.generate_json_dict(children_result)  # edman特有の要素を取り除く
         self.assertDictEqual(expect, actual)
 
     def test__child_storaged(self):
