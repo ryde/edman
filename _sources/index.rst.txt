@@ -1,5 +1,5 @@
 .. edman documentation master file, created by
-   sphinx-quickstart on Wed Dec 13 05:50:45 2023.
+   sphinx-quickstart on Wed Jan 17 05:58:09 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
