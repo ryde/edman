@@ -1150,14 +1150,15 @@ class DB:
             # フィルタ、プロジェクション作成
             items_keys = list(items.keys())
             projection = {k: 1 for k in items_keys}
-            reference = {'$or': [
-                {
-                    self.child: {'$exists': True}
-                },
-                {
-                    self.parent: {'$exists': True}
-                }]}
-            docs = self.db[collection].find(reference, projection=projection)
+            # reference = {'$or': [
+            #     {
+            #         self.child: {'$exists': True}
+            #     },
+            #     {
+            #         self.parent: {'$exists': True}
+            #     }]}
+            # docs = self.db[collection].find(reference, projection=projection)
+            docs = self.db[collection].find(projection=projection)
 
             for doc in docs:
                 update_params = {}
