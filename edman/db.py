@@ -1107,7 +1107,7 @@ class DB:
             types.extend([types[-1] for _ in range(len(target) - len(types))])
         return types
 
-    def bson_type(self, bson_data: dict, search_filter=None) -> dict:
+    def bson_type(self, bson_data: dict, search_filters=None) -> dict:
         """
         DB内のデータをJSONに従って型変更をする
         DBにあってJSONにないキーは無視
@@ -1139,11 +1139,11 @@ class DB:
         |   型一覧:
         |   [int,float,bool,str,datetime]
         |
-        |   search_filterを指定すると該当するドキュメントのみ変換する
-        |  例:  {'_id':ObjectId('OBJECTID')}
+        |   search_filtersを指定すると該当するドキュメントのみ変換する
+        | search_filters = {'collection_name':{'_id':ObjectId('OBJECTID')}}
 
         :param dict bson_data:
-        :param search_filter: default None
+        :param search_filters: default None
         :return: result
         :rtype: dict
         """
@@ -1162,7 +1162,10 @@ class DB:
             #         self.parent: {'$exists': True}
             #     }]}
             # docs = self.db[collection].find(reference, projection=projection)
-            if search_filter is None:
+
+            if search_filters is not None and isinstance(search_filters, dict):
+                search_filter = search_filters.get(collection, {})
+            else:
                 search_filter = {}
             docs = self.db[collection].find(filter=search_filter,
                                             projection=projection)

@@ -2191,8 +2191,8 @@ class TestDB(TestCase):
                 'datetime_data': 'datetime',
             }
         }
-        _ = self.db.bson_type(input_json,
-                              search_filter={'_id': insert_result.inserted_id})
+        search_filters = {collection: {'_id': insert_result.inserted_id}}
+        _ = self.db.bson_type(input_json, search_filters=search_filters)
         after_result = self.testdb[collection].find_one(
             {'_id': insert_result.inserted_id},
             projection={'_id': 0, '_ed_child': 0})
