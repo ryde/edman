@@ -198,7 +198,7 @@
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="edman.db.DB.bson_type">
-<span class="sig-name descname"><span class="pre">bson_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bson_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.bson_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.bson_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">bson_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bson_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/edman/db.html#DB.bson_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edman.db.DB.bson_type" title="Link to this definition">¶</a></dt>
 <dd><p>DB内のデータをJSONに従って型変更をする
 DBにあってJSONにないキーは無視
 スペルミスも含め型一覧にない型を指定した時はstrに変換
@@ -235,12 +235,20 @@ DBにあってJSONにないキーは無視
 </div>
 </div>
 <div class="line-block">
+<div class="line-block">
 <div class="line">型一覧:</div>
 <div class="line">[int,float,bool,str,datetime]</div>
+<div class="line"><br /></div>
+<div class="line">search_filterを指定すると該当するドキュメントのみ変換する</div>
+</div>
+<div class="line">例:  {‘_id’:ObjectId(‘OBJECTID’)}</div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>bson_data</strong> (<em>dict</em>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bson_data</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>search_filter</strong> – default None</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>result</p>

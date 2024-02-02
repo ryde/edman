@@ -1206,7 +1206,7 @@
 
 <div class="viewcode-block" id="DB.bson_type">
 <a class="viewcode-back" href="../../edman.html#edman.db.DB.bson_type">[docs]</a>
-    <span class="k">def</span> <span class="nf">bson_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bson_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">bson_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bson_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">search_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        DB内のデータをJSONに従って型変更をする</span>
 <span class="sd">        DBにあってJSONにないキーは無視</span>
@@ -1237,8 +1237,12 @@
 
 <span class="sd">        |   型一覧:</span>
 <span class="sd">        |   [int,float,bool,str,datetime]</span>
+<span class="sd">        |</span>
+<span class="sd">        |   search_filterを指定すると該当するドキュメントのみ変換する</span>
+<span class="sd">        |  例:  {&#39;_id&#39;:ObjectId(&#39;OBJECTID&#39;)}</span>
 
 <span class="sd">        :param dict bson_data:</span>
+<span class="sd">        :param search_filter: default None</span>
 <span class="sd">        :return: result</span>
 <span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1257,7 +1261,10 @@
             <span class="c1">#         self.parent: {&#39;$exists&#39;: True}</span>
             <span class="c1">#     }]}</span>
             <span class="c1"># docs = self.db[collection].find(reference, projection=projection)</span>
-            <span class="n">docs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">search_filter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">search_filter</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">docs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">search_filter</span><span class="p">,</span>
+                                            <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">:</span>
                 <span class="n">update_params</span> <span class="o">=</span> <span class="p">{}</span>
