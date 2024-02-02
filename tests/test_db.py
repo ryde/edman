@@ -99,7 +99,6 @@ class TestDB(TestCase):
         #     ERROR)  # ハンドラーには、logger以下のログレベルを設定することは出来ない(この場合、DEBUGは不可)
         # cls.logger.addHandler(fh)  # FileHandlerの追加
 
-
     @classmethod
     def tearDownClass(cls):
         if cls.db_server_connect:
@@ -2146,6 +2145,66 @@ class TestDB(TestCase):
         self.assertDictEqual(actual1, actual2)
         self.assertDictEqual(actual1, expected)
         self.assertDictEqual(actual2, expected)
+
+        # filter指定(objectId指定)
+        # oidを指定していないドキュメントは変換されない
+        collection = 'test_get_bson_type8'
+        test_data = {
+            collection: {
+                'str_data': 'test',
+                'int_data': '12',
+                'float_data': '25.1',
+                'bool_data': 'True',
+                'datetime_data': '2023-02-21 21:46:39',
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items = list(test_data.values())[0]
+        insert_result = self.testdb[list(test_data.keys())[0]].insert_one(
+            input_items)
+
+        # こちらのテストデータは変換されない
+        test_data2 = {
+            collection: {
+                'str_data': 'test',
+                'int_data': '12',
+                'float_data': '25.1',
+                'bool_data': 'True',
+                'datetime_data': '2023-02-21 21:46:39',
+                '_ed_child': [ObjectId()]
+            }
+        }
+        input_items2 = list(test_data2.values())[0]
+        insert_result2 = self.testdb[list(test_data2.keys())[0]].insert_one(
+            input_items2)
+        exclusion_doc_id = insert_result2.inserted_id
+        exclusion_doc = self.testdb[collection].find_one(
+            {'_id': exclusion_doc_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        input_json = {
+            collection: {
+                'str_data': 'str',
+                'int_data': 'int',
+                'float_data': 'float',
+                'bool_data': 'bool',
+                'datetime_data': 'datetime',
+            }
+        }
+        _ = self.db.bson_type(input_json,
+                              search_filter={'_id': insert_result.inserted_id})
+        after_result = self.testdb[collection].find_one(
+            {'_id': insert_result.inserted_id},
+            projection={'_id': 0, '_ed_child': 0})
+
+        # print('exclusion', exclusion_doc, 'extract', after_result)
+        # 除外したドキュメントに型変換を手動で適応させて、型変換させたデータと比較する
+        input_values = list(input_json.values())[0]
+        expected = {}
+        for k, v in exclusion_doc.items():
+            type_cast = type_table.get(input_values.get(k), str)
+            expected.update({k: type_cast(v)})
+        self.assertDictEqual(expected, after_result)
 
     def test_create_user_and_role(self):
         if not self.db_server_connect:
