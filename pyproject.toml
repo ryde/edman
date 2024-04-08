@@ -19,11 +19,11 @@ classifiers = [
     "Topic :: Database :: Front-Ends",
 ]
 dependencies = [
-    "pymongo~=4.6.2",
-    "python-dateutil~=2.9.0.post0",
-    "jmespath~=1.0.1",
+    "pymongo>=4.6.2",
+    "python-dateutil>=2.9.0.post0",
+    "jmespath>=1.0.1",
 ]
-version = "2024.3.5"
+version = "2024.4.9"
 # dynamic = ["version"]
 
 [project.urls]
