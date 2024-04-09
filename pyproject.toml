@@ -10,11 +10,11 @@ authors = [
     {name = "Masaki Ohno", email = "masakio@post.kek.jp"},
 ]
 readme = "README.rst"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = {file = "LICENSE.txt"}
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",
     "Topic :: Database :: Front-Ends",
 ]
@@ -23,7 +23,7 @@ dependencies = [
     "python-dateutil>=2.9.0.post0",
     "jmespath>=1.0.1",
 ]
-version = "2024.4.9"
+version = "2024.4.9.1"
 # dynamic = ["version"]
 
 [project.urls]
