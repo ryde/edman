@@ -261,7 +261,7 @@ class Search:
         doc = self.connected_db[collection].find_one(
             {'_id': Utils.conv_objectid(oid)})
         if doc is None:
-            result = {}
+            result: dict = {}
         else:
             result = Utils.item_delete(dict(doc),
                                        exclude_keys) if exclude_keys else doc
